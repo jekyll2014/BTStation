@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">RFID Station Control</string>
+    <string name="title_station">Station</string>
+    <string name="title_teams">Teams</string>
+    <string name="title_rfid">RFID</string>
+    <string name="title_flash">Flash</string>
+    <string name="title_config">Config</string>
+
+</resources>
