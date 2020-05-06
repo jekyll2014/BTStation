@@ -24,10 +24,10 @@
 #define RTC_ENABLE_PIN    5 // питание часов
 
 // тайм-аут приема команды с момента начала
-#define receiveTimeOut    1000
+#define RECEIVE_TIMEOUT   1000
 
 // периодичность поиска чипа
-#define rfidReadPeriod    1000
+#define RFID_READ_PERIOD  1000
 
 // размер буфера последних команд
-#define lastTeamsLength   10
+#define LAST_TEAMS_LENGTH 10

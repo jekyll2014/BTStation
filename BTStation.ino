@@ -26,13 +26,13 @@ uint16_t flashBlockSize = 4096;
 uint16_t maxTeamNumber = 1; // = (flashSize - flashBlockSize) / teamFlashSize - 1;
 
 // станция запоминает последние команды сюда
-uint8_t lastTeams[lastTeamsLength * 2];
+uint8_t lastTeams[LAST_TEAMS_LENGTH * 2];
 uint32_t lastTimeChecked = 0;
 // количество отмеченных чипов в памяти
 uint16_t totalChipsChecked = 0;
 
 // станция запоминает последние коды ошибок сюда
-uint8_t lastErrors[lastTeamsLength];
+uint8_t lastErrors[LAST_TEAMS_LENGTH];
 
 // по умолчанию номер станции и режим.
 uint8_t stationNumber = 0;
@@ -259,7 +259,7 @@ void setup()
 void loop()
 {
 	//если режим КП то отметить чип автоматом
-	if (stationMode != MODE_INIT && millis() - rfidReadStartTime > rfidReadPeriod)
+	if (stationMode != MODE_INIT && millis() - rfidReadStartTime > RFID_READ_PERIOD)
 	{
 		processRfidCard();
 		rfidReadStartTime = millis();
@@ -279,7 +279,7 @@ void loop()
 	}
 
 	// check receive timeout
-	if (receivingData && millis() - receiveStartTime > receiveTimeOut)
+	if (receivingData && millis() - receiveStartTime > RECEIVE_TIMEOUT)
 	{
 #ifdef DEBUG
 		//Serial.println(F("!!!receive timeout"));
@@ -498,7 +498,7 @@ void processRfidCard()
 	// сравнить с буфером последних команд
 	if (stationMode == MODE_START_KP)
 	{
-		for (uint8_t i = 0; i < lastTeamsLength * 2; i = i + 2)
+		for (uint8_t i = 0; i < LAST_TEAMS_LENGTH * 2; i = i + 2)
 		{
 			if (lastTeams[i] == ntag_page[0] && lastTeams[i + 1] == ntag_page[1])
 			{
@@ -1243,7 +1243,7 @@ void getLastTeams()
 	if (!addData(OK)) return;
 
 	// номера последних команд
-	for (uint8_t i = 0; i < lastTeamsLength * 2; i++)
+	for (uint8_t i = 0; i < LAST_TEAMS_LENGTH * 2; i++)
 	{
 		//stop if command is empty
 		// if (lastTeams[i] + lastTeams[i + 1] == 0) break;
@@ -1252,7 +1252,7 @@ void getLastTeams()
 		if (!addData(lastTeams[i])) return;
 	}
 	sendData();
-	for (uint8_t i = 0; i < lastTeamsLength * 2; i++) lastTeams[i] = 0;
+	for (uint8_t i = 0; i < LAST_TEAMS_LENGTH * 2; i++) lastTeams[i] = 0;
 }
 
 // получаем запись о команде из флэша
@@ -2210,13 +2210,13 @@ void getLastErrors()
 
 	// номера последних ошибок
 	uint8_t i = 0;
-	while (lastErrors[i] != 0 && i < lastTeamsLength)
+	while (lastErrors[i] != 0 && i < LAST_TEAMS_LENGTH)
 	{
 		if (!addData(lastErrors[i])) return;
 		i++;
 	}
 	sendData();
-	for (i = 0; i < lastTeamsLength; i++) lastErrors[i] = 0;
+	for (i = 0; i < LAST_TEAMS_LENGTH; i++) lastErrors[i] = 0;
 }
 
 // установка режима автоответа
@@ -2896,7 +2896,7 @@ void addLastTeam(uint16_t teamNumber, bool already_checked)
 	// фильтровать дубли
 	if (lastTeams[0] == uint8_t(teamNumber >> 8) && lastTeams[1] == uint8_t(teamNumber)) return;
 
-	for (uint8_t i = lastTeamsLength * 2 - 1; i > 1; i = i - 2)
+	for (uint8_t i = LAST_TEAMS_LENGTH * 2 - 1; i > 1; i = i - 2)
 	{
 		lastTeams[i] = lastTeams[i - 2];
 		lastTeams[i - 1] = lastTeams[i - 3];
@@ -2909,7 +2909,7 @@ void addLastTeam(uint16_t teamNumber, bool already_checked)
 // добавляем код ошибки в буфер последних ошибок
 void addLastError(uint8_t errorCode)
 {
-	for (uint8_t i = lastTeamsLength - 1; i > 0; i--)
+	for (uint8_t i = LAST_TEAMS_LENGTH - 1; i > 0; i--)
 	{
 		lastErrors[i] = lastErrors[i - 1];
 	}
