@@ -1,0 +1,30 @@
+Common Pin:
+  1>.Pin-1:UART_TXD.UART data output
+  2>.Pin-2:UART_RXD.UART data input
+  3>.Pin-11:RESETB.Reset/restart button
+  4>.Pin-12:3.3V
+  5>.Pin-13:GND
+  6>.Pin-21:GND
+  7>.Pin-22:GND
+  8>.Pin-24:P12 LED pin (slow flash when not connected. Always lit after connection)
+  9>.Pin-25:P12 host interrupt indication port, idle is low, the connection is high
+ 
+Parameter:
+  1>.Model: DX-BT04-A
+  2>.Working frequency: 2.4GHz
+  3>.Communication interface: UART 3.3V level
+  4>.Working voltage: DC 3.0V-3.6V
+  5>.RSSI: Not supported
+  6>.Communication level: 3.3V
+  7>.Transmit power: 4dBm (maximum)
+  8>.Reference distance: 10m
+  9>.Transmit current: 8.5mA
+  10>.Accept current: 8.5mA
+  11>.Air speed: 6Kbps
+  12>.Antenna interface: Built-in PCB antenna
+  13>.Low power current: 400uA
+  14>.Receive sensitivity: < -84dBm at 0.1% BER
+  15>.Working humidity: 10%-90%
+  16>.Storage temperature: -40?~85?
+  17>.Working temperature: -25?~75?
+  18>.Module size:27*13*1.5mm

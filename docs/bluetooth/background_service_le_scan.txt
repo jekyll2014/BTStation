@@ -1,0 +1,98 @@
+BackgroundService.cs
+====
+using Android.Util;
+using Android.Bluetooth;
+using Android.Bluetooth.LE;
+
+public class BackgroundService : Service
+    {
+        IBinder binder;
+        public List<BluetoothDevice> Devices;
+        BluetoothManager Manager;
+
+        [return: GeneratedEnum]
+        public override StartCommandResult OnStartCommand(Intent intent, [GeneratedEnum] StartCommandFlags flags, int startId)
+        {
+            if (Manager == null) Manager = (BluetoothManager)Application.Context.GetSystemService(BluetoothService);
+            if (Devices != null)
+            {
+                if (Devices.Count != 0)
+                {
+                    foreach (BluetoothDevice d in Devices) Log.Debug("BLE", "-----> " + d.Address);
+                }
+            }
+            Devices = new List<BluetoothDevice>();
+            if (Manager.Adapter.IsDiscovering)
+            {
+                Log.Debug("BLE", "ALREADY SCANNING");
+            }
+            else
+            {
+                Log.Debug("BLE", "START SCANNING");
+                Manager.Adapter.BluetoothLeScanner.StartScan(new LeScanCallback(this));
+            }
+            return StartCommandResult.NotSticky;
+        }
+
+        public override IBinder OnBind(Intent intent)
+        {
+            binder = new BackgroundServiceBinder(this);
+
+            return binder;
+        }
+
+    }
+
+    public class LeScanCallback : ScanCallback
+    {
+        BackgroundService m;
+
+        public LeScanCallback (BackgroundService m)
+        {
+            this.m = m;
+        }
+
+        public override void OnScanResult (ScanCallbackType cbt, ScanResult res)
+        {
+            if (!m.Devices.Contains(res.Device)) m.Devices.Add(res.Device);
+            Log.Debug("BLE", "Device found: " + res.Device.Address);
+        }
+    }
+====
+
+
+BackgroundServiceBinder.cs
+====
+public class BackgroundServiceBinder : Binder
+    {
+        BackgroundService Service;
+
+        public BackgroundServiceBinder (BackgroundService serv)
+        {
+            this.Service = serv;
+        }
+
+        public BackgroundService GetBackgroundService ()
+        {
+            return this.Service;
+        }
+    }
+====
+
+
+MainActivity.cs
+====
+protected override void OnCreate(Bundle savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+
+            SetContentView(Resource.Layout.Main);
+            StartService();
+        }
+
+        private void StartService()
+        {
+            Log.Debug("BLE", "STARTING BACKGROUND");
+            StartService(new Intent(this, typeof(BackgroundService)));
+        }
+====
