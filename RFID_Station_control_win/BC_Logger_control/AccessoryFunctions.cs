@@ -615,8 +615,8 @@ public static class Accessory
         {
         }
     }
-	
-	    public static string AssemblyVersion()
+
+    public static string AssemblyVersion()
     {
         return Assembly.GetExecutingAssembly().GetName().Version.ToString();
     }
