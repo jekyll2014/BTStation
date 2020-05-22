@@ -6,7 +6,7 @@ namespace RfidStationControl
 {
     public class RfidContainer
     {
-        private int[] _dump;
+        private readonly int[] _dump;
 
         public int[] Dump
         {
@@ -16,7 +16,7 @@ namespace RfidStationControl
             }
         }
 
-        private byte[] _uid = new byte[8];
+        private readonly byte[] _uid = new byte[8];
         public byte[] Uid
         {
             get

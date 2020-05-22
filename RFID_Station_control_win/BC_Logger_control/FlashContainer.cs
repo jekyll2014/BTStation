@@ -17,13 +17,13 @@ namespace RfidStationControl
             public RfidContainer ChipDump;
         }
 
-        public UInt32 Size { get; }
-        public UInt32 TeamDumpSize { get; }
+        public uint Size { get; }
+        public uint TeamDumpSize { get; }
 
         public DataTable Table;
-        public UInt32 _bytesPerRow { get; }
+        public uint _bytesPerRow { get; }
 
-        public readonly UInt16 _dumpHeaderSize = 16;
+        public readonly ushort _dumpHeaderSize = 16;
 
         public static class TableColumns
         {
@@ -33,7 +33,7 @@ namespace RfidStationControl
             public static string RawData = "Raw data";
         }
 
-        public FlashContainer(UInt32 size, UInt32 teamDumpSize = 0, UInt32 bytesPerRow = 0)
+        public FlashContainer(uint size, uint teamDumpSize = 0, uint bytesPerRow = 0)
         {
             Size = size;
 
@@ -66,9 +66,9 @@ namespace RfidStationControl
         {
             Dump = new byte[Size];
 
-            int pageNum = (int)(flashSize / _bytesPerRow);
+            var pageNum = (int)(flashSize / _bytesPerRow);
             Table.Rows.Clear();
-            UInt32 k = TeamDumpSize / _bytesPerRow;
+            var k = TeamDumpSize / _bytesPerRow;
             for (long i = 0; i < pageNum; i++)
             {
                 var row = Table.NewRow();
@@ -86,37 +86,28 @@ namespace RfidStationControl
                 return false;
             if (size == 0)
                 size = data.Length;
-            for (long i = 0; i < size; i++)
-            {
-                Dump[index + i] = data[i];
-            }
-            int rowFrom = (int)(index / _bytesPerRow);
-            int rowTo = (int)((index + size - 1) / _bytesPerRow);
+            for (long i = 0; i < size; i++) Dump[index + i] = data[i];
+            var rowFrom = (int)(index / _bytesPerRow);
+            var rowTo = (int)((index + size - 1) / _bytesPerRow);
 
             ParseToTable(rowFrom, rowTo);
             return true;
         }
 
-        public TeamDumpData GetTeamBlock(UInt32 teamNumber)
+        public TeamDumpData GetTeamBlock(uint teamNumber)
         {
-            UInt32 startAddress = teamNumber * TeamDumpSize;
-            if (Dump[startAddress] == 0xff || (Dump[startAddress] + Dump[startAddress + 1]) != 0x00)
-            {
-                return null;
-            }
-            byte[] tmpData = new byte[_bytesPerRow];
-            for (uint i = 0; i < _bytesPerRow; i++)
-            {
-                tmpData[i] = Dump[teamNumber * TeamDumpSize + i];
-            }
+            var startAddress = teamNumber * TeamDumpSize;
+            if (Dump[startAddress] == 0xff || Dump[startAddress] + Dump[startAddress + 1] != 0x00) return null;
+            var tmpData = new byte[_bytesPerRow];
+            for (uint i = 0; i < _bytesPerRow; i++) tmpData[i] = Dump[teamNumber * TeamDumpSize + i];
 
-            TeamDumpData teamBlock = new TeamDumpData();
+            var teamBlock = new TeamDumpData();
             teamBlock.TeamNumber = tmpData[0] * 256 + tmpData[1];
 
             long timeNumber = tmpData[2] * 16777216 + tmpData[3] * 65536 + tmpData[4] * 256 + tmpData[5];
             teamBlock.InitTime = Helpers.ConvertFromUnixTimestamp(timeNumber);
 
-            teamBlock.TeamMask = (tmpData[6] * 256 + tmpData[7]);
+            teamBlock.TeamMask = tmpData[6] * 256 + tmpData[7];
 
             timeNumber = tmpData[8] * 16777216 + tmpData[9] * 65536 + tmpData[10] * 256 + tmpData[11];
             teamBlock.LastCheckTime = Helpers.ConvertFromUnixTimestamp(timeNumber);
@@ -125,20 +116,15 @@ namespace RfidStationControl
 
             byte chipType = 0;
             for (byte i = 0; i < RfidContainer.ChipTypes.SystemIds.Count; i++)
-            {
                 if (RfidContainer.ChipTypes.SystemIds[i] == Dump[_dumpHeaderSize + 14])
                 {
                     chipType = i;
                     break;
                 }
-            }
 
             teamBlock.ChipDump = new RfidContainer(chipType);
-            byte[] chip = new byte[RfidContainer.ChipTypes.PageSizes[chipType] * RfidContainer.ChipTypes.PageSize];
-            for (int i = 0; i < chip.Length; i++)
-            {
-                chip[i] = Dump[_dumpHeaderSize + i];
-            }
+            var chip = new byte[RfidContainer.ChipTypes.PageSizes[chipType] * RfidContainer.ChipTypes.PageSize];
+            for (var i = 0; i < chip.Length; i++) chip[i] = Dump[_dumpHeaderSize + i];
             teamBlock.ChipDump.AddPages(0, chip);
 
             return teamBlock;
@@ -146,11 +132,8 @@ namespace RfidStationControl
 
         public string[] GetTablePage(int pageNumber)
         {
-            string[] page = new string[Table.Columns.Count];
-            for (int i = 0; i < page.Length; i++)
-            {
-                page[i] = Table.Rows[pageNumber].ItemArray[i].ToString();
-            }
+            var page = new string[Table.Columns.Count];
+            for (var i = 0; i < page.Length; i++) page[i] = Table.Rows[pageNumber].ItemArray[i].ToString();
             return page;
         }
 
@@ -158,30 +141,27 @@ namespace RfidStationControl
         {
             while (rowFrom <= rowTo)
             {
-                byte[] tmpData = new byte[_bytesPerRow];
-                for (uint i = 0; i < _bytesPerRow; i++)
-                {
-                    tmpData[i] = Dump[rowFrom * _bytesPerRow + i];
-                }
+                var tmpData = new byte[_bytesPerRow];
+                for (uint i = 0; i < _bytesPerRow; i++) tmpData[i] = Dump[rowFrom * _bytesPerRow + i];
 
                 Table.Rows[rowFrom][TableColumns.RawData] = Helpers.ConvertByteArrayToHex(tmpData);
 
                 //parse dump data
-                if (tmpData[0] != 0xff && (tmpData[0] + tmpData[1]) != 0x00)
+                if (tmpData[0] != 0xff && tmpData[0] + tmpData[1] != 0x00)
                 {
                     //1-2: номер команды
-                    int teamNum = tmpData[0] * 256 + tmpData[1];
+                    var teamNum = tmpData[0] * 256 + tmpData[1];
 
                     //3-6: время инициализации
                     long timeNumber = tmpData[2] * 16777216 + tmpData[3] * 65536 + tmpData[4] * 256 + tmpData[5];
-                    DateTime initTime = Helpers.ConvertFromUnixTimestamp(timeNumber);
+                    var initTime = Helpers.ConvertFromUnixTimestamp(timeNumber);
 
                     //7-8: маска команды
-                    UInt16 maskNumber = (UInt16)(tmpData[6] * 256 + tmpData[7]);
+                    var maskNumber = (ushort)(tmpData[6] * 256 + tmpData[7]);
 
                     //9-12: время последней отметки на станции
                     timeNumber = tmpData[8] * 16777216 + tmpData[9] * 65536 + tmpData[10] * 256 + tmpData[11];
-                    DateTime lastCheck = Helpers.ConvertFromUnixTimestamp(timeNumber);
+                    var lastCheck = Helpers.ConvertFromUnixTimestamp(timeNumber);
 
                     //13: размер дампа
                     int dumpSize = tmpData[12];
@@ -189,17 +169,17 @@ namespace RfidStationControl
                     if (dumpSize * 4 + 16 >= _bytesPerRow)
                         dumpSize = 0;
 
-                    string result = "Team #" + teamNum +
+                    var result = "Team #" + teamNum +
                        ", InitTime: " + Helpers.DateToString(initTime) +
                        ", Mask: " + Helpers.ConvertMaskToString(maskNumber) +
                        ", Last check: " + Helpers.DateToString(lastCheck) +
                        ", Dump size: " + dumpSize + ", ";
 
                     //1st byte of time
-                    byte todayByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
+                    var todayByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
 
                     result += "Dump data: ";
-                    int page = 4;
+                    var page = 4;
                     while (page < dumpSize + 4)
                     {
                         // page 4+(0..1): UID
@@ -218,7 +198,7 @@ namespace RfidStationControl
                         // page 4+3: chip type
                         else if (page == 7)
                         {
-                            string tagSize = "Ntag";
+                            var tagSize = "Ntag";
                             if (tmpData[page * 4 + 2] == 0x12)
                                 tagSize += "213(144 bytes)";
                             else if (tmpData[page * 4 + 2] == 0x3e)
@@ -230,7 +210,7 @@ namespace RfidStationControl
                         // page 4+4: team#, chip type, fw ver.
                         else if (page == 8)
                         {
-                            uint m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
+                            var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
                             result += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + ", ";
                         }
                         // page 4+5: init time
@@ -239,7 +219,7 @@ namespace RfidStationControl
                             todayByte = tmpData[page * 4 + 0];
                             long m = tmpData[page * 4 + 0] * 16777216 + tmpData[page * 4 + 1] * 65536 + tmpData[page * 4 + 2] * 256 +
                                      tmpData[page * 4 + 3];
-                            DateTime t = Helpers.ConvertFromUnixTimestamp(m);
+                            var t = Helpers.ConvertFromUnixTimestamp(m);
                             result += "InitTime: " + Helpers.DateToString(t) + ", ";
                         }
                         // page 4+6: team mask
@@ -250,13 +230,15 @@ namespace RfidStationControl
                         }
                         // page4+7: reserved
                         else if (page == 10)
+                        {
                             ;
+                        }
                         // page4+8...: marks
                         else if (page > 11)
                         {
                             long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
                                      tmpData[page * 4 + 2] * 256 + tmpData[page * 4 + 3];
-                            DateTime t = Helpers.ConvertFromUnixTimestamp(m);
+                            var t = Helpers.ConvertFromUnixTimestamp(m);
                             result += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + ", ";
                         }
                         page++;

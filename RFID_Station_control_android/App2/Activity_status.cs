@@ -3,15 +3,17 @@ using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Android.Content;
 
 namespace RfidStationControl
 {
     [Activity(Label = "Status")]
     public class ActivityStatus : AppCompatActivity
     {
+        private TextView _terminalTextView;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -20,21 +22,21 @@ namespace RfidStationControl
             SetContentView(Resource.Layout.activity_status);
 
             // populate all controls
-            Button getStatusButton = FindViewById<Button>(Resource.Id.getStatusButton);
-            Button getConfigButton = FindViewById<Button>(Resource.Id.getConfigButton);
-            Button getErrorsButton = FindViewById<Button>(Resource.Id.getErrorsButton);
-            Button setModeButton = FindViewById<Button>(Resource.Id.setModeButton);
-            Button resetButton = FindViewById<Button>(Resource.Id.resetStationButton);
-            Button clearTerminalButton = FindViewById<Button>(Resource.Id.clearTerminalButton);
-            Button backButton = FindViewById<Button>(Resource.Id.backButton);
+            var getStatusButton = FindViewById<Button>(Resource.Id.getStatusButton);
+            var getConfigButton = FindViewById<Button>(Resource.Id.getConfigButton);
+            var getErrorsButton = FindViewById<Button>(Resource.Id.getErrorsButton);
+            var setModeButton = FindViewById<Button>(Resource.Id.setModeButton);
+            var resetButton = FindViewById<Button>(Resource.Id.resetStationButton);
+            var clearTerminalButton = FindViewById<Button>(Resource.Id.clearTerminalButton);
+            var backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            EditText newStationNumberText = FindViewById<EditText>(Resource.Id.newStationNumberEditText);
-            EditText chipsCheckedText = FindViewById<EditText>(Resource.Id.chipsCheckedEditText);
-            EditText lastCheckEditText = FindViewById<EditText>(Resource.Id.lastCheckEditText);
+            var newStationNumberText = FindViewById<EditText>(Resource.Id.newStationNumberEditText);
+            var chipsCheckedText = FindViewById<EditText>(Resource.Id.chipsCheckedEditText);
+            var lastCheckEditText = FindViewById<EditText>(Resource.Id.lastCheckEditText);
 
-            Spinner modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
+            var modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
 
-            TextView terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
+            _terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
 
             Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() + " status";
 
@@ -42,9 +44,9 @@ namespace RfidStationControl
             chipsCheckedText.Text = GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber.ToString();
             lastCheckEditText.Text = Helpers.DateToString(GlobalOperationsIdClass.StatusPageState.LastCheck);
 
-            terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+            _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
 
-            string[] items = GlobalOperationsIdClass.StationMode.Keys.ToArray();
+            var items = GlobalOperationsIdClass.StationMode.Keys.ToArray();
             var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
             modeListSpinner.Adapter = adapter;
             modeListSpinner.SetSelection(GlobalOperationsIdClass.StationSettings.Mode);
@@ -68,79 +70,36 @@ namespace RfidStationControl
 
             getStatusButton.Click += async (sender, e) =>
             {
-                byte[] outBuffer = GlobalOperationsIdClass.Parser.getStatus();
-                // Write data to the BtDevice
-                if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
-                {
-                    Toast.MakeText(this, "Can't write to Bluetooth.", ToastLength.Long).Show();
-                    //throw;
-                }
-                GlobalOperationsIdClass.timerActiveTasks++;
-                StartTimer(GlobalOperationsIdClass.BtReadPeriod, readBt);
-
-                terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n");
-                //terminalTextView.Invalidate();
+                var outBuffer = GlobalOperationsIdClass.Parser.GetStatus();
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
             };
 
             getConfigButton.Click += async (sender, e) =>
             {
-                byte[] outBuffer = GlobalOperationsIdClass.Parser.getConfig();
-                // Write data to the BtDevice
-                if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
-                {
-                    Toast.MakeText(this, "Can't write to Bluetooth.", ToastLength.Long).Show();
-                    //throw;
-                }
-                GlobalOperationsIdClass.timerActiveTasks++;
-                if (GlobalOperationsIdClass.timerActiveTasks == 1)
-                    StartTimer(GlobalOperationsIdClass.BtReadPeriod, readBt);
-
-                terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n");
-                //terminalTextView.Invalidate();
+                var outBuffer = GlobalOperationsIdClass.Parser.GetConfig();
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
             };
 
             getErrorsButton.Click += async (sender, e) =>
             {
-                byte[] outBuffer = GlobalOperationsIdClass.Parser.getLastErrors();
-                // Write data to the BtDevice
-                if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
-                {
-                    Toast.MakeText(this, "Can't write to Bluetooth.", ToastLength.Long).Show();
-                    //throw;
-                }
-                GlobalOperationsIdClass.timerActiveTasks++;
-                if (GlobalOperationsIdClass.timerActiveTasks == 1)
-                    StartTimer(GlobalOperationsIdClass.BtReadPeriod, readBt);
-
-                terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n");
-                //terminalTextView.Invalidate();
+                var outBuffer = GlobalOperationsIdClass.Parser.GetLastErrors();
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
             };
 
             setModeButton.Click += async (sender, e) =>
             {
                 if (!GlobalOperationsIdClass.StationMode.TryGetValue(
-                    modeListSpinner.SelectedItem.ToString(), out byte modeNumber))
+                    modeListSpinner.SelectedItem.ToString(), out var modeNumber))
                 {
                     Toast.MakeText(this, "Incorrect mode selected", ToastLength.Long).Show();
                     return;
                 }
-                byte[] outBuffer = GlobalOperationsIdClass.Parser.setMode(modeNumber);
-                // Write data to the BtDevice
-                if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
-                {
-                    Toast.MakeText(this, "Can't write to Bluetooth.", ToastLength.Long).Show();
-                    //throw;
-                }
-                GlobalOperationsIdClass.timerActiveTasks++;
-                if (GlobalOperationsIdClass.timerActiveTasks == 1)
-                    StartTimer(GlobalOperationsIdClass.BtReadPeriod, readBt);
-
-                terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n");
-                //terminalTextView.Invalidate();
+                var outBuffer = GlobalOperationsIdClass.Parser.SetMode(modeNumber);
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
             };
 
             resetButton.Click += async (sender, e) =>
@@ -148,25 +107,14 @@ namespace RfidStationControl
                 chipsCheckedText.ClearFocus();
                 lastCheckEditText.ClearFocus();
                 newStationNumberText.ClearFocus();
-                byte[] outBuffer = GlobalOperationsIdClass.Parser.resetStation(GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber, GlobalOperationsIdClass.StatusPageState.LastCheck, GlobalOperationsIdClass.StatusPageState.NewStationNumber);
-                // Write data to the BtDevice
-                if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
-                {
-                    Toast.MakeText(this, "Can't write to Bluetooth.", ToastLength.Long).Show();
-                    //throw;
-                }
-                GlobalOperationsIdClass.timerActiveTasks++;
-                if (GlobalOperationsIdClass.timerActiveTasks == 1)
-                    StartTimer(GlobalOperationsIdClass.BtReadPeriod, readBt);
-
-                terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n");
-                terminalTextView.Invalidate();
+                var outBuffer = GlobalOperationsIdClass.Parser.ResetStation(GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber, GlobalOperationsIdClass.StatusPageState.LastCheck, GlobalOperationsIdClass.StatusPageState.NewStationNumber);
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
             };
 
             clearTerminalButton.Click += (sender, e) =>
             {
-                terminalTextView.Text = "";
+                _terminalTextView.Text = "";
                 GlobalOperationsIdClass.StatusPageState.TerminalText.Clear();
             };
 
@@ -177,151 +125,130 @@ namespace RfidStationControl
 
             newStationNumberText.FocusChange += (sender, e) =>
             {
-                byte.TryParse(newStationNumberText.Text, out byte n);
+                byte.TryParse(newStationNumberText.Text, out var n);
                 newStationNumberText.Text = n.ToString();
                 GlobalOperationsIdClass.StatusPageState.NewStationNumber = n;
             };
 
             chipsCheckedText.FocusChange += (sender, e) =>
             {
-                byte.TryParse(chipsCheckedText.Text, out byte n);
+                byte.TryParse(chipsCheckedText.Text, out var n);
                 chipsCheckedText.Text = n.ToString();
                 GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber = n;
             };
 
             lastCheckEditText.FocusChange += (sender, e) =>
             {
-                long t = Helpers.DateStringToUnixTime(lastCheckEditText.Text);
+                var t = Helpers.DateStringToUnixTime(lastCheckEditText.Text);
                 lastCheckEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
                 GlobalOperationsIdClass.StatusPageState.LastCheck = Helpers.ConvertFromUnixTimestamp(t);
             };
         }
 
-        public void StartTimer(long gap, Func<Task<bool>> callback)
+        private async Task<bool> ReadBt()
         {
-            Handler handler = new Handler(Looper.MainLooper);
-            handler.PostDelayed(() =>
-            {
-                if (GlobalOperationsIdClass.Bt.BtInputBuffer.Count > 0)
-                    callback();
-
-                if (GlobalOperationsIdClass.timerActiveTasks > 0)
-                    StartTimer(gap, callback);
-                //else StartTimer(gap * 10, callback);
-
-                handler.Dispose();
-                handler = null;
-            }, gap);
-        }
-
-        async Task<bool> readBt()
-        {
-            bool packageReceived = false;
+            var packageReceived = false;
             lock (GlobalOperationsIdClass.Bt.SerialReceiveThreadLock)
             {
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
             }
 
-            if (GlobalOperationsIdClass.Parser._repliesList.Count > 0)
+            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0) return packageReceived;
+
+            _terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
+            var modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
+
+            for (var i = 0; i < GlobalOperationsIdClass.Parser._repliesList.Count; i++)
             {
-                TextView terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
-                Spinner modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
-
-                foreach (var reply in GlobalOperationsIdClass.Parser._repliesList)
+                var reply = GlobalOperationsIdClass.Parser._repliesList[i];
+                GlobalOperationsIdClass.timerActiveTasks--;
+                if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.timerActiveTasks--;
-                    if (reply.ReplyCode != 0)
+                    _terminalTextView.Text += reply.ToString();
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
+
+                    if (reply.ErrorCode == 0)
                     {
-                        terminalTextView.Text += reply.ToString();
-                        GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
-
-                        if (reply.ErrorCode == 0)
+                        if (reply.ReplyCode == ProtocolParser.Reply.GET_STATUS)
                         {
-                            if (reply.ReplyCode == ProtocolParser.Reply.GET_STATUS)
+                            var replyDetails =
+                                new ProtocolParser.ReplyData.GetStatusReply(reply);
+                            _terminalTextView.Text += replyDetails.ToString();
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
                             {
-                                ProtocolParser.ReplyData.getStatusReply replyDetails =
-                                    new ProtocolParser.ReplyData.getStatusReply(reply);
-                                terminalTextView.Text += replyDetails.ToString();
-                                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-                                if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
-                                {
-                                    GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
-                                    GlobalOperationsIdClass.Parser =
-                                        new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
-                                    Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() +
-                                            " status";
-                                }
+                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                GlobalOperationsIdClass.Parser =
+                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
+                                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() +
+                                        " status";
                             }
-                            else if (reply.ReplyCode == ProtocolParser.Reply.GET_CONFIG)
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.GET_CONFIG)
+                        {
+                            var replyDetails =
+                                new ProtocolParser.ReplyData.GetConfigReply(reply);
+                            _terminalTextView.Text += replyDetails.ToString();
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
                             {
-                                ProtocolParser.ReplyData.getConfigReply replyDetails =
-                                    new ProtocolParser.ReplyData.getConfigReply(reply);
-                                terminalTextView.Text += replyDetails.ToString();
-                                GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-                                if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
-                                {
-                                    GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
-                                    GlobalOperationsIdClass.Parser =
-                                        new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
-                                    Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() +
-                                            " status";
-                                }
-
-                                byte g = 0;
-                                foreach (var x in RfidContainer.ChipTypes._ids)
-                                {
-                                    if (x.Value == replyDetails.ChipTypeId)
-                                    {
-                                        GlobalOperationsIdClass.StationSettings.ChipType = g;
-                                        break;
-                                    }
-                                    g++;
-                                }
-
-                                if (GlobalOperationsIdClass.StationSettings.ChipType !=
-                                    GlobalOperationsIdClass.Rfid.ChipType)
-                                {
-                                    GlobalOperationsIdClass.Rfid =
-                                        new RfidContainer(GlobalOperationsIdClass.StationSettings.ChipType);
-                                }
-
-                                GlobalOperationsIdClass.StationSettings.AntennaGain = replyDetails.AntennaGain;
-
-                                GlobalOperationsIdClass.StationSettings.Mode = replyDetails.Mode;
-                                modeListSpinner.SetSelection(GlobalOperationsIdClass.StationSettings.Mode);
-
-                                GlobalOperationsIdClass.StationSettings.BatteryLimit = replyDetails.BatteryLimit;
-
-                                GlobalOperationsIdClass.StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
-
-                                GlobalOperationsIdClass.StationSettings.FlashSize = replyDetails.FlashSize;
-
-                                GlobalOperationsIdClass.StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
-                                if (GlobalOperationsIdClass.StationSettings.TeamBlockSize !=
-                                    GlobalOperationsIdClass.Flash.TeamDumpSize)
-                                {
-                                    GlobalOperationsIdClass.Flash = new FlashContainer(
-                                        GlobalOperationsIdClass.FlashSizeLimit,
-                                        GlobalOperationsIdClass.StationSettings.TeamBlockSize,
-                                        0); // GlobalOperationsIdClass.StationSettings.TeamBlockSize
-                                }
-
-                                GlobalOperationsIdClass.StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
+                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                GlobalOperationsIdClass.Parser =
+                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
+                                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() +
+                                        " status";
                             }
 
-                            terminalTextView.Invalidate();
+                            byte g = 0;
+                            foreach (var x in RfidContainer.ChipTypes.Ids)
+                            {
+                                if (x.Value == replyDetails.ChipTypeId)
+                                {
+                                    GlobalOperationsIdClass.StationSettings.ChipType = g;
+                                    break;
+                                }
+                                g++;
+                            }
+
+                            if (GlobalOperationsIdClass.StationSettings.ChipType !=
+                                GlobalOperationsIdClass.Rfid.ChipType)
+                                GlobalOperationsIdClass.Rfid =
+                                    new RfidContainer(GlobalOperationsIdClass.StationSettings.ChipType);
+
+                            GlobalOperationsIdClass.StationSettings.AntennaGain = replyDetails.AntennaGain;
+
+                            GlobalOperationsIdClass.StationSettings.Mode = replyDetails.Mode;
+                            modeListSpinner.SetSelection(GlobalOperationsIdClass.StationSettings.Mode);
+
+                            GlobalOperationsIdClass.StationSettings.BatteryLimit = replyDetails.BatteryLimit;
+
+                            GlobalOperationsIdClass.StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
+
+                            GlobalOperationsIdClass.StationSettings.FlashSize = replyDetails.FlashSize;
+
+                            GlobalOperationsIdClass.StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
+                            if (GlobalOperationsIdClass.StationSettings.TeamBlockSize !=
+                                GlobalOperationsIdClass.Flash.TeamDumpSize)
+                                GlobalOperationsIdClass.Flash = new FlashContainer(
+                                    GlobalOperationsIdClass.FlashSizeLimit,
+                                    GlobalOperationsIdClass.StationSettings.TeamBlockSize,
+                                    0); // GlobalOperationsIdClass.StationSettings.TeamBlockSize
+
+                            GlobalOperationsIdClass.StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
                         }
 
-                        GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
-                        Toast.MakeText(this,
-                            ProtocolParser.ReplyStrings[reply.ReplyCode] + " replied: " +
-                            ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long).Show();
+                        _terminalTextView.Invalidate();
                     }
-                    else
-                    {
-                        terminalTextView.Text += reply.Message;
-                        GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
-                    }
+
+                    GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
+                    Toast.MakeText(this,
+                        ProtocolParser.ReplyStrings[reply.ReplyCode] + " replied: " +
+                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long).Show();
+                }
+                else
+                {
+                    _terminalTextView.Text += reply.Message;
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
             return packageReceived;

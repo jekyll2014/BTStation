@@ -8,96 +8,95 @@
     android:layout_height="match_parent"
     tools:gridSpec="1|8|#0093eeff|K:#ee8700ff:16,l:72,l:16,r|S:#83ee00ff:16,0,l:16,56,l:16,0,r">
 
-    <ScrollView
+  <ScrollView
+    android:minWidth="25px"
+    android:minHeight="25px"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView1">
+    <LinearLayout
+      android:orientation="vertical"
+      android:minWidth="25px"
+      android:minHeight="25px"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/linearLayout1"
+      android:overScrollMode="ifContentScrolls"
+      android:verticalScrollbarPosition="defaultPosition">
+      <TextView
+        android:text="Connect to device"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/ConnectToTextView" />
+      <LinearLayout
+        android:orientation="horizontal"
         android:minWidth="25px"
         android:minHeight="25px"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/scrollView1">
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout2">
+        <Button
+          android:text="Refresh"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/refreshButton" />
+        <Spinner
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:id="@+id/DeviceListSpinner" />
+      </LinearLayout>
+      <Button
+        android:text="Connect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/connectButton" />
+      <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout3">
+        <TextView
+          android:text="Station #"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/textView3"
+          android:gravity="center" />
+        <EditText
+          android:inputType="numberDecimal"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:id="@+id/stationNumberEditText" />
+      </LinearLayout>
+      <Button
+        android:text="Status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/statusButton" />
+      <Button
+        android:text="Configuration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/configurationButton" />
+      <Button
+        android:text="Teams"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/teamsButton" />
+      <Button
+        android:text="RFID"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rfidButton" />
+      <Button
+        android:text="Flash"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/flashButton" />
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:minWidth="25px"
-            android:minHeight="25px"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/linearLayout1"
-            android:overScrollMode="ifContentScrolls"
-            android:verticalScrollbarPosition="defaultPosition">
-            <TextView
-                android:text="Connect to device"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/ConnectToTextView" />
-            <LinearLayout
-                android:orientation="horizontal"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/linearLayout2">
-                <Button
-                    android:text="Refresh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/refreshButton" />
-                <Spinner
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/DeviceListSpinner" />
-            </LinearLayout>
-            <Button
-                android:text="Connect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/connectButton" />
+    </LinearLayout>
+  </ScrollView>
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/linearLayout8">
-                <TextView
-                    android:text="Station #"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/textView3"
-                    android:gravity="center" />
-                <EditText
-                    android:inputType="numberDecimal"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/stationNumberEditText" />
-            </LinearLayout>
-            <Button
-                android:text="Status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/statusButton" />
-            <Button
-                android:text="Configuration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/configurationButton" />
-            <Button
-                android:text="Teams"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/teamsButton" />
-            <Button
-                android:text="RFID"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/rfidButton" />
-            <Button
-                android:text="Flash"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/flashButton" />
-
-        </LinearLayout>
-    </ScrollView>
 </RelativeLayout>

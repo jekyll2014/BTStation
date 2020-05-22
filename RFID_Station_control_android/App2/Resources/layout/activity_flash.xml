@@ -7,178 +7,176 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
+  <ScrollView
+    android:minWidth="25px"
+    android:minHeight="25px"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView1">
+    <LinearLayout
+      android:orientation="vertical"
+      android:minWidth="25px"
+      android:minHeight="25px"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/linearLayout1">
+      <Button
+        android:text="Back to main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/backButton" />
+      <LinearLayout
+        android:orientation="horizontal"
         android:minWidth="25px"
         android:minHeight="25px"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/scrollView1">
+        android:id="@+id/linearLayout2">
+        <Button
+          android:text="Read flash"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/readFlashButton" />
         <LinearLayout
-            android:orientation="vertical"
+          android:orientation="vertical"
+          android:minWidth="25px"
+          android:minHeight="25px"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:id="@+id/linearLayout3">
+          <LinearLayout
+            android:orientation="horizontal"
             android:minWidth="25px"
             android:minHeight="25px"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/linearLayout1">
-            <LinearLayout
-                android:orientation="horizontal"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/linearLayout2">
-                <Button
-                    android:text="Read flash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/readFlashButton" />
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:minWidth="25px"
-                    android:minHeight="25px"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/linearLayout3">
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:minWidth="25px"
-                        android:minHeight="25px"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linearLayout4">
-                        <TextView
-                            android:text="address"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:id="@+id/textView1"
-                            android:gravity="center" />
-                        <EditText
-                            android:inputType="numberDecimal"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/readFromEditText" />
-                    </LinearLayout>
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:minWidth="25px"
-                        android:minHeight="25px"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linearLayout5">
-                        <TextView
-                            android:text="length"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:id="@+id/textView2"
-                            android:gravity="center" />
-                        <EditText
-                            android:inputType="numberDecimal"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/lengthEditText" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/linearLayout2">
-                <Button
-                    android:text="Write flash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/writeFlashButton" />
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:minWidth="25px"
-                    android:minHeight="25px"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/linearLayout3">
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:minWidth="25px"
-                        android:minHeight="25px"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/linearLayout4">
-                        <TextView
-                            android:text="address"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:id="@+id/textView1"
-                            android:gravity="center" />
-                        <EditText
-                            android:inputType="numberDecimal"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:id="@+id/writeFromEditText" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/linearLayout6">
-                <TextView
-                    android:text="data"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/textView3"
-                    android:gravity="center" />
-                <EditText
-                    android:inputType="text"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/dataEditText" />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="horizontal"
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/linearLayout6">
-                <Button
-                    android:text="Dump flash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/dumpFlashButton" />
-                <Button
-                    android:text="Quick dump flash"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/quickDumpFlashButton" />
-                <Button
-                    android:text="Clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:id="@+id/clearGridButton" />
-            </LinearLayout>
-            <Button
-                android:text="Back to main"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/backButton" />
-            <GridView
-                android:minWidth="25px"
-                android:minHeight="25px"
-                android:layout_width="match_parent"
-                android:layout_height="250.5dp"
-                android:fillViewport="true"
-                android:nestedScrollingEnabled="true"
-                android:overScrollMode="ifContentScrolls"
-                android:id="@+id/flashGridView"
-                android:background="#ffc6ff00"/>
-
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout4">
+            <TextView
+              android:text="address"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:id="@+id/textView1"
+              android:gravity="center" />
+            <EditText
+              android:inputType="numberDecimal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:id="@+id/readFromEditText" />
+          </LinearLayout>
+          <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout5">
+            <TextView
+              android:text="length"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:id="@+id/textView2"
+              android:gravity="center" />
+            <EditText
+              android:inputType="numberDecimal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:id="@+id/lengthEditText" />
+          </LinearLayout>
         </LinearLayout>
+      </LinearLayout>
+      <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/linearLayout6">
+        <Button
+          android:text="Write flash"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/writeFlashButton" />
+        <LinearLayout
+          android:orientation="vertical"
+          android:minWidth="25px"
+          android:minHeight="25px"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:id="@+id/linearLayout7">
+          <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout8">
+            <TextView
+              android:text="address"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:id="@+id/textView1"
+              android:gravity="center" />
+            <EditText
+              android:inputType="numberDecimal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:id="@+id/writeFromEditText" />
+          </LinearLayout>
+        </LinearLayout>
+      </LinearLayout>
+      <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout9">
+        <TextView
+          android:text="data"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/textView3"
+          android:gravity="center" />
+        <EditText
+          android:inputType="text"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:id="@+id/dataEditText" />
+      </LinearLayout>
+      <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout10">
+        <Button
+          android:text="Dump flash"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/dumpFlashButton" />
+        <Button
+          android:text="Quick dump flash"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/quickDumpFlashButton" />
+        <Button
+          android:text="Clear"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:id="@+id/clearGridButton" />
+      </LinearLayout>
+      <GridView
+        android:minWidth="25px"
+        android:minHeight="25px"
+        android:layout_width="match_parent"
+        android:layout_height="250.5dp"
+        android:fillViewport="true"
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="ifContentScrolls"
+        android:id="@+id/flashGridView"
+        android:background="#ffc6ff00" />
+    </LinearLayout>
+  </ScrollView>
 
-
-    </ScrollView>
 </RelativeLayout>

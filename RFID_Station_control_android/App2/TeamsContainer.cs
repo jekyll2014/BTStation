@@ -15,14 +15,14 @@ namespace RfidStationControl
             public UInt32 DumpSize;
         }
 
-        private List<TeamData> _dump = new List<TeamData>();
+        private readonly List<TeamData> _dump = new List<TeamData>();
 
         public TeamData[] Dump
         {
             get { return _dump.ToArray(); }
         }
 
-        public DataTable Table = new DataTable("Teams") { Columns = { "Team#", "Init time", "Check-in time", "Mask", "Dump size" } };
+        public DataTable Table = new DataTable("Teams") { Columns = { "Team#", "Init time", "Check-in time", "TeamMask", "Dump size" } };
 
         public void InitTable()
         {

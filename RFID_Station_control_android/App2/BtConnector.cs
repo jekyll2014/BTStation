@@ -9,76 +9,79 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Console = System.Console;
 
 namespace RfidStationControl
 {
     public class BtConnector
     {
-        private CancellationTokenSource _ct { get; set; }
+        private CancellationTokenSource CancellationToken { get; set; }
 
-        public int ConnectionTimeout = 5000;
+        private const int CONNECTION_TIMEOUT = 5000;
 
         public volatile List<byte> BtInputBuffer = new List<byte>();
 
         public volatile object SerialReceiveThreadLock = new object();
 
         private bool _isEnabled = false;
+
         public bool IsBtEnabled()
         {
             return _isEnabled;
         }
 
         private volatile bool _isConnected = false;
+
         public bool IsBtConnected()
         {
             return _isConnected;
         }
 
         private string _deviceName = "";
+
         public string ConnnectedDevice()
         {
             return _deviceName;
         }
 
         private volatile string _deviceAddress;
+
         public string DeviceAddress()
         {
             return _deviceAddress;
         }
 
-        public volatile bool _connecting = false;
+        public volatile bool Connecting = false;
+
         public bool IsBtConnecting()
         {
-            return _connecting;
+            return Connecting;
         }
 
-        private BluetoothAdapter BtAdapter = BluetoothAdapter.DefaultAdapter;
-        private BluetoothDevice BtDevice;
-        private BluetoothSocket BtSocket;
-        private InputStreamReader BtStreamReader;
-        private BufferedReader BtBufferReader;
-        private OutputStreamWriter BtStreamWriter;
-        private BufferedWriter BtBufferWriter;
+        private BluetoothAdapter _btAdapter = BluetoothAdapter.DefaultAdapter;
+        private BluetoothDevice _btDevice;
+        private BluetoothSocket _btSocket;
+        private InputStreamReader _btStreamReader;
+        private BufferedReader _btBufferReader;
+        private OutputStreamWriter _btStreamWriter;
+        private BufferedWriter _btBufferWriter;
 
         public async Task<bool> Enable()
         {
             _isEnabled = false;
-            BluetoothAdapter BtAdapter = BluetoothAdapter.DefaultAdapter;
-            if (BtAdapter != null)
+            var BtAdapter = BluetoothAdapter.DefaultAdapter;
+            if (BtAdapter == null) return _isEnabled;
+
+            if (!BtAdapter.IsEnabled)
             {
-                if (!BtAdapter.IsEnabled)
-                {
-                    var _manager = (BluetoothManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService);
-                    _manager.Adapter.Enable();
+                var _manager = (BluetoothManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService);
+                _manager.Adapter.Enable();
 
-                    DateTime enableStarted = DateTime.Now;
-                    while (!GlobalOperationsIdClass.Bt.IsBtEnabled() && DateTime.Now.Subtract(enableStarted).TotalMilliseconds < ConnectionTimeout) await Task.Delay(1);
+                var enableStarted = DateTime.Now;
+                while (!GlobalOperationsIdClass.Bt.IsBtEnabled() && DateTime.Now.Subtract(enableStarted).TotalMilliseconds < CONNECTION_TIMEOUT) await Task.Delay(1);
 
-                    BtAdapter = BluetoothAdapter.DefaultAdapter;
-                }
-                _isEnabled = BtAdapter.IsEnabled;
+                BtAdapter = BluetoothAdapter.DefaultAdapter;
             }
+            _isEnabled = BtAdapter.IsEnabled;
 
             return _isEnabled;
         }
@@ -87,81 +90,83 @@ namespace RfidStationControl
         /// Connect the "reading" loop 
         /// </summary>
         /// <param name="name">Name of the paired bluetooth device (also a part of the name)</param>
+        /// <param name="sleepTime"></param>
         public async void Connect(string name, int sleepTime = 100)
         {
-            if (_isEnabled) await Task.Run(async () => await loop(name, sleepTime));
+            if (_isEnabled) await Task.Run(async () => await Loop(name, sleepTime));
         }
 
-        private async Task loop(string deviceName, int sleepTime)
+        private async Task Loop(string deviceName, int sleepTime)
         {
-            _connecting = true;
-            _ct = new CancellationTokenSource();
-            DateTime connectionStarted = DateTime.Now;
+            Connecting = true;
+            CancellationToken = new CancellationTokenSource();
+            var connectionStarted = DateTime.Now;
             try
             {
-                while (!_ct.IsCancellationRequested && DateTime.Now.Subtract(connectionStarted).TotalMilliseconds < ConnectionTimeout)
+                while (!CancellationToken.IsCancellationRequested && DateTime.Now.Subtract(connectionStarted).TotalMilliseconds < CONNECTION_TIMEOUT)
                 {
                     Thread.Sleep(sleepTime);
                     System.Diagnostics.Debug.WriteLine("Try to connect to " + deviceName);
 
-                    BtDevice = (from bd in BtAdapter.BondedDevices
+                    _btDevice = (from bd in _btAdapter.BondedDevices
                                 where bd.Name == deviceName
                                 select bd).FirstOrDefault();
 
-                    if (BtDevice == null)
+                    if (_btDevice == null)
                     {
-                        System.Diagnostics.Debug.WriteLine("Device not found: " + BtDevice?.Name);
+                        System.Diagnostics.Debug.WriteLine("Device not found: " + _btDevice?.Name);
                         throw new Exception("Device not found: " + deviceName);
                     }
 
-                    UUID uuid = UUID.FromString("00001101-0000-1000-8000-00805f9b34fb");
+                    var uuid = UUID.FromString("00001101-0000-1000-8000-00805f9b34fb");
                     if ((int)Android.OS.Build.VERSION.SdkInt >= 10) // Gingerbread 2.3.3 2.3.4
-                        BtSocket = BtDevice.CreateInsecureRfcommSocketToServiceRecord(uuid);
+                        _btSocket = _btDevice.CreateInsecureRfcommSocketToServiceRecord(uuid);
                     else
-                        BtSocket = BtDevice.CreateRfcommSocketToServiceRecord(uuid);
+                        _btSocket = _btDevice.CreateRfcommSocketToServiceRecord(uuid);
 
-                    if (BtSocket != null)
+                    if (_btSocket != null)
                     {
-                        await BtSocket.ConnectAsync();
+                        await _btSocket.ConnectAsync();
 
-                        if (BtSocket.IsConnected)
+                        if (!_btSocket.IsConnected) continue;
+
+                        Connecting = false;
+                        _isConnected = true;
+                        _deviceName = deviceName;
+                        _deviceAddress = _btDevice.Address;
+                        System.Diagnostics.Debug.WriteLine("Connected!");
+                        _btStreamReader = new InputStreamReader(_btSocket.InputStream);
+                        _btBufferReader = new BufferedReader(_btStreamReader);
+                        _btStreamWriter = new OutputStreamWriter(_btSocket.OutputStream);
+                        _btBufferWriter = new BufferedWriter(_btStreamWriter);
+
+                        while (!CancellationToken.IsCancellationRequested)
                         {
-                            _connecting = false;
-                            _isConnected = true;
-                            _deviceName = deviceName;
-                            _deviceAddress = BtDevice.Address;
-                            System.Diagnostics.Debug.WriteLine("Connected!");
-                            BtStreamReader = new InputStreamReader(BtSocket.InputStream);
-                            BtBufferReader = new BufferedReader(BtStreamReader);
-                            BtStreamWriter = new OutputStreamWriter(BtSocket.OutputStream);
-                            BtBufferWriter = new BufferedWriter(BtStreamWriter);
-
-                            while (!_ct.IsCancellationRequested)
+                            if (_btBufferReader.Ready())
                             {
-                                if (BtBufferReader.Ready())
-                                {
-                                    byte[] inputBuffer = new byte[1024];
+                                var inputBuffer = new byte[1024];
 
-                                    int c = await BtSocket.InputStream.ReadAsync(inputBuffer, 0,
-                                        inputBuffer.Length);
-                                    lock (SerialReceiveThreadLock)
-                                    {
-                                        for (int i = 0; i < c; i++) BtInputBuffer.Add(inputBuffer[i]);
-                                    }
-                                }
-
-                                // A little stop to the uneverending thread...
-                                Thread.Sleep(sleepTime);
-                                if (!BtSocket.IsConnected)
+                                var c = await _btSocket.InputStream.ReadAsync(inputBuffer, 0,
+                                    inputBuffer.Length);
+                                lock (SerialReceiveThreadLock)
                                 {
-                                    System.Diagnostics.Debug.WriteLine(
-                                        "BthSocket.IsConnected = false, Throw exception");
-                                    throw new Exception("Device disconnected: " + deviceName);
+                                    for (var i = 0; i < c; i++) BtInputBuffer.Add(inputBuffer[i]);
                                 }
                             }
+
+                            // A little stop to the uneverending thread...
+                            Thread.Sleep(sleepTime);
+                            if (_btSocket.IsConnected) continue;
+
+                            System.Diagnostics.Debug.WriteLine(
+                                "BthSocket.IsConnected = false, Throw exception");
+                            throw new Exception("Device disconnected: " + deviceName);
                         }
                     }
-                    else System.Diagnostics.Debug.WriteLine("BthSocket = null");
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("BthSocket = null");
+                    }
                 }
             }
             catch (Exception ex)
@@ -175,20 +180,20 @@ namespace RfidStationControl
                 //BtDevice = null;
                 //BtAdapter = null;
 
-                BtBufferWriter?.Close();
-                BtBufferWriter = null;
-                BtBufferReader?.Close();
-                BtBufferReader = null;
-                BtStreamWriter?.Close();
-                BtStreamWriter = null;
-                BtStreamReader?.Close();
-                BtStreamReader = null;
-                BtSocket?.Close();
-                BtSocket = null;
-                BtDevice = null;
-                BtAdapter = BluetoothAdapter.DefaultAdapter;
+                _btBufferWriter?.Close();
+                _btBufferWriter = null;
+                _btBufferReader?.Close();
+                _btBufferReader = null;
+                _btStreamWriter?.Close();
+                _btStreamWriter = null;
+                _btStreamReader?.Close();
+                _btStreamReader = null;
+                _btSocket?.Close();
+                _btSocket = null;
+                _btDevice = null;
+                _btAdapter = BluetoothAdapter.DefaultAdapter;
                 System.Diagnostics.Debug.WriteLine("Exit the connection loop");
-                _connecting = false;
+                Connecting = false;
                 _isConnected = false;
                 _deviceName = "";
                 _deviceAddress = "";
@@ -201,11 +206,8 @@ namespace RfidStationControl
         /// <returns><c>true</c> if this instance cancel ; otherwise, <c>false</c>.</returns>
         public void Close()
         {
-            if (_ct != null)
-            {
-                _ct.Cancel();
-            }
-            _connecting = false;
+            CancellationToken?.Cancel();
+            Connecting = false;
             _isConnected = false;
             _deviceName = "";
             _deviceAddress = "";
@@ -215,12 +217,11 @@ namespace RfidStationControl
         {
             try
             {
-                await BtSocket.OutputStream.WriteAsync(Data, 0, Data.Length);
+                await _btSocket.OutputStream.WriteAsync(Data, 0, Data.Length);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e);
-                //throw;
+                //Console.WriteLine(e.Message);
                 Close();
                 return false;
             }
@@ -230,10 +231,10 @@ namespace RfidStationControl
 
         public ObservableCollection<string> PairedDevices()
         {
-            BtAdapter = BluetoothAdapter.DefaultAdapter;
-            ObservableCollection<string> devices = new ObservableCollection<string>();
+            _btAdapter = BluetoothAdapter.DefaultAdapter;
+            var devices = new ObservableCollection<string>();
 
-            foreach (var bd in BtAdapter.BondedDevices)
+            foreach (var bd in _btAdapter.BondedDevices)
                 devices.Add(bd.Name);
 
             return devices;
