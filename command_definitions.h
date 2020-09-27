@@ -88,7 +88,7 @@
 #define MODE_START_KP                    1
 #define MODE_FINISH_KP                   2
 
-// режимы станции
+// режимы отправки отчета о новом скане в BT
 #define AUTOREPORT_OFF                   0
 #define AUTOREPORT_ON                    1
 

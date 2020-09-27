@@ -15,6 +15,24 @@ namespace RfidStationControl
     [Activity(Label = "Flash")]
     public class ActivityFlash : AppCompatActivity
     {
+        #region UI controls
+
+        Button readFlashButton;
+        Button writeFlashButton;
+        Button dumpFlashButton;
+        Button quickDumpFlashButton;
+        Button clearGridButton;
+        Button backButton;
+
+        EditText readFromEditText;
+        EditText lengthEditText;
+        EditText writeFromEditText;
+        EditText dataEditText;
+
+        GridView flashGridView;
+
+        #endregion
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -23,19 +41,19 @@ namespace RfidStationControl
             SetContentView(Resource.Layout.activity_flash);
 
             // populate all controls
-            var readFlashButton = FindViewById<Button>(Resource.Id.readFlashButton);
-            var writeFlashButton = FindViewById<Button>(Resource.Id.writeFlashButton);
-            var dumpFlashButton = FindViewById<Button>(Resource.Id.dumpFlashButton);
-            var quickDumpFlashButton = FindViewById<Button>(Resource.Id.quickDumpFlashButton);
-            var clearGridButton = FindViewById<Button>(Resource.Id.clearGridButton);
-            var backButton = FindViewById<Button>(Resource.Id.backButton);
+            readFlashButton = FindViewById<Button>(Resource.Id.readFlashButton);
+            writeFlashButton = FindViewById<Button>(Resource.Id.writeFlashButton);
+            dumpFlashButton = FindViewById<Button>(Resource.Id.dumpFlashButton);
+            quickDumpFlashButton = FindViewById<Button>(Resource.Id.quickDumpFlashButton);
+            clearGridButton = FindViewById<Button>(Resource.Id.clearGridButton);
+            backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            var readFromEditText = FindViewById<EditText>(Resource.Id.readFromEditText);
-            var lengthEditText = FindViewById<EditText>(Resource.Id.lengthEditText);
-            var writeFromEditText = FindViewById<EditText>(Resource.Id.writeFromEditText);
-            var dataEditText = FindViewById<EditText>(Resource.Id.dataEditText);
+            readFromEditText = FindViewById<EditText>(Resource.Id.readFromEditText);
+            lengthEditText = FindViewById<EditText>(Resource.Id.lengthEditText);
+            writeFromEditText = FindViewById<EditText>(Resource.Id.writeFromEditText);
+            dataEditText = FindViewById<EditText>(Resource.Id.dataEditText);
 
-            var flashGridView = FindViewById<GridView>(Resource.Id.flashGridView);
+            flashGridView = FindViewById<GridView>(Resource.Id.flashGridView);
 
             if (Table.Count == 0)
             {
@@ -70,7 +88,7 @@ namespace RfidStationControl
                 quickDumpFlashButton.Enabled = false;
             }
 
-            GlobalOperationsIdClass.timerActiveTasks = 0;
+            GlobalOperationsIdClass.TimerActiveTasks = 0;
 
             readFlashButton.Click += async (sender, e) =>
             {
@@ -97,7 +115,7 @@ namespace RfidStationControl
                 byte maxFrameBytes = 256 - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1;
                 uint addrFrom = 0;
                 uint addrTo = 0;
-                GlobalOperationsIdClass.dumpCancellation = false;
+                GlobalOperationsIdClass.DumpCancellation = false;
                 do
                 {
                     addrTo = addrFrom + maxFrameBytes;
@@ -113,8 +131,8 @@ namespace RfidStationControl
                     addrFrom = addrTo;
 
                     var startTime = DateTime.Now;
-                    while (GlobalOperationsIdClass.timerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
-                } while (!GlobalOperationsIdClass.dumpCancellation && addrTo < GlobalOperationsIdClass.FlashSizeLimit);
+                    while (GlobalOperationsIdClass.TimerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
+                } while (!GlobalOperationsIdClass.DumpCancellation && addrTo < GlobalOperationsIdClass.FlashSizeLimit);
                 dumpFlashButton.Enabled = true;
                 dumpFlashButton.Text = tmp;
             };
@@ -128,7 +146,7 @@ namespace RfidStationControl
                 byte maxFrameBytes = 256 - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1;
                 long addrFrom = 0;
                 long addrTo = 0;
-                GlobalOperationsIdClass.dumpCancellation = false;
+                GlobalOperationsIdClass.DumpCancellation = false;
 
                 // do the job
                 Toast.MakeText(this, "Not implemented yet!!!", ToastLength.Long).Show();
@@ -179,10 +197,15 @@ namespace RfidStationControl
             };
         }
 
+        protected override void OnResume()
+        {
+            base.OnResume();
+            flashGridView.Adapter = new FlashGridAdapter(this, Table);
+        }
+
         private async Task<bool> ReadBt()
         {
-            var packageReceived = false;
-
+            bool packageReceived;
             lock (GlobalOperationsIdClass.Bt.SerialReceiveThreadLock)
             {
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
@@ -193,8 +216,8 @@ namespace RfidStationControl
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
                 var reply = GlobalOperationsIdClass.Parser._repliesList[n];
-                GlobalOperationsIdClass.timerActiveTasks--;
-                if (reply.ErrorCode == 0)
+                GlobalOperationsIdClass.TimerActiveTasks--;
+                if (reply.ReplyCode != 0)
                 {
                     GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
 
@@ -202,12 +225,10 @@ namespace RfidStationControl
                     {
                         if (reply.ReplyCode == ProtocolParser.Reply.READ_FLASH)
                         {
-                            var flashGridView = FindViewById<GridView>(Resource.Id.flashGridView);
-
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.ReadFlashReply(reply);
-                            GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
+                            var replyDetails = new ProtocolParser.ReplyData.ReadFlashReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
                             // refresh flash table
                             var startPage = (int)(replyDetails.Address / GlobalOperationsIdClass.Flash.TeamDumpSize);
                             var endPage = (int)((replyDetails.Address + replyDetails.Data.Length) /
@@ -229,12 +250,12 @@ namespace RfidStationControl
                                 }
                                 if (!flag) Table?.Add(row);
                             }
+
                             flashGridView.Adapter = new FlashGridAdapter(this, Table);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.WRITE_FLASH)
                         {
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.WriteFlashReply(reply);
+                            var replyDetails = new ProtocolParser.ReplyData.WriteFlashReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
                         }
                     }
@@ -282,7 +303,7 @@ namespace RfidStationControl
             if (view == null) // no view to re-use, create new
                 view = _context.LayoutInflater.Inflate(Resource.Layout.flashTable_view, null);
 
-            view.FindViewById<TextView>(Resource.Id.PageNumber).Text = item.TeamNum;
+            view.FindViewById<TextView>(Resource.Id.TeamNumber).Text = item.TeamNum;
             view.FindViewById<TextView>(Resource.Id.DecodedData).Text = item.Decoded;
 
             return view;

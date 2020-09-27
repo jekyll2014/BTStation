@@ -190,15 +190,15 @@ namespace RfidStationControl
 
             public override string ToString()
             {
-                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + "\r\n";
-                result += "Station#: " + StationNumber + "\r\n";
+                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + System.Environment.NewLine;
+                result += "Station#: " + StationNumber + System.Environment.NewLine;
 
                 ReplyStrings.TryGetValue(ReplyCode, out var commandValue);
-                result += "Command reply: " + commandValue + "\r\n";
+                result += "Command reply: " + commandValue + System.Environment.NewLine;
                 if (ErrorCode != 0)
                 {
                     ErrorCodes.TryGetValue(ErrorCode, out var errorValue);
-                    result += "\r\nError#: " + errorValue + "\r\n";
+                    result += System.Environment.NewLine + "Error#: " + errorValue + System.Environment.NewLine;
                 }
 
                 return result;
@@ -214,7 +214,7 @@ namespace RfidStationControl
                 }
                 public override string ToString()
                 {
-                    var result = "Time set to: " + Helpers.DateToString(Time) + "\r\n";
+                    var result = "Time set to: " + Helpers.DateToString(Time) + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -238,11 +238,11 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Current time: " + Helpers.DateToString(Time) + "\r\n";
-                    result += "Marks number: " + MarksNumber + "\r\n";
-                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + "\r\n";
-                    result += "Battery: " + "ADC=" + BatteryLevel + "\r\n";
-                    result += "Temperature: " + Temperature + "\r\n";
+                    var result = "Current time: " + Helpers.DateToString(Time) + System.Environment.NewLine;
+                    result += "Marks number: " + MarksNumber + System.Environment.NewLine;
+                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + System.Environment.NewLine;
+                    result += "Battery: " + "ADC=" + BatteryLevel + System.Environment.NewLine;
+                    result += "Temperature: " + Temperature + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -260,7 +260,7 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Init. time: " + Helpers.DateToString(InitTime) + "\r\n";
+                    var result = "Init. time: " + Helpers.DateToString(InitTime) + System.Environment.NewLine;
                     result += "UID: " + Helpers.ConvertByteArrayToHex(Uid);
                     return result;
                 }
@@ -277,9 +277,9 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Latest teams:\r\n";
+                    var result = "Latest teams:" + System.Environment.NewLine;
                     for (var i = 0; i < TeamsList?.Length; i++)
-                        if (TeamsList[i] > 0) result += "\t" + TeamsList[i].ToString() + "\r\n";
+                        if (TeamsList[i] > 0) result += "\t" + TeamsList[i].ToString() + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -303,11 +303,11 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Team#: " + TeamNumber + "\r\n";
-                    result += "Init. time: " + Helpers.DateToString(InitTime) + "\r\n";
-                    result += "Team mask: " + Helpers.ConvertMaskToString(Mask) + "\r\n";
-                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + "\r\n";
-                    result += "Dump pages: " + DumpSize + "\r\n";
+                    var result = "Team#: " + TeamNumber + System.Environment.NewLine;
+                    result += "Init. time: " + Helpers.DateToString(InitTime) + System.Environment.NewLine;
+                    result += "Team mask: " + Helpers.ConvertMaskToString(Mask) + System.Environment.NewLine;
+                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + System.Environment.NewLine;
+                    result += "Dump pages: " + DumpSize + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -327,13 +327,13 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "UID: " + Helpers.ConvertByteArrayToHex(Uid) + "\r\n";
-                    result += "Card data:\r\n";
+                    var result = "UID: " + Helpers.ConvertByteArrayToHex(Uid) + System.Environment.NewLine;
+                    result += "Card data:" + System.Environment.NewLine;
                     ushort i = 0;
                     while (i + 3 < PagesData.Length)
                     {
                         result += "\tpage #" + ((ushort)(startPage + i / 4)).ToString() + ": ";
-                        result += Helpers.ConvertByteArrayToHex(PagesData, i, 4) + "\r\n";
+                        result += Helpers.ConvertByteArrayToHex(PagesData, i, 4) + System.Environment.NewLine;
                         i += 4;
                     }
 
@@ -354,8 +354,8 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Read start address: " + Address + "\r\n";
-                    result += "Flash data: " + Helpers.ConvertByteArrayToHex(Data) + "\r\n";
+                    var result = "Read start address: " + Address + System.Environment.NewLine;
+                    result += "Flash data: " + Helpers.ConvertByteArrayToHex(Data) + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -371,7 +371,7 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Bytes written: " + BytesWritten + "\r\n";
+                    var result = "Bytes written: " + BytesWritten + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -407,17 +407,17 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "FW Version: " + FwVersion.ToString() + "\r\n";
-                    result += "Mode: " + Mode + "\r\n";
-                    result += "Chip type: " + ChipTypeId + "\r\n";
-                    result += "Flash size: " + FlashSize + " байт\r\n";
-                    result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + "\r\n";
-                    result += "Antenna gain: " + AntennaGain.ToString() + "\r\n";
-                    result += "Team block size: " + TeamBlockSize.ToString() + "\r\n";
-                    result += "Erase block size: " + EraseBlockSize.ToString() + "\r\n";
-                    result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + "\r\n";
-                    result += "Max. packet length: " + MaxPacketLength.ToString() + "\r\n";
-                    result += "Autoreport mode: " + AutoreportMode.ToString() + "\r\n";
+                    var result = "FW Version: " + FwVersion.ToString() + System.Environment.NewLine;
+                    result += "Mode: " + Mode + System.Environment.NewLine;
+                    result += "Chip type: " + ChipTypeId + System.Environment.NewLine;
+                    result += "Flash size: " + FlashSize + " байт" + System.Environment.NewLine;
+                    result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + System.Environment.NewLine;
+                    result += "Antenna gain: " + AntennaGain.ToString() + System.Environment.NewLine;
+                    result += "Team block size: " + TeamBlockSize.ToString() + System.Environment.NewLine;
+                    result += "Erase block size: " + EraseBlockSize.ToString() + System.Environment.NewLine;
+                    result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + System.Environment.NewLine;
+                    result += "Max. packet length: " + MaxPacketLength.ToString() + System.Environment.NewLine;
+                    result += "Autoreport mode: " + AutoreportMode.ToString() + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -433,8 +433,8 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Saved teams:\r\n";
-                    for (var i = 0; i < TeamsList?.Length; i++) result += "\t" + TeamsList[i].ToString() + "\r\n";
+                    var result = "Saved teams:" + System.Environment.NewLine;
+                    for (var i = 0; i < TeamsList?.Length; i++) result += "\t" + TeamsList[i].ToString() + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -465,12 +465,12 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Latest errors:\r\n";
+                    var result = "Latest errors:" + System.Environment.NewLine;
                     for (var i = 0; i < errorsList?.Length; i++)
                         if (errorsList[i] > 0)
                         {
                             ProcessingErrorCodes.TryGetValue(errorsList[i], out var errorValue);
-                            result += "\t[" + errorsList[i].ToString() + "] " + errorValue + "\r\n";
+                            result += "\t[" + errorsList[i].ToString() + "] " + errorValue + System.Environment.NewLine;
                         }
 
                     return result;
@@ -657,7 +657,7 @@ namespace RfidStationControl
                     if (_uartBufferPosition == PacketBytes.DATA_LENGTH_LOW_BYTE &&
                         (ushort)(_uartBuffer[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + _uartBuffer[PacketBytes.DATA_LENGTH_LOW_BYTE]) > MaxPacketLength - PacketBytes.DATA_START_BYTE)
                     {
-                        result.Append("\r\nIncorrect message length: ");
+                        result.Append(System.Environment.NewLine + "Incorrect message length: ");
                         result.Append(Helpers.ConvertByteArrayToHex(_uartBuffer, _uartBufferPosition));
                         _receivingData = false;
                         _uartBufferPosition = 0;
@@ -677,7 +677,7 @@ namespace RfidStationControl
                             // incorrect station number
                             if (_uartBuffer[PacketBytes.STATION_NUMBER_BYTE] != StationNumber && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_STATUS && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_CONFIG)
                             {
-                                result.Append("\r\nIncorrect station number: ");
+                                result.Append(System.Environment.NewLine + "Incorrect station number: ");
                                 result.Append(Helpers.ConvertByteArrayToHex(_uartBuffer, _uartBufferPosition));
                                 /*_receivingData = false;
                                 _uartBufferPosition = 0;
@@ -701,8 +701,8 @@ namespace RfidStationControl
                             continue;
                         }
 
-                        result.Append("\r\nCRC not correct: " + _uartBuffer[_uartBufferPosition].ToString("X2") +
-                                " instead of " + crc.ToString("X2") + "\r\n");
+                        result.Append(System.Environment.NewLine + "CRC not correct: " + _uartBuffer[_uartBufferPosition].ToString("X2") +
+                                " instead of " + crc.ToString("X2") + System.Environment.NewLine);
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
@@ -722,7 +722,7 @@ namespace RfidStationControl
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
-                        //SetText("\r\nIncorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]\r\n");
+                        //SetText(System.Environment.NewLine+"Incorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]"+ System.Environment.NewLine);
                     }
                     else
                     {
@@ -735,9 +735,9 @@ namespace RfidStationControl
             if (unrecognizedBytes.Count > 0)
             {
                 if (Helpers.PrintableByteArray(unrecognizedBytes.ToArray()))
-                    result.Append("Comment: " + Helpers.ConvertByteArrayToString(unrecognizedBytes.ToArray()) + "\r\n");
+                    result.Append("Comment: " + Helpers.ConvertByteArrayToString(unrecognizedBytes.ToArray()) + System.Environment.NewLine);
                 else
-                    result.Append("Comment: " + Helpers.ConvertByteArrayToHex(unrecognizedBytes.ToArray()) + "\r\n");
+                    result.Append("Comment: " + Helpers.ConvertByteArrayToHex(unrecognizedBytes.ToArray()) + System.Environment.NewLine);
             }
 
             if (result.Length > 0)
@@ -955,7 +955,7 @@ namespace RfidStationControl
             writeFlash[PacketBytes.DATA_START_BYTE + 2] = (byte)((startAddress & 0x0000FF00) >> 8);
             writeFlash[PacketBytes.DATA_START_BYTE + 3] = (byte)(startAddress & 0x000000FF);
 
-            for (byte i = 0; i < data.Length; i++) writeFlash[PacketBytes.DATA_START_BYTE + 4 + i] = data[i];
+            for (var i = 0; i < data.Length; i++) writeFlash[PacketBytes.DATA_START_BYTE + 4 + i] = data[i];
 
             return generateCommand(writeFlash);
         }
@@ -1045,7 +1045,7 @@ namespace RfidStationControl
             setBtName[PacketBytes.COMMAND_BYTE] = Command.SET_BT_NAME;
 
             //0...: данные для записи
-            for (byte i = 0; i < data.Length; i++) setBtName[PacketBytes.DATA_START_BYTE + i] = data[i];
+            for (var i = 0; i < data.Length; i++) setBtName[PacketBytes.DATA_START_BYTE + i] = data[i];
 
             return generateCommand(setBtName);
         }
@@ -1061,7 +1061,7 @@ namespace RfidStationControl
             setBtName[PacketBytes.COMMAND_BYTE] = Command.SET_BT_PIN;
 
             //0...: данные для записи
-            for (byte i = 0; i < data.Length; i++) setBtName[PacketBytes.DATA_START_BYTE + i] = data[i];
+            for (var i = 0; i < data.Length; i++) setBtName[PacketBytes.DATA_START_BYTE + i] = data[i];
 
             return generateCommand(setBtName);
         }
@@ -1099,7 +1099,7 @@ namespace RfidStationControl
             sendBtCommand[PacketBytes.COMMAND_BYTE] = Command.SEND_BT_COMMAND;
 
             //0...: команда
-            for (byte i = 0; i < data.Length; i++) sendBtCommand[PacketBytes.DATA_START_BYTE + i] = data[i];
+            for (var i = 0; i < data.Length; i++) sendBtCommand[PacketBytes.DATA_START_BYTE + i] = data[i];
 
             return generateCommand(sendBtCommand);
         }
@@ -1130,15 +1130,18 @@ namespace RfidStationControl
         {
             if (data.Length <= PacketBytes.DATA_START_BYTE) return null;
 
-            var result = new ReplyData();
-            result.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            result.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            result.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            result.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            result.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(result.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var result = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = result.DataLength + PacketBytes.DATA_START_BYTE + 1;
             result.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) result.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) result.Packet[i] = data[i];
 
             if (result.DataLength == 1 && result.ErrorCode > 0)
                 return result;
@@ -1226,7 +1229,7 @@ namespace RfidStationControl
 
                 default:
                     ReplyStrings.TryGetValue(data[PacketBytes.COMMAND_BYTE], out var commandValue);
-                    result.Message = "Incorrect reply: " + commandValue + "\r\n";
+                    result.Message = "Incorrect reply: " + commandValue + System.Environment.NewLine;
                     break;
             }
 
@@ -1236,15 +1239,18 @@ namespace RfidStationControl
         private ReplyData reply_setMode(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1253,15 +1259,18 @@ namespace RfidStationControl
         {
             //0: код ошибки
             //1-4: текущее время
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             long t = data[PacketBytes.DATA_START_BYTE + 1] * 16777216 + data[PacketBytes.DATA_START_BYTE + 2] * 65536 +
                      data[PacketBytes.DATA_START_BYTE + 3] * 256 + data[PacketBytes.DATA_START_BYTE + 4];
@@ -1273,15 +1282,18 @@ namespace RfidStationControl
         private ReplyData reply_resetStation(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1289,15 +1301,18 @@ namespace RfidStationControl
         private ReplyData reply_getStatus(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             //1-4: текущее время
             long t = data[PacketBytes.DATA_START_BYTE + 1] * 16777216 +
@@ -1331,15 +1346,18 @@ namespace RfidStationControl
         private ReplyData reply_initChip(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             // 1-4: время инициализации
             long t = data[PacketBytes.DATA_START_BYTE + 1] * 16777216 + data[PacketBytes.DATA_START_BYTE + 2] * 65536 +
@@ -1356,15 +1374,18 @@ namespace RfidStationControl
         private ReplyData reply_getLastTeams(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             //1-2: номер 1й команды
             //3-4: номер 2й команды
@@ -1387,15 +1408,18 @@ namespace RfidStationControl
         {
             // 0: код ошибки
 
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             // 1-2[Uint16]: номер команды
             reply.Int1 = (ushort)(data[PacketBytes.DATA_START_BYTE + 1] * 256 + data[PacketBytes.DATA_START_BYTE + 2]);
@@ -1427,15 +1451,18 @@ namespace RfidStationControl
             //1-8: UID чипа
             //9: номер начальной страницы
             //10-...: данные из страниц карты(4 байта на страницу)
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             reply.ByteArray1 = new byte[8];
             for (var i = 0; i < 8; i++) reply.ByteArray1[i] = data[PacketBytes.DATA_START_BYTE + 1 + i];
@@ -1450,15 +1477,18 @@ namespace RfidStationControl
         private ReplyData reply_updateTeamMask(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1466,15 +1496,18 @@ namespace RfidStationControl
         private ReplyData reply_writeCardPage(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1483,15 +1516,18 @@ namespace RfidStationControl
         {
             //0: код ошибки
             //1...: данные из флэша
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             reply.Long1 = (uint)(data[PacketBytes.DATA_START_BYTE + 1] * 16777216 +
                 data[PacketBytes.DATA_START_BYTE + 2] * 65536 +
@@ -1508,15 +1544,18 @@ namespace RfidStationControl
         {
             //0: код ошибки
             //1...: данные из флэша
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             reply.Int1 = data[PacketBytes.DATA_START_BYTE + 1];
 
@@ -1526,14 +1565,17 @@ namespace RfidStationControl
         private ReplyData reply_eraseTeamFlash(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1541,15 +1583,18 @@ namespace RfidStationControl
         private ReplyData reply_getConfig(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             //1: версия прошивки
             reply.Byte1 = data[PacketBytes.DATA_START_BYTE + 1];
@@ -1607,15 +1652,18 @@ namespace RfidStationControl
         private ReplyData reply_setVCoeff(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1623,15 +1671,18 @@ namespace RfidStationControl
         private ReplyData reply_setGain(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1639,15 +1690,18 @@ namespace RfidStationControl
         private ReplyData reply_setChipType(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1655,15 +1709,18 @@ namespace RfidStationControl
         private ReplyData reply_setTeamFlashSize(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1671,15 +1728,18 @@ namespace RfidStationControl
         private ReplyData reply_setFlashBlockSize(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1687,15 +1747,18 @@ namespace RfidStationControl
         private ReplyData reply_setBtName(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1703,15 +1766,18 @@ namespace RfidStationControl
         private ReplyData reply_setBtPin(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1719,15 +1785,18 @@ namespace RfidStationControl
         private ReplyData reply_setBatteryLimit(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }
@@ -1739,15 +1808,18 @@ namespace RfidStationControl
             //3-4: номер 2й команды           
             //...	                        
             //(n - 1) - n: номер последней команды
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             reply.IntArray = new ushort[(reply.DataLength - 1) / 2];
             for (var i = 1; i < reply.DataLength; i = i + 2) reply.IntArray[i / 2] = (ushort)(data[PacketBytes.DATA_START_BYTE + i] * 256 + data[PacketBytes.DATA_START_BYTE + 1 + i]);
@@ -1758,15 +1830,18 @@ namespace RfidStationControl
         {
             //0: код ошибки
             //1-n: ответ BT модуля
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             reply.ByteArray1 = new byte[reply.DataLength - 1];
             for (var i = 0; i < reply.ByteArray1.Length; i++) reply.ByteArray1[i] = data[PacketBytes.DATA_START_BYTE + i + 1];
@@ -1776,15 +1851,18 @@ namespace RfidStationControl
         private ReplyData reply_getLastErrors(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             //1-2: номер 1й ошибки
             //3-4: номер 2й ошибки
@@ -1803,15 +1881,18 @@ namespace RfidStationControl
         private ReplyData reply_setAutoreport(byte[] data)
         {
             //0: код ошибки
-            var reply = new ReplyData();
-            reply.ReplyId = data[PacketBytes.PACKET_ID_BYTE];
-            reply.StationNumber = data[PacketBytes.STATION_NUMBER_BYTE];
-            reply.ReplyCode = data[PacketBytes.COMMAND_BYTE];
-            reply.ErrorCode = data[PacketBytes.DATA_START_BYTE];
-            reply.DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + data[PacketBytes.DATA_LENGTH_LOW_BYTE]);
-            var packetLength = (byte)(reply.DataLength + PacketBytes.DATA_START_BYTE + 1);
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                       data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
             reply.Packet = new byte[packetLength];
-            for (byte i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
 
             return reply;
         }

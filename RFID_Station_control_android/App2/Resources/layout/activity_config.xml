@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,292 +6,295 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-  <ScrollView
-    android:minWidth="25px"
-    android:minHeight="25px"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/scrollView1">
-    <LinearLayout
-      android:orientation="vertical"
-      android:minWidth="25px"
-      android:minHeight="25px"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:id="@+id/linearLayout1">
-      <Button
-        android:text="Back to main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/backButton" />
-      <Button
-        android:text="Get config"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/getConfigButton" />
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout2">
-        <Button
-          android:text="Set time "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setTimeButton" />
-        <CheckBox
-          android:text="current "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/currentCheckBox"
-          android:checked="true" />
-        <EditText
-          android:inputType="text"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/timeEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout3">
-        <Button
-          android:text="Set V koeff."
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setKoeffButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/koeffEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout4">
-        <Button
-          android:text="Set battery limit"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setBatLimitButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/batLimitEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout5">
-        <Button
-          android:text="Set antenna gain"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setAntennaButton" />
-        <Spinner
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/antennaSpinner" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout6">
-        <Button
-          android:text="Set chip type "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setChipButton" />
-        <Spinner
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/chipSpinner" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout7">
-        <TextView
-          android:text="Flash size: "
-          android:textAppearance="?android:attr/textAppearanceLarge"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/textView4"
-          android:gravity="center" />
-        <TextView
-          android:textAppearance="?android:attr/textAppearanceLarge"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/flashSizeTextView"
-          android:gravity="center"
-          android:background="@android:color/holo_blue_dark" />
-        <TextView
-          android:text=";  limit to: "
-          android:textAppearance="?android:attr/textAppearanceLarge"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/textView6"
-          android:gravity="center" />
-        <Spinner
-          android:layout_width="match_parent"
-          android:layout_height="50.0dp"
-          android:id="@+id/dumpSizeSpinner" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout8">
-        <Button
-          android:text="Set team block size"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setTeamSizeButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/teamSizeEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout9">
-        <Button
-          android:text="Set flash block size"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setFlashSizeButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/flashSizeEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout10">
-        <Button
-          android:text="Set BT name"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setBtNameButton" />
-        <EditText
-          android:inputType="text"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/setBtNameEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout11">
-        <Button
-          android:text="Set BT pin"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setBtPinButton" />
-        <EditText
-          android:inputType="text"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/setBtPinEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout12">
-        <Button
-          android:text="Send BT command"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/sendBtCommandButton" />
-        <EditText
-          android:inputType="text"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/sendBtCommandEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout13">
-        <Button
-          android:text="Set autoreport "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/setAutoreportButton" />
-        <CheckBox
-          android:text=""
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/autoreportCheckBox"
-          android:checked="true" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@id/linearLayout14">
-        <Button
-          android:text="Clear log"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/clearTerminalButton" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout14" />
-      <TextView
-        android:text="Terminal"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/terminalTextView" />
-    </LinearLayout>
-  </ScrollView>
+        android:id="@+id/scrollView1">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout1">
+            <Button
+                android:text="Back to main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/backButton" />
+            <Button
+                android:text="Get config"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/getConfigButton" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout2">
+                <Button
+                    android:text="Set time "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setTimeButton" />
+                <CheckBox
+                    android:text="current "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/currentCheckBox"
+                    android:checked="true" />
+                <EditText
+                    android:inputType="text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/timeEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout3">
+                <Button
+                    android:text="Set V koeff."
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setKoeffButton" />
+                <EditText
+                    android:inputType="numberDecimal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/koeffEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout4">
+                <Button
+                    android:text="Set battery limit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setBatLimitButton" />
+                <EditText
+                    android:inputType="numberDecimal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/batLimitEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout5">
+                <Button
+                    android:text="Set antenna gain"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setAntennaButton" />
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/antennaSpinner" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout6">
+                <Button
+                    android:text="Set chip type "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setChipButton" />
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/chipSpinner" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout7">
+                <TextView
+                    android:text="Flash size: "
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textView1"
+                    android:gravity="center" />
+                <TextView
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/flashSizeTextView"
+                    android:gravity="center"
+                    android:background="@android:color/holo_blue_dark" />
+                <TextView
+                    android:text=";  limit to: "
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textView2"
+                    android:gravity="center" />
+                <Spinner
+                    android:layout_width="match_parent"
+                    android:layout_height="50.0dp"
+                    android:id="@+id/dumpSizeSpinner" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout8">
+                <Button
+                    android:text="Set team block size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setTeamSizeButton" />
+                <EditText
+                    android:inputType="numberDecimal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/teamSizeEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout9">
+                <Button
+                    android:text="Set flash block size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setFlashSizeButton" />
+                <EditText
+                    android:inputType="numberDecimal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/flashSizeEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout10">
+                <Button
+                    android:text="Set autoreport "
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setAutoreportButton" />
+                <CheckBox
+                    android:text=""
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/autoreportCheckBox"
+                    android:checked="true" />
+            </LinearLayout>
 
+                        <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout11">
+                <TextView
+                    android:text="Packet length: "
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textView3"
+                    android:gravity="center" />
+                <TextView
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/packetLengthTextView"
+                    android:gravity="center"
+                    android:background="@android:color/holo_blue_dark" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout12">
+                <Button
+                    android:text="Set BT name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setBtNameButton" />
+                <EditText
+                    android:inputType="text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setBtNameEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout13">
+                <Button
+                    android:text="Set BT pin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setBtPinButton" />
+                <EditText
+                    android:inputType="text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/setBtPinEditText" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearLayout14">
+                <Button
+                    android:text="Send BT command"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/sendBtCommandButton" />
+                <EditText
+                    android:inputType="text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/sendBtCommandEditText" />
+            </LinearLayout>
+            <Button
+                android:text="Clear log"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/clearTerminalButton" />
+            <TextView
+                android:text="Terminal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/terminalTextView" />
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

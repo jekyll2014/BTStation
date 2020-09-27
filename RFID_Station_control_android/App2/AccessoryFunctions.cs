@@ -1,15 +1,14 @@
-﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+﻿using Microsoft.Win32;
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 public static class Accessory
 {
@@ -17,8 +16,8 @@ public static class Accessory
     {
         hexString = hexString.Replace(" ", "");
         if (hexString.Length % 2 == 1) return "";
-        byte[] strValue = new byte[hexString.Length / 2];
-        int i = 0;
+        var strValue = new byte[hexString.Length / 2];
+        var i = 0;
         while (hexString.Length > 1)
         {
             strValue[i] = Convert.ToByte(Convert.ToUInt32(hexString.Substring(0, 2), 16));
@@ -30,10 +29,10 @@ public static class Accessory
 
     public static byte[] ConvertHexToByteArray(string hexString)
     {
-        hexString = hexString.Replace(" ", "");
+        hexString = hexString?.Replace(" ", "");
         if (hexString.Length % 2 == 1) hexString += "0";
-        byte[] byteValue = new byte[hexString.Length / 2];
-        int i = 0;
+        var byteValue = new byte[hexString.Length / 2];
+        var i = 0;
         while (hexString.Length > 1)
         {
             byteValue[i] = Convert.ToByte(Convert.ToUInt32(hexString.Substring(0, 2), 16));
@@ -47,17 +46,13 @@ public static class Accessory
     {
         hexString = hexString.Trim();
         byte byteValue = 0;
-        if (hexString.Length > 0 && hexString.Length < 3)
-        {
-            byteValue = Convert.ToByte(Convert.ToUInt32(hexString, 16));
-        }
+        if (hexString.Length > 0 && hexString.Length < 3) byteValue = Convert.ToByte(Convert.ToUInt32(hexString, 16));
         return byteValue;
     }
 
     public static string ConvertHexToDec(string hexString)
     {
-        var decString = Convert.ToInt32(hexString, 16).ToString();
-        return decString;
+        return Convert.ToInt32(hexString, 16).ToString();
     }
 
     public static int ConvertHexToInt(string hexString)
@@ -72,7 +67,7 @@ public static class Accessory
 
     public static string ConvertStringToHex(string utfString, int cp = 866)
     {
-        byte[] encodedBytes = Encoding.GetEncoding(cp).GetBytes(utfString);
+        var encodedBytes = Encoding.GetEncoding(cp).GetBytes(utfString);
         var hexStr = new StringBuilder();
         foreach (var b in encodedBytes)
         {
@@ -89,7 +84,7 @@ public static class Accessory
         decString = decString.Replace(" ", "");
         if (decString.Length % 3 == 1) return "";
         var strValue = new byte[decString.Length / 3];
-        int i = 0;
+        var i = 0;
         while (decString.Length > 1)
         {
             if (Convert.ToUInt32(decString.Substring(0, 3), 10) < 256) strValue[i] = Convert.ToByte(Convert.ToUInt32(decString.Substring(0, 3), 10));
@@ -102,14 +97,13 @@ public static class Accessory
 
     public static string ConvertDecToHex(string decString)
     {
-        var hexString = Convert.ToInt32(decString, 16).ToString();
-        return hexString;
+        return Convert.ToInt32(decString, 16).ToString();
     }
 
     public static string ConvertStringToDec(string utfString, int cp = 866)
     {
-        byte[] encodedBytes = Encoding.GetEncoding(cp).GetBytes(utfString);
-        StringBuilder decStr = new StringBuilder();
+        var encodedBytes = Encoding.GetEncoding(cp).GetBytes(utfString);
+        var decStr = new StringBuilder();
         foreach (var b in encodedBytes)
         {
             decStr.Append(((int)b).ToString("D3"));
@@ -123,8 +117,8 @@ public static class Accessory
     {
         binString = binString.Replace(" ", "");
         if (binString.Length % 8 == 1) return "";
-        byte[] strValue = new byte[binString.Length / 8];
-        int i = 0;
+        var strValue = new byte[binString.Length / 8];
+        var i = 0;
         while (binString.Length > 0)
         {
             strValue[i] = Convert.ToByte(Convert.ToUInt32(binString.Substring(0, 8), 2));
@@ -136,11 +130,11 @@ public static class Accessory
 
     public static string ConvertStringToBin(string utfString, int cp = 866)
     {
-        byte[] encodedBytes = Encoding.GetEncoding(cp).GetBytes(utfString);
-        StringBuilder binStr = new StringBuilder();
+        var encodedBytes = Encoding.GetEncoding(cp).GetBytes(utfString);
+        var binStr = new StringBuilder();
         foreach (var b in encodedBytes)
         {
-            string tmpStr = Convert.ToString(b, 2);
+            var tmpStr = Convert.ToString(b, 2);
             while (tmpStr.Length < 8) tmpStr = "0" + tmpStr;
             binStr.Append(tmpStr);
             binStr.Append(" ");
@@ -151,20 +145,20 @@ public static class Accessory
 
     public static string CheckHexString(string inStr)
     {
-        StringBuilder outStr = new StringBuilder();
+        var outStr = new StringBuilder();
         if (inStr != "")
         {
-            char[] str = inStr.ToCharArray(0, inStr.Length);
-            StringBuilder tmpStr = new StringBuilder();
-            for (int i = 0; i < inStr.Length; i++)
+            var str = inStr.ToCharArray(0, inStr.Length);
+            var tmpStr = new StringBuilder();
+            for (var i = 0; i < inStr.Length; i++)
             {
-                if ((str[i] >= 'A' && str[i] <= 'F') || (str[i] >= 'a' && str[i] <= 'f') || (str[i] >= '0' && str[i] <= '9'))
+                if (str[i] >= 'A' && str[i] <= 'F' || str[i] >= 'a' && str[i] <= 'f' || str[i] >= '0' && str[i] <= '9')
                 {
                     tmpStr.Append(str[i].ToString());
                 }
                 else if (str[i] == ' ' && tmpStr.Length > 0)
                 {
-                    for (int i1 = 0; i1 < 2 - tmpStr.Length; i1++) outStr.Append("0");
+                    for (var i1 = 0; i1 < 2 - tmpStr.Length; i1++) outStr.Append("0");
                     outStr.Append(tmpStr);
                     outStr.Append(" ");
                     tmpStr.Length = 0;
@@ -178,25 +172,25 @@ public static class Accessory
             }
             if (tmpStr.Length > 0)
             {
-                for (int i = 0; i < 2 - tmpStr.Length; i++) outStr.Append("0");
+                for (var i = 0; i < 2 - tmpStr.Length; i++) outStr.Append("0");
                 outStr.Append(tmpStr);
                 outStr.Append(" ");
             }
             return outStr.ToString().ToUpperInvariant();
         }
 
-        return ("");
+        return "";
     }
 
     //добавить фильтрацию значений >255
     public static string CheckDecString(string inStr)
     {
-        StringBuilder outStr = new StringBuilder();
+        var outStr = new StringBuilder();
         if (inStr != "")
         {
-            char[] str = inStr.ToCharArray(0, inStr.Length);
-            StringBuilder tmpStr = new StringBuilder();
-            for (int i = 0; i < inStr.Length; i++)
+            var str = inStr.ToCharArray(0, inStr.Length);
+            var tmpStr = new StringBuilder();
+            for (var i = 0; i < inStr.Length; i++)
             {
                 if (str[i] >= '0' && str[i] <= '9')
                 {
@@ -204,7 +198,7 @@ public static class Accessory
                 }
                 else if (str[i] == ' ' && tmpStr.Length > 0)
                 {
-                    for (int i1 = 0; i1 < inStr.Length - tmpStr.Length; i1++) outStr.Append("0");
+                    for (var i1 = 0; i1 < inStr.Length - tmpStr.Length; i1++) outStr.Append("0");
                     outStr.Append(tmpStr);
                     outStr.Append(" ");
                     tmpStr.Length = 0;
@@ -218,25 +212,25 @@ public static class Accessory
             }
             if (tmpStr.Length > 0)
             {
-                for (int i = 0; i < inStr.Length - tmpStr.Length; i++) outStr.Append("0");
+                for (var i = 0; i < inStr.Length - tmpStr.Length; i++) outStr.Append("0");
                 outStr.Append(tmpStr);
                 outStr.Append(" ");
             }
             return outStr.ToString();
         }
 
-        return ("");
+        return "";
     }
 
     //добавить фильтрацию значений >255
     public static string CheckDecString(string inStr, int length)
     {
-        StringBuilder outStr = new StringBuilder();
+        var outStr = new StringBuilder();
         if (inStr != "")
         {
-            char[] str = inStr.ToCharArray(0, inStr.Length);
-            StringBuilder tmpStr = new StringBuilder();
-            for (int i = 0; i < inStr.Length; i++)
+            var str = inStr.ToCharArray(0, inStr.Length);
+            var tmpStr = new StringBuilder();
+            for (var i = 0; i < inStr.Length; i++)
             {
                 if (str[i] >= '0' && str[i] <= '9')
                 {
@@ -244,7 +238,7 @@ public static class Accessory
                 }
                 else if (str[i] == ' ' && tmpStr.Length > 0)
                 {
-                    for (int i1 = 0; i1 < length - tmpStr.Length; i1++) outStr.Append("0");
+                    for (var i1 = 0; i1 < length - tmpStr.Length; i1++) outStr.Append("0");
                     outStr.Append(tmpStr);
                     outStr.Append(" ");
                     tmpStr.Length = 0;
@@ -258,25 +252,25 @@ public static class Accessory
             }
             if (tmpStr.Length > 0)
             {
-                for (int i = 0; i < length - tmpStr.Length; i++) outStr.Append("0");
+                for (var i = 0; i < length - tmpStr.Length; i++) outStr.Append("0");
                 outStr.Append(tmpStr);
                 outStr.Append(" ");
             }
             return outStr.ToString();
         }
 
-        return ("");
+        return "";
     }
 
     // проверить
     public static string CheckBinString(string inStr)
     {
-        StringBuilder outStr = new StringBuilder();
+        var outStr = new StringBuilder();
         if (inStr != "")
         {
-            char[] str = inStr.ToCharArray(0, inStr.Length);
-            StringBuilder tmpStr = new StringBuilder();
-            for (int i = 0; i < inStr.Length; i++)
+            var str = inStr.ToCharArray(0, inStr.Length);
+            var tmpStr = new StringBuilder();
+            for (var i = 0; i < inStr.Length; i++)
             {
                 if (str[i] >= '0' && str[i] <= '1')
                 {
@@ -284,7 +278,7 @@ public static class Accessory
                 }
                 else if (str[i] == ' ' && tmpStr.Length > 0)
                 {
-                    for (int i1 = 0; i1 < 8 - tmpStr.Length; i1++) outStr.Append("0");
+                    for (var i1 = 0; i1 < 8 - tmpStr.Length; i1++) outStr.Append("0");
                     outStr.Append(tmpStr);
                     outStr.Append(" ");
                     tmpStr.Length = 0;
@@ -298,14 +292,14 @@ public static class Accessory
             }
             if (tmpStr.Length > 0)
             {
-                for (int i = 0; i < 8 - tmpStr.Length; i++) outStr.Append("0");
+                for (var i = 0; i < 8 - tmpStr.Length; i++) outStr.Append("0");
                 outStr.Append(tmpStr);
                 outStr.Append(" ");
             }
             return outStr.ToString();
         }
 
-        return ("");
+        return "";
     }
 
     //определение формата строки
@@ -313,10 +307,9 @@ public static class Accessory
     {
         int i = 0, i1 = 0;
         //bool xbin = true, xdec = true;
-        List<int> l = new List<int>();
+        var l = new List<int>();
         while (i < inString.Length)
-        {
-            if ((inString[i] >= '0' && inString[i] <= '9') || (inString[i] >= 'a' && inString[i] <= 'f') || (inString[i] >= 'A' && inString[i] <= 'F') || inString[i] == ' ')
+            if (inString[i] >= '0' && inString[i] <= '9' || inString[i] >= 'a' && inString[i] <= 'f' || inString[i] >= 'A' && inString[i] <= 'F' || inString[i] == ' ')
             {
                 //if (inString[i] < '0' && inString[i] > '1' && inString[i] != ' ') xbin=false; //not BIN
                 //if (inString[i] < '0' && inString[i] > '9' && inString[i] != ' ') xdec = false; //not DEC
@@ -325,17 +318,22 @@ public static class Accessory
                     if (i1 != 0) l.Add(i1);
                     i1 = 0;
                 }
-                else i1++;
+                else
+                {
+                    i1++;
+                }
+
                 i++;
             }
-            else return 0; //TEXT
-        }
+            else
+            {
+                return 0; //TEXT
+            }
+
         if (i1 != 0) l.Add(i1);
         //if (xbin == false && xdec == false) return 16;
         for (i = 0; i < l.Count - 1; i++)
-        {
             if (l[i + 1] != l[i]) return 0;
-        }
         if (l[0] == 2) return 16;
         if (l[0] == 3) return 10;
         if (l[0] == 8) return 2;
@@ -345,8 +343,8 @@ public static class Accessory
     public static string ConvertByteArrayToHex(byte[] byteArr)
     {
         if (byteArr == null) return "";
-        StringBuilder hexStr = new StringBuilder();
-        for (int i = 0; i < byteArr.Length; i++)
+        var hexStr = new StringBuilder();
+        for (var i = 0; i < byteArr.Length; i++)
         {
             hexStr.Append(byteArr[i].ToString("X2"));
             hexStr.Append(" ");
@@ -358,8 +356,8 @@ public static class Accessory
     {
         if (byteArr == null) return "";
         if (length > byteArr.Length) length = byteArr.Length;
-        StringBuilder hexStr = new StringBuilder();
-        for (int i = 0; i < length; i++)
+        var hexStr = new StringBuilder();
+        for (var i = 0; i < length; i++)
         {
             hexStr.Append(byteArr[i].ToString("X2"));
             hexStr.Append(" ");
@@ -375,10 +373,8 @@ public static class Accessory
     public static bool PrintableByteArray(byte[] str)
     {
         if (str == null) return true;
-        for (int i = 0; i < str.Length; i++)
-        {
+        for (var i = 0; i < str.Length; i++)
             if (str[i] < 32) return false;
-        }
         return true;
     }
 
@@ -390,9 +386,9 @@ public static class Accessory
 
     public static bool PrintableHex(string str)
     {
-        for (int i = 0; i < str.Length; i += 3)
+        for (var i = 0; i < str.Length; i += 3)
         {
-            if (!byte.TryParse(str.Substring(i, 3), NumberStyles.HexNumber, null, out byte n)) return false;
+            if (!byte.TryParse(str.Substring(i, 3), NumberStyles.HexNumber, null, out var n)) return false;
             if (n < 32) return false;
         }
         return true;
@@ -405,19 +401,17 @@ public static class Accessory
 
     public static string FilterZeroChar(string m, bool replaceWithSpace = true)
     {
-        StringBuilder n = new StringBuilder();
-        for (int i = 0; i < m.Length; i++)
-        {
+        var n = new StringBuilder();
+        for (var i = 0; i < m.Length; i++)
             if (m[i] != 0) n.Append(m[i]);
             else if (replaceWithSpace) n.Append(" ");
-        }
         return n.ToString();
     }
 
     public static int CountSubString(string str, string subStr)
     {
-        int count = 0;
-        int n = 0;
+        var count = 0;
+        var n = 0;
         while ((n = str.IndexOf(subStr, n, StringComparison.InvariantCulture)) != -1)
         {
             n += subStr.Length;
@@ -439,7 +433,7 @@ public static class Accessory
 
     public static long ClearBit(long b, byte bitNumber)
     {
-        b = (byte)(b & ~(1 << bitNumber));
+        b = (long)(b & ~(1 << bitNumber));
         return b;
     }
 
@@ -449,7 +443,7 @@ public static class Accessory
         var loDataColumn = new DataColumn("Eval", typeof(long), expression);
         loDataTable.Columns.Add(loDataColumn);
         loDataTable.Rows.Add(0);
-        return (long)(loDataTable.Rows[0]["Eval"]);
+        return (long)loDataTable.Rows[0]["Eval"];
     }
 
     public static long EvaluateVariables(string expression, string[] variables = null, string[] values = null)  //calculate string formula
@@ -457,18 +451,18 @@ public static class Accessory
         if (variables != null && values != null)
         {
             if (variables.Length != values.Length) return 0;
-            for (int i = 0; i < variables.Length; i++) expression = expression.Replace(variables[i], values[i]);
+            for (var i = 0; i < variables.Length; i++) expression = expression.Replace(variables[i], values[i]);
         }
         var loDataTable = new DataTable();
         var loDataColumn = new DataColumn("Eval", typeof(long), expression);
         loDataTable.Columns.Add(loDataColumn);
         loDataTable.Rows.Add(0);
-        return (long)(loDataTable.Rows[0]["Eval"]);
+        return (long)loDataTable.Rows[0]["Eval"];
     }
 
     public static void Delay_ms(long milisec)
     {
-        DateTime start = DateTime.Now;
+        var start = DateTime.Now;
 
         while (DateTime.Now.Subtract(start).TotalMilliseconds < milisec)
         {
@@ -481,24 +475,16 @@ public static class Accessory
     {
         if (a1 == null && b1 == null) return true;
         if (a1 == null || b1 == null) return false;
-        if (a1.Length != b1.Length)
-        {
-            return false;
-        }
+        if (a1.Length != b1.Length) return false;
 
-        for (int i = 0; i < a1.Length; i++)
-        {
-            if (a1[i] != b1[i])
-            {
-                return false;
-            }
-        }
+        for (var i = 0; i < a1.Length; i++)
+            if (a1[i] != b1[i]) return false;
         return true;
     }
 
     public static byte[] CombineByteArrays(byte[] first, byte[] second)
     {
-        byte[] ret = new byte[first.Length + second.Length];
+        var ret = new byte[first.Length + second.Length];
         Buffer.BlockCopy(first, 0, ret, 0, first.Length);
         Buffer.BlockCopy(second, 0, ret, first.Length, second.Length);
         return ret;
@@ -508,50 +494,44 @@ public static class Accessory
     {
         if (instr == null) return 0;
         byte crc = 0x00;
-        int i = 0;
+        var i = 0;
         while (i < instr.Length)
         {
-            byte tmp = instr[i];
+            var tmp = instr[i];
             for (byte tempI = 8; tempI > 0; tempI--)
             {
                 //byte sum = (byte)((crc & 0xFF) ^ (tmp & 0xFF));
                 //sum = (byte)((sum & 0xFF) & 0x01);
-                byte sum = (byte)((crc ^ tmp) & 0x01);
+                var sum = (byte)((crc ^ tmp) & 0x01);
                 crc >>= 1;
-                if (sum != 0)
-                {
-                    crc ^= 0x8C;
-                }
+                if (sum != 0) crc ^= 0x8C;
                 tmp >>= 1;
             }
             i++;
         }
-        return (crc);
+        return crc;
     }
 
     public static byte CrcCalc(byte[] instr, int startPos, int endPos)
     {
         if (instr == null) return 0;
         byte crc = 0x00;
-        int i = startPos;
+        var i = startPos;
         while (i <= endPos)
         {
-            byte tmp = instr[i];
+            var tmp = instr[i];
             for (byte tempI = 8; tempI > 0; tempI--)
             {
                 //byte sum = (byte)((crc & 0xFF) ^ (tmp & 0xFF));
                 //sum = (byte)((sum & 0xFF) & 0x01);
-                byte sum = (byte)((crc ^ tmp) & 0x01);
+                var sum = (byte)((crc ^ tmp) & 0x01);
                 crc >>= 1;
-                if (sum != 0)
-                {
-                    crc ^= 0x8C;
-                }
+                if (sum != 0) crc ^= 0x8C;
                 tmp >>= 1;
             }
             i++;
         }
-        return (crc);
+        return crc;
     }
 
     public static string CorrectFloatPoint(string s)
@@ -573,7 +553,7 @@ public static class Accessory
 
     public static Hashtable BuildPortNameHash(string[] oPortsToMap)
     {
-        Hashtable oReturnTable = new Hashtable();
+        var oReturnTable = new Hashtable();
         MineRegistryForPortName("SYSTEM\\CurrentControlSet\\Enum", oReturnTable, oPortsToMap);
         return oReturnTable;
     }
@@ -582,7 +562,7 @@ public static class Accessory
     {
         if (oTargetMap.Count >= oPortNamesToMatch.Length)
             return;
-        RegistryKey oCurrentKey = Registry.LocalMachine;
+        var oCurrentKey = Registry.LocalMachine;
 
         try
         {
@@ -590,16 +570,16 @@ public static class Accessory
 
             if (oCurrentKey != null)
             {
-                string[] oSubKeyNames = oCurrentKey.GetSubKeyNames();
+                var oSubKeyNames = oCurrentKey.GetSubKeyNames();
                 if (((IList<string>)oSubKeyNames).Contains("Device Parameters") && strStartKey != "SYSTEM\\CurrentControlSet\\Enum")
                 {
-                    object oPortNameValue = Registry.GetValue("HKEY_LOCAL_MACHINE\\" + strStartKey + "\\Device Parameters", "PortName", null);
+                    var oPortNameValue = Registry.GetValue("HKEY_LOCAL_MACHINE\\" + strStartKey + "\\Device Parameters", "PortName", null);
 
                     if (oPortNameValue == null || ((IList<string>)oPortNamesToMatch).Contains(oPortNameValue.ToString()) == false)
                         return;
-                    object oFriendlyName = Registry.GetValue("HKEY_LOCAL_MACHINE\\" + strStartKey, "FriendlyName", null);
+                    var oFriendlyName = Registry.GetValue("HKEY_LOCAL_MACHINE\\" + strStartKey, "FriendlyName", null);
 
-                    string strFriendlyName = "N/A";
+                    var strFriendlyName = "N/A";
 
                     if (oFriendlyName != null)
                         strFriendlyName = oFriendlyName.ToString();
@@ -609,7 +589,7 @@ public static class Accessory
                 }
                 else
                 {
-                    foreach (string strSubKey in oSubKeyNames)
+                    foreach (var strSubKey in oSubKeyNames)
                         MineRegistryForPortName(strStartKey + "\\" + strSubKey, oTargetMap, oPortNamesToMatch);
                 }
             }
@@ -617,5 +597,15 @@ public static class Accessory
         catch
         {
         }
+    }
+
+    public static string AssemblyVersion()
+    {
+        return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+    }
+
+    public static string ProductVersion()
+    {
+        return Application.ProductVersion.ToString();
     }
 }

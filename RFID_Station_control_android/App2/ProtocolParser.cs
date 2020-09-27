@@ -190,15 +190,15 @@ namespace RfidStationControl
 
             public override string ToString()
             {
-                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + "\r\n";
-                result += "Station#: " + StationNumber + "\r\n";
+                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + System.Environment.NewLine;
+                result += "Station#: " + StationNumber + System.Environment.NewLine;
 
                 ReplyStrings.TryGetValue(ReplyCode, out var commandValue);
-                result += "Command reply: " + commandValue + "\r\n";
+                result += "Command reply: " + commandValue + System.Environment.NewLine;
                 if (ErrorCode != 0)
                 {
                     ErrorCodes.TryGetValue(ErrorCode, out var errorValue);
-                    result += "\r\nError#: " + errorValue + "\r\n";
+                    result += System.Environment.NewLine + "Error#: " + errorValue + System.Environment.NewLine;
                 }
 
                 return result;
@@ -214,7 +214,7 @@ namespace RfidStationControl
                 }
                 public override string ToString()
                 {
-                    var result = "Time set to: " + Helpers.DateToString(Time) + "\r\n";
+                    var result = "Time set to: " + Helpers.DateToString(Time) + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -238,11 +238,11 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Current time: " + Helpers.DateToString(Time) + "\r\n";
-                    result += "Marks number: " + MarksNumber + "\r\n";
-                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + "\r\n";
-                    result += "Battery: " + "ADC=" + BatteryLevel + "\r\n";
-                    result += "Temperature: " + Temperature + "\r\n";
+                    var result = "Current time: " + Helpers.DateToString(Time) + System.Environment.NewLine;
+                    result += "Marks number: " + MarksNumber + System.Environment.NewLine;
+                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + System.Environment.NewLine;
+                    result += "Battery: " + "ADC=" + BatteryLevel + System.Environment.NewLine;
+                    result += "Temperature: " + Temperature + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -260,7 +260,7 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Init. time: " + Helpers.DateToString(InitTime) + "\r\n";
+                    var result = "Init. time: " + Helpers.DateToString(InitTime) + System.Environment.NewLine;
                     result += "UID: " + Helpers.ConvertByteArrayToHex(Uid);
                     return result;
                 }
@@ -277,9 +277,9 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Latest teams:\r\n";
+                    var result = "Latest teams:" + System.Environment.NewLine;
                     for (var i = 0; i < TeamsList?.Length; i++)
-                        if (TeamsList[i] > 0) result += "\t" + TeamsList[i].ToString() + "\r\n";
+                        if (TeamsList[i] > 0) result += "\t" + TeamsList[i].ToString() + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -303,11 +303,11 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Team#: " + TeamNumber + "\r\n";
-                    result += "Init. time: " + Helpers.DateToString(InitTime) + "\r\n";
-                    result += "Team mask: " + Helpers.ConvertMaskToString(Mask) + "\r\n";
-                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + "\r\n";
-                    result += "Dump pages: " + DumpSize + "\r\n";
+                    var result = "Team#: " + TeamNumber + System.Environment.NewLine;
+                    result += "Init. time: " + Helpers.DateToString(InitTime) + System.Environment.NewLine;
+                    result += "Team mask: " + Helpers.ConvertMaskToString(Mask) + System.Environment.NewLine;
+                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + System.Environment.NewLine;
+                    result += "Dump pages: " + DumpSize + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -327,13 +327,13 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "UID: " + Helpers.ConvertByteArrayToHex(Uid) + "\r\n";
-                    result += "Card data:\r\n";
+                    var result = "UID: " + Helpers.ConvertByteArrayToHex(Uid) + System.Environment.NewLine;
+                    result += "Card data:" + System.Environment.NewLine;
                     ushort i = 0;
                     while (i + 3 < PagesData.Length)
                     {
                         result += "\tpage #" + ((ushort)(startPage + i / 4)).ToString() + ": ";
-                        result += Helpers.ConvertByteArrayToHex(PagesData, i, 4) + "\r\n";
+                        result += Helpers.ConvertByteArrayToHex(PagesData, i, 4) + System.Environment.NewLine;
                         i += 4;
                     }
 
@@ -354,8 +354,8 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Read start address: " + Address + "\r\n";
-                    result += "Flash data: " + Helpers.ConvertByteArrayToHex(Data) + "\r\n";
+                    var result = "Read start address: " + Address + System.Environment.NewLine;
+                    result += "Flash data: " + Helpers.ConvertByteArrayToHex(Data) + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -371,7 +371,7 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Bytes written: " + BytesWritten + "\r\n";
+                    var result = "Bytes written: " + BytesWritten + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -407,17 +407,17 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "FW Version: " + FwVersion.ToString() + "\r\n";
-                    result += "Mode: " + Mode + "\r\n";
-                    result += "Chip type: " + ChipTypeId + "\r\n";
-                    result += "Flash size: " + FlashSize + " байт\r\n";
-                    result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + "\r\n";
-                    result += "Antenna gain: " + AntennaGain.ToString() + "\r\n";
-                    result += "Team block size: " + TeamBlockSize.ToString() + "\r\n";
-                    result += "Erase block size: " + EraseBlockSize.ToString() + "\r\n";
-                    result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + "\r\n";
-                    result += "Max. packet length: " + MaxPacketLength.ToString() + "\r\n";
-                    result += "Autoreport mode: " + AutoreportMode.ToString() + "\r\n";
+                    var result = "FW Version: " + FwVersion.ToString() + System.Environment.NewLine;
+                    result += "Mode: " + Mode + System.Environment.NewLine;
+                    result += "Chip type: " + ChipTypeId + System.Environment.NewLine;
+                    result += "Flash size: " + FlashSize + " байт" + System.Environment.NewLine;
+                    result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + System.Environment.NewLine;
+                    result += "Antenna gain: " + AntennaGain.ToString() + System.Environment.NewLine;
+                    result += "Team block size: " + TeamBlockSize.ToString() + System.Environment.NewLine;
+                    result += "Erase block size: " + EraseBlockSize.ToString() + System.Environment.NewLine;
+                    result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + System.Environment.NewLine;
+                    result += "Max. packet length: " + MaxPacketLength.ToString() + System.Environment.NewLine;
+                    result += "Autoreport mode: " + AutoreportMode.ToString() + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -433,8 +433,8 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Saved teams:\r\n";
-                    for (var i = 0; i < TeamsList?.Length; i++) result += "\t" + TeamsList[i].ToString() + "\r\n";
+                    var result = "Saved teams:" + System.Environment.NewLine;
+                    for (var i = 0; i < TeamsList?.Length; i++) result += "\t" + TeamsList[i].ToString() + System.Environment.NewLine;
                     return result;
                 }
             }
@@ -465,12 +465,12 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Latest errors:\r\n";
+                    var result = "Latest errors:" + System.Environment.NewLine;
                     for (var i = 0; i < errorsList?.Length; i++)
                         if (errorsList[i] > 0)
                         {
                             ProcessingErrorCodes.TryGetValue(errorsList[i], out var errorValue);
-                            result += "\t[" + errorsList[i].ToString() + "] " + errorValue + "\r\n";
+                            result += "\t[" + errorsList[i].ToString() + "] " + errorValue + System.Environment.NewLine;
                         }
 
                     return result;
@@ -657,7 +657,7 @@ namespace RfidStationControl
                     if (_uartBufferPosition == PacketBytes.DATA_LENGTH_LOW_BYTE &&
                         (ushort)(_uartBuffer[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + _uartBuffer[PacketBytes.DATA_LENGTH_LOW_BYTE]) > MaxPacketLength - PacketBytes.DATA_START_BYTE)
                     {
-                        result.Append("\r\nIncorrect message length: ");
+                        result.Append(System.Environment.NewLine + "Incorrect message length: ");
                         result.Append(Helpers.ConvertByteArrayToHex(_uartBuffer, _uartBufferPosition));
                         _receivingData = false;
                         _uartBufferPosition = 0;
@@ -677,7 +677,7 @@ namespace RfidStationControl
                             // incorrect station number
                             if (_uartBuffer[PacketBytes.STATION_NUMBER_BYTE] != _stationNumber && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_STATUS && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_CONFIG)
                             {
-                                result.Append("\r\nIncorrect station number: ");
+                                result.Append(System.Environment.NewLine + "Incorrect station number: ");
                                 result.Append(Helpers.ConvertByteArrayToHex(_uartBuffer, _uartBufferPosition));
                                 /*_receivingData = false;
                                 _uartBufferPosition = 0;
@@ -701,8 +701,8 @@ namespace RfidStationControl
                             continue;
                         }
 
-                        result.Append("\r\nCRC not correct: " + _uartBuffer[_uartBufferPosition].ToString("X2") +
-                                " instead of " + crc.ToString("X2") + "\r\n");
+                        result.Append(System.Environment.NewLine + "CRC not correct: " + _uartBuffer[_uartBufferPosition].ToString("X2") +
+                                " instead of " + crc.ToString("X2") + System.Environment.NewLine);
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
@@ -722,7 +722,7 @@ namespace RfidStationControl
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
-                        //SetText("\r\nIncorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]\r\n");
+                        //SetText(System.Environment.NewLine+"Incorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]"+ System.Environment.NewLine);
                     }
                     else
                     {
@@ -735,9 +735,9 @@ namespace RfidStationControl
             if (unrecognizedBytes.Count > 0)
             {
                 if (Helpers.PrintableByteArray(unrecognizedBytes.ToArray()))
-                    result.Append("Comment: " + Helpers.ConvertByteArrayToString(unrecognizedBytes.ToArray()) + "\r\n");
+                    result.Append("Comment: " + Helpers.ConvertByteArrayToString(unrecognizedBytes.ToArray()) + System.Environment.NewLine);
                 else
-                    result.Append("Comment: " + Helpers.ConvertByteArrayToHex(unrecognizedBytes.ToArray()) + "\r\n");
+                    result.Append("Comment: " + Helpers.ConvertByteArrayToHex(unrecognizedBytes.ToArray()) + System.Environment.NewLine);
             }
 
             if (result.Length > 0)
@@ -748,6 +748,8 @@ namespace RfidStationControl
             //SetText(result.ToString());
             return completed;
         }
+
+        #region Generate commands
 
         private byte[] GenerateCommand(byte[] command, int staNum = -1)
         {
@@ -767,8 +769,6 @@ namespace RfidStationControl
                 (ushort)(command.Length - 2));
             return command;
         }
-
-        #region Generate commands
 
         public byte[] SetMode(byte stationMode)
         {
@@ -1136,7 +1136,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = result.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1229,7 +1229,7 @@ namespace RfidStationControl
 
                 default:
                     ReplyStrings.TryGetValue(data[PacketBytes.COMMAND_BYTE], out var commandValue);
-                    result.Message = "Incorrect reply: " + commandValue + "\r\n";
+                    result.Message = "Incorrect reply: " + commandValue + System.Environment.NewLine;
                     break;
             }
 
@@ -1245,7 +1245,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1265,7 +1265,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1288,7 +1288,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1307,7 +1307,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1352,7 +1352,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1380,7 +1380,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1414,7 +1414,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1457,7 +1457,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1483,7 +1483,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1502,7 +1502,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1522,7 +1522,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1550,7 +1550,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1570,7 +1570,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1589,7 +1589,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1658,7 +1658,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1677,7 +1677,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1696,7 +1696,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1715,7 +1715,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1734,7 +1734,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1753,7 +1753,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1772,7 +1772,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1791,7 +1791,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1814,7 +1814,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1836,7 +1836,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1857,7 +1857,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
@@ -1887,7 +1887,7 @@ namespace RfidStationControl
                 StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
                 ReplyCode = data[PacketBytes.COMMAND_BYTE],
                 ErrorCode = data[PacketBytes.DATA_START_BYTE],
-                DataLength = (ushort) (data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
                                        data[PacketBytes.DATA_LENGTH_LOW_BYTE])
             };
             var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;

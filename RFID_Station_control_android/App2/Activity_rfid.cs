@@ -15,6 +15,28 @@ namespace RfidStationControl
     [Activity(Label = "RFID")]
     public class ActivityRfid : AppCompatActivity
     {
+        #region UI controls
+
+        Button initButton;
+        Button readButton;
+        Button writeButton;
+        Button eraseButton;
+        Button dumpButton;
+        Button clearGridButton;
+        Button backButton;
+
+        EditText teamNumberEditText;
+        EditText maskEditText;
+        EditText readFromEditText;
+        EditText readToEditText;
+        EditText pageNumberEditText;
+        EditText dataEditText;
+        EditText uidEditText;
+
+        GridView rfidGridView;
+
+        #endregion
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -23,30 +45,29 @@ namespace RfidStationControl
             SetContentView(Resource.Layout.activity_rfid);
 
             // populate all controls
-            var initButton = FindViewById<Button>(Resource.Id.initButton);
-            var readButton = FindViewById<Button>(Resource.Id.readButton);
-            var writeButton = FindViewById<Button>(Resource.Id.writeButton);
-            var eraseButton = FindViewById<Button>(Resource.Id.eraseButton);
-            var dumpButton = FindViewById<Button>(Resource.Id.dumpButton);
-            var clearGridButton = FindViewById<Button>(Resource.Id.clearGridButton);
-            var backButton = FindViewById<Button>(Resource.Id.backButton);
+            initButton = FindViewById<Button>(Resource.Id.initButton);
+            readButton = FindViewById<Button>(Resource.Id.readButton);
+            writeButton = FindViewById<Button>(Resource.Id.writeButton);
+            eraseButton = FindViewById<Button>(Resource.Id.eraseButton);
+            dumpButton = FindViewById<Button>(Resource.Id.dumpButton);
+            clearGridButton = FindViewById<Button>(Resource.Id.clearGridButton);
+            backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            var teamNumberEditText = FindViewById<EditText>(Resource.Id.teamNumberEditText);
-            var maskEditText = FindViewById<EditText>(Resource.Id.maskEditText);
-            var readFromEditText = FindViewById<EditText>(Resource.Id.readFromEditText);
-            var readToEditText = FindViewById<EditText>(Resource.Id.readToEditText);
-            var pageNumberEditText = FindViewById<EditText>(Resource.Id.pageNumberEditText);
-            var dataEditText = FindViewById<EditText>(Resource.Id.dataEditText);
-            var uidEditText = FindViewById<EditText>(Resource.Id.uidEditText);
+            teamNumberEditText = FindViewById<EditText>(Resource.Id.teamNumberEditText);
+            maskEditText = FindViewById<EditText>(Resource.Id.maskEditText);
+            readFromEditText = FindViewById<EditText>(Resource.Id.readFromEditText);
+            readToEditText = FindViewById<EditText>(Resource.Id.readToEditText);
+            pageNumberEditText = FindViewById<EditText>(Resource.Id.pageNumberEditText);
+            dataEditText = FindViewById<EditText>(Resource.Id.dataEditText);
+            uidEditText = FindViewById<EditText>(Resource.Id.uidEditText);
 
-            var rfidGridView = FindViewById<GridView>(Resource.Id.rfidGridView);
+            rfidGridView = FindViewById<GridView>(Resource.Id.rfidGridView);
 
             if (Table.Count == 0)
             {
                 var row = new RfidTableItem
                 {
-                    PageNum = "Page#",
-                    Data = "Hex data",
+                    PageNum = "#",
                     PageDesc = "Page description",
                     Decoded = "Decoded data"
                 };
@@ -83,7 +104,7 @@ namespace RfidStationControl
                 dumpButton.Enabled = false;
             }
 
-            GlobalOperationsIdClass.timerActiveTasks = 0;
+            GlobalOperationsIdClass.TimerActiveTasks = 0;
 
             initButton.Click += async (sender, e) =>
             {
@@ -111,10 +132,10 @@ namespace RfidStationControl
 
             dumpButton.Click += async (sender, e) =>
             {
-                /*rowNum++;
+                var rowNum = 0;
                 var row = new RfidTableItem { PageNum = rowNum.ToString(), Data = "0x00", PageDesc = "Page #" + rowNum.ToString() + " description", Decoded = "none" };
-                table.Add(row);
-                rfidGridView.Adapter = new RfidGridAdapter(this, table);*/
+                Table.Add(row);
+                rfidGridView.Adapter = new RfidGridAdapter(this, Table);
                 dumpButton.Enabled = false;
                 var tmp = dumpButton.Text;
                 dumpButton.Text = "Dumping...";
@@ -123,7 +144,7 @@ namespace RfidStationControl
                 const byte maxFramePages = 45;
                 var pagesFrom = 0;
                 int pagesTo;
-                GlobalOperationsIdClass.dumpCancellation = false;
+                GlobalOperationsIdClass.DumpCancellation = false;
                 do
                 {
                     pagesTo = pagesFrom + maxFramePages - 1;
@@ -139,8 +160,8 @@ namespace RfidStationControl
                     pagesFrom = pagesTo + 1;
 
                     var startTime = DateTime.Now;
-                    while (GlobalOperationsIdClass.timerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
-                } while (!GlobalOperationsIdClass.dumpCancellation && pagesTo < chipSize - 1);
+                    while (GlobalOperationsIdClass.TimerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
+                } while (!GlobalOperationsIdClass.DumpCancellation && pagesTo < chipSize - 1);
                 dumpButton.Enabled = false;
                 dumpButton.Text = tmp;
             };
@@ -219,10 +240,15 @@ namespace RfidStationControl
             };
         }
 
+        protected override void OnResume()
+        {
+            base.OnResume();
+            rfidGridView.Adapter = new RfidGridAdapter(this, Table);
+        }
+
         private async Task<bool> ReadBt()
         {
-            var packageReceived = false;
-
+            bool packageReceived;
             lock (GlobalOperationsIdClass.Bt.SerialReceiveThreadLock)
             {
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
@@ -233,8 +259,8 @@ namespace RfidStationControl
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
                 var reply = GlobalOperationsIdClass.Parser._repliesList[n];
-                GlobalOperationsIdClass.timerActiveTasks--;
-                if (reply.ErrorCode == 0)
+                GlobalOperationsIdClass.TimerActiveTasks--;
+                if (reply.ReplyCode != 0)
                 {
                     GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
 
@@ -242,25 +268,22 @@ namespace RfidStationControl
                     {
                         if (reply.ReplyCode == ProtocolParser.Reply.INIT_CHIP)
                         {
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.InitChipReply(reply);
+                            var replyDetails = new ProtocolParser.ReplyData.InitChipReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.READ_CARD_PAGE)
                         {
-                            var rfidGridView = FindViewById<GridView>(Resource.Id.rfidGridView);
-
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.ReadCardPageReply(reply);
-                            GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
+                            var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
                             // refresh RFID table
                             var endPage = replyDetails.startPage + (int)(replyDetails.PagesData.Length / 4);
                             for (var i = replyDetails.startPage; i < endPage; i++)
                             {
                                 var tmp = GlobalOperationsIdClass.Rfid.GetTablePage((byte)i);
                                 var row = new RfidTableItem
-                                    { PageNum = tmp[0], Data = tmp[1], PageDesc = tmp[2], Decoded = tmp[3] };
+                                { PageNum = tmp[0], PageDesc = tmp[1], Decoded = tmp[3] };
 
                                 var flag = false;
                                 for (var j = 0; j < Table?.Count; j++)
@@ -322,7 +345,6 @@ namespace RfidStationControl
 
             view.FindViewById<TextView>(Resource.Id.PageNumber).Text = item.PageNum;
             view.FindViewById<TextView>(Resource.Id.PageDescription).Text = item.PageDesc;
-            view.FindViewById<TextView>(Resource.Id.HexData).Text = item.Data;
             view.FindViewById<TextView>(Resource.Id.DecodedData).Text = item.Decoded;
 
             return view;

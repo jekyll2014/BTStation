@@ -5,7 +5,7 @@ namespace RfidStationControl
 {
     public class FlashContainer
     {
-        private byte[] Dump { get; set; }
+        public byte[] Dump { get; private set; }
 
         public class TeamDumpData
         {
@@ -17,20 +17,20 @@ namespace RfidStationControl
             public RfidContainer ChipDump;
         }
 
-        private uint Size { get; }
+        public uint Size { get; }
         public uint TeamDumpSize { get; }
 
-        private DataTable Table;
-        private uint BytesPerRow { get; }
+        public DataTable Table;
+        public uint BytesPerRow { get; }
 
-        private readonly ushort _dumpHeaderSize = 16;
+        public readonly ushort _dumpHeaderSize = 16;
 
-        private static class TableColumns
+        public static class TableColumns
         {
-            public const string TeamNumber = "Team#";
-            public const string ByteNumber = "Byte#";
-            public const string DecodedData = "Decoded data";
-            public const string RawData = "Raw data";
+            public static string TeamNumber = "Team#";
+            public static string ByteNumber = "Byte#";
+            public static string DecodedData = "Decoded data";
+            public static string RawData = "Raw data";
         }
 
         public FlashContainer(uint size, uint teamDumpSize = 0, uint bytesPerRow = 0)
@@ -99,9 +99,12 @@ namespace RfidStationControl
             var startAddress = teamNumber * TeamDumpSize;
             if (Dump[startAddress] == 0xff || Dump[startAddress] + Dump[startAddress + 1] != 0x00) return null;
             var tmpData = new byte[BytesPerRow];
-            for (var i = 0; i < BytesPerRow; i++) tmpData[i] = Dump[teamNumber * TeamDumpSize + i];
+            for (uint i = 0; i < BytesPerRow; i++) tmpData[i] = Dump[teamNumber * TeamDumpSize + i];
 
-            var teamBlock = new TeamDumpData {TeamNumber = tmpData[0] * 256 + tmpData[1]};
+            var teamBlock = new TeamDumpData
+            {
+                TeamNumber = tmpData[0] * 256 + tmpData[1]
+            };
 
             long timeNumber = tmpData[2] * 16777216 + tmpData[3] * 65536 + tmpData[4] * 256 + tmpData[5];
             teamBlock.InitTime = Helpers.ConvertFromUnixTimestamp(timeNumber);
@@ -170,7 +173,7 @@ namespace RfidStationControl
 
                     var result = "Team #" + teamNum +
                        ", InitTime: " + Helpers.DateToString(initTime) +
-                       ", TeamMask: " + Helpers.ConvertMaskToString(maskNumber) +
+                       ", Mask: " + Helpers.ConvertMaskToString(maskNumber) +
                        ", Last check: " + Helpers.DateToString(lastCheck) +
                        ", Dump size: " + dumpSize + ", ";
 
@@ -225,7 +228,7 @@ namespace RfidStationControl
                         else if (page == 10)
                         {
                             byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
-                            result += "TeamMask: " + Helpers.ConvertMaskToString(mask) + ", ";
+                            result += "Mask: " + Helpers.ConvertMaskToString(mask) + ", ";
                         }
                         // page4+7: reserved
                         else if (page == 10)

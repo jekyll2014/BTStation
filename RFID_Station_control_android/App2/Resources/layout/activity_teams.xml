@@ -7,171 +7,167 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-  <ScrollView
-    android:minWidth="25px"
-    android:minHeight="25px"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/scrollView1">
     <LinearLayout
-      android:orientation="vertical"
-      android:minWidth="25px"
-      android:minHeight="25px"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:id="@+id/linearLayout1"
-      android:gravity="top|bottom|left|right">
-      <Button
-        android:text="Back to main"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/backButton" />
-      <Button
-        android:text="Get last teams"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/getLastTeamsButton" />
-      <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:minWidth="25px"
         android:minHeight="25px"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout2">
+        android:layout_height="match_parent"
+        android:id="@+id/linearLayout1">
         <Button
-          android:text="Get all teams from # "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/getAllTeamsButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/scanTeamNumberEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout3">
+            android:text="Back to main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/backButton" />
         <Button
-          android:text="Get Team # "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/getTeamButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/teamNumberEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout4">
-        <Button
-          android:text="Update team mask"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/updateTeamMaskButton" />
+            android:text="Get last teams"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/getLastTeamsButton" />
         <LinearLayout
-          android:orientation="vertical"
-          android:minWidth="25px"
-          android:minHeight="25px"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/linearLayout5">
-          <LinearLayout
             android:orientation="horizontal"
             android:minWidth="25px"
             android:minHeight="25px"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/linearLayout6">
-            <TextView
-              android:text="issued"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent"
-              android:id="@+id/textView3" />
+            android:id="@+id/linearLayout2">
+            <Button
+                android:text="Get all teams from # "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/getAllTeamsButton" />
             <EditText
-              android:inputType="text"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:id="@+id/issuedEditText" />
-          </LinearLayout>
-          <LinearLayout
-            android:orientation="horizontal"
-            android:minWidth="25px"
-            android:minHeight="25px"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/linearLayout7">
-            <TextView
-              android:text="mask"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent"
-              android:id="@+id/textView4" />
-            <EditText
-              android:inputType="text"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:id="@+id/maskEditText" />
-          </LinearLayout>
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/scanTeamNumberEditText" />
         </LinearLayout>
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout8">
-        <Button
-          android:text="Erase team # "
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/eraseTeamButton" />
-        <EditText
-          android:inputType="numberDecimal"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/eraseTeamNumberEditText" />
-      </LinearLayout>
-      <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayout9">
-        <Button
-          android:text="Dump teams"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/dumpTeamsButton" />
-        <Button
-          android:text="Clear"
-          android:layout_width="wrap_content"
-          android:layout_height="match_parent"
-          android:id="@+id/clearGridButton" />
-      </LinearLayout>
-      <GridView
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="152.5dp"
-        android:fillViewport="true"
-        android:nestedScrollingEnabled="true"
-        android:id="@+id/teamsGridView"
-        android:layout_gravity="top|bottom|left|right|fill"
-        android:overScrollMode="ifContentScrolls"
-        android:background="#ffc6ff00" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout3">
+            <Button
+                android:text="Get Team # "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/getTeamButton" />
+            <EditText
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/teamNumberEditText" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout4">
+            <Button
+                android:text="Update team mask"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/updateTeamMaskButton" />
+            <LinearLayout
+                android:orientation="vertical"
+                android:minWidth="25px"
+                android:minHeight="25px"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/linearLayout5">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:minWidth="25px"
+                    android:minHeight="25px"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linearLayout6">
+                    <TextView
+                        android:text="issued"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:id="@+id/textView3" />
+                    <EditText
+                        android:inputType="text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/issuedEditText" />
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:minWidth="25px"
+                    android:minHeight="25px"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/linearLayout7">
+                    <TextView
+                        android:text="mask"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:id="@+id/textView4" />
+                    <EditText
+                        android:inputType="text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/maskEditText" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout8">
+            <Button
+                android:text="Erase team # "
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/eraseTeamButton" />
+            <EditText
+                android:inputType="numberDecimal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/eraseTeamNumberEditText" />
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout9">
+            <Button
+                android:text="Dump teams"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/dumpTeamsButton" />
+            <Button
+                android:text="Clear"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/clearGridButton" />
+        </LinearLayout>
+
+        <GridView
+            android:minWidth="25px"
+            android:minHeight="25px"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:nestedScrollingEnabled="true"
+            android:id="@+id/teamsGridView"
+            android:layout_gravity="top|bottom|left|right|fill"
+            android:overScrollMode="always"
+            android:background="#ffc6ff00"
+            android:isScrollContainer="true"
+            android:scrollbars="vertical|horizontal" />
+
     </LinearLayout>
-  </ScrollView>
 
 </RelativeLayout>

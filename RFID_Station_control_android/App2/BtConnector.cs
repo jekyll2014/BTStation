@@ -74,8 +74,9 @@ namespace RfidStationControl
             if (!BtAdapter.IsEnabled)
             {
                 var _manager = (BluetoothManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService);
-                _manager.Adapter.Enable();
+                if (_manager == null) return _isEnabled;
 
+                _manager.Adapter.Enable();
                 var enableStarted = DateTime.Now;
                 while (!GlobalOperationsIdClass.Bt.IsBtEnabled() && DateTime.Now.Subtract(enableStarted).TotalMilliseconds < CONNECTION_TIMEOUT) await Task.Delay(1);
 
@@ -109,8 +110,8 @@ namespace RfidStationControl
                     System.Diagnostics.Debug.WriteLine("Try to connect to " + deviceName);
 
                     _btDevice = (from bd in _btAdapter.BondedDevices
-                                where bd.Name == deviceName
-                                select bd).FirstOrDefault();
+                                 where bd.Name == deviceName
+                                 select bd).FirstOrDefault();
 
                     if (_btDevice == null)
                     {
@@ -144,7 +145,7 @@ namespace RfidStationControl
                         {
                             if (_btBufferReader.Ready())
                             {
-                                var inputBuffer = new byte[1024];
+                                var inputBuffer = new byte[4096];
 
                                 var c = await _btSocket.InputStream.ReadAsync(inputBuffer, 0,
                                     inputBuffer.Length);

@@ -1,4 +1,5 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
@@ -7,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Android.Content;
 
 namespace RfidStationControl
 {
@@ -26,6 +26,7 @@ namespace RfidStationControl
             public static byte FwVersion = 0;
             public static byte Number = 0;
             public static byte Mode = 0;
+            public static uint packetLengthkSize = 255;
             public static float VoltageCoefficient = 0.00578F;
             public static float BatteryLimit = 3.0F;
             public static byte AntennaGain = 80;
@@ -155,9 +156,26 @@ namespace RfidStationControl
 
         public static readonly TeamsContainer Teams = new TeamsContainer();
 
-        public static volatile byte timerActiveTasks = 0;
-        public const int BtReadPeriod = 500;
-        public static volatile bool dumpCancellation = false;
+        public static volatile byte TimerActiveTasks;
+        private const int BtReadPeriod = 500;
+        public static volatile bool DumpCancellation;
+
+
+        // Write data to the BtDevice
+        public static async Task<bool> SendToBtAsync(byte[] outBuffer, Context currentContext, Func<Task<bool>> callBack)
+        {
+            if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
+            {
+                Toast.MakeText(currentContext, "Can't write to Bluetooth.", ToastLength.Long).Show();
+                return false;
+            }
+
+            GlobalOperationsIdClass.TimerActiveTasks++;
+            GlobalOperationsIdClass.StartTimer(GlobalOperationsIdClass.BtReadPeriod, callBack);
+            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + System.Environment.NewLine);
+
+            return true;
+        }
 
         private static void StartTimer(long gap, Func<Task<bool>> callback)
         {
@@ -165,35 +183,251 @@ namespace RfidStationControl
             handler.PostDelayed(() =>
             {
                 if (Bt.BtInputBuffer.Count > 0) callback();
-                if (timerActiveTasks > 0) StartTimer(gap, callback);
+                if (TimerActiveTasks > 0) StartTimer(gap, callback);
                 handler.Dispose();
                 handler = null;
             }, gap);
         }
 
-        // Write data to the BtDevice
-        public static async Task<bool> SendToBtAsync(byte[] outBuffer, Context currentContext, Func<Task<bool>> callBack)
+        // need to implement fully
+        private async Task<bool> ReadBt()
         {
-            var isSuccess = true;
-            if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
+            bool packageReceived;
+            lock (GlobalOperationsIdClass.Bt.SerialReceiveThreadLock)
             {
-                Toast.MakeText(currentContext, "Can't write to Bluetooth.", ToastLength.Long).Show();
-                isSuccess = false;
+                packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
             }
-            GlobalOperationsIdClass.timerActiveTasks++;
-            GlobalOperationsIdClass.StartTimer(GlobalOperationsIdClass.BtReadPeriod, callBack);
 
-            //_terminalTextView.Text += ">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n";
-            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + "\r\n");
+            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0) return packageReceived;
 
-            return isSuccess;
+            for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
+            {
+                var reply = GlobalOperationsIdClass.Parser._repliesList[n];
+                GlobalOperationsIdClass.TimerActiveTasks--;
+                if (reply.ReplyCode != 0)
+                {
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
+
+                    if (reply.ErrorCode == 0)
+                    {
+                        if (reply.ReplyCode == ProtocolParser.Reply.GET_STATUS)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.GetStatusReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            {
+                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                GlobalOperationsIdClass.Parser =
+                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
+                            }
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.GET_CONFIG)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.GetConfigReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            {
+                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                GlobalOperationsIdClass.Parser =
+                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
+                            }
+
+                            byte g = 0;
+                            foreach (var x in RfidContainer.ChipTypes.Ids)
+                            {
+                                if (x.Value == replyDetails.ChipTypeId)
+                                {
+                                    GlobalOperationsIdClass.StationSettings.ChipType = g;
+                                    break;
+                                }
+                                g++;
+                            }
+
+                            if (GlobalOperationsIdClass.StationSettings.ChipType !=
+                                GlobalOperationsIdClass.Rfid.ChipType)
+                                GlobalOperationsIdClass.Rfid =
+                                    new RfidContainer(GlobalOperationsIdClass.StationSettings.ChipType);
+
+                            GlobalOperationsIdClass.StationSettings.AntennaGain = replyDetails.AntennaGain;
+
+                            GlobalOperationsIdClass.StationSettings.Mode = replyDetails.Mode;
+
+                            GlobalOperationsIdClass.StationSettings.BatteryLimit = replyDetails.BatteryLimit;
+
+                            GlobalOperationsIdClass.StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
+
+                            GlobalOperationsIdClass.StationSettings.FlashSize = replyDetails.FlashSize;
+
+                            GlobalOperationsIdClass.StationSettings.packetLengthkSize = replyDetails.MaxPacketLength;
+
+                            GlobalOperationsIdClass.StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
+                            if (GlobalOperationsIdClass.StationSettings.TeamBlockSize !=
+                                GlobalOperationsIdClass.Flash.TeamDumpSize)
+                                GlobalOperationsIdClass.Flash = new FlashContainer(
+                                    GlobalOperationsIdClass.FlashSizeLimit,
+                                    GlobalOperationsIdClass.StationSettings.TeamBlockSize,
+                                    0);
+
+                            GlobalOperationsIdClass.StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.SET_TIME)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.SetTimeReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.SEND_BT_COMMAND)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.SendBtCommandReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.GET_LAST_TEAMS)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.SCAN_TEAMS)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.ScanTeamsReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.GET_TEAM_RECORD)
+                        {
+
+                            var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            var team = new TeamsContainer.TeamData
+                            {
+                                LastCheckTime = replyDetails.LastMarkTime,
+                                DumpSize = replyDetails.DumpSize,
+                                InitTime = replyDetails.InitTime,
+                                TeamMask = replyDetails.Mask,
+                                TeamNumber = replyDetails.TeamNumber
+                            };
+                            GlobalOperationsIdClass.Teams.Add(team);
+                            var tmp = GlobalOperationsIdClass.Teams.GetTablePage(replyDetails.TeamNumber);
+                            var row = new TeamsPageState.TeamsTableItem
+                            {
+                                TeamNum = tmp[0],
+                                InitTime = tmp[1],
+                                CheckTime = tmp[2],
+                                Mask = tmp[3],
+                                DumpSize = tmp[4]
+                            };
+
+                            var flag = false;
+                            for (var i = 0; i < TeamsPageState.Table?.Count; i++)
+                            {
+                                if (TeamsPageState.Table[i].TeamNum != row.TeamNum) continue;
+
+                                TeamsPageState.Table.RemoveAt(i);
+                                TeamsPageState.Table.Insert(i, row);
+                                flag = true;
+                                break;
+                            }
+
+                            if (!flag) TeamsPageState.Table?.Add(row);
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.INIT_CHIP)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.InitChipReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.READ_CARD_PAGE)
+                        {
+
+                            var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
+                            // refresh RFID table
+                            var endPage = replyDetails.startPage + (int)(replyDetails.PagesData.Length / 4);
+                            for (var i = replyDetails.startPage; i < endPage; i++)
+                            {
+                                var tmp = GlobalOperationsIdClass.Rfid.GetTablePage((byte)i);
+                                var row = new RfidPageState.RfidTableItem
+                                { PageNum = tmp[0], Data = tmp[1], PageDesc = tmp[2], Decoded = tmp[3] };
+
+                                var flag = false;
+                                for (var j = 0; j < RfidPageState.Table?.Count; j++)
+                                {
+                                    if (RfidPageState.Table[j].PageNum != row.PageNum) continue;
+                                    RfidPageState.Table.RemoveAt(j);
+                                    RfidPageState.Table.Insert(j, row);
+                                    flag = true;
+                                    break;
+                                }
+                                if (!flag) RfidPageState.Table?.Add(row);
+                            }
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.READ_FLASH)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.ReadFlashReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
+                            GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
+                            // refresh flash table
+                            var startPage = (int)(replyDetails.Address / GlobalOperationsIdClass.Flash.TeamDumpSize);
+                            var endPage = (int)((replyDetails.Address + replyDetails.Data.Length) /
+                                                GlobalOperationsIdClass.Flash.TeamDumpSize);
+                            for (var i = startPage; i <= endPage; i++)
+                            {
+                                var tmp = GlobalOperationsIdClass.Flash.GetTablePage(i);
+                                var row = new FlashPageState.FlashTableItem { TeamNum = tmp[0], Decoded = tmp[2] };
+
+                                var flag = false;
+                                for (var j = 0; j < FlashPageState.Table?.Count; j++)
+                                {
+                                    if (FlashPageState.Table[j].TeamNum != row.TeamNum) continue;
+
+                                    FlashPageState.Table.RemoveAt(j);
+                                    FlashPageState.Table.Insert(j, row);
+                                    flag = true;
+                                    break;
+                                }
+                                if (!flag) FlashPageState.Table?.Add(row);
+                            }
+                        }
+                        else if (reply.ReplyCode == ProtocolParser.Reply.WRITE_FLASH)
+                        {
+                            var replyDetails = new ProtocolParser.ReplyData.WriteFlashReply(reply);
+                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                        }
+                    }
+
+                    GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
+                }
+                else
+                {
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                }
+            }
+            return packageReceived;
         }
-
     }
 
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
+        #region UI controls
+
+        private Button refreshButton;
+        private Button connectButton;
+        private Button statusButton;
+        private Button configurationButton;
+        private Button teamsButton;
+        private Button rfidButton;
+        private Button flashButton;
+        
+        private EditText stationNumberText;
+        private TextView terminalTextView;
+
+        private Spinner deviceListSpinner;
+
+        #endregion
+
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -201,55 +435,32 @@ namespace RfidStationControl
             SetContentView(Resource.Layout.activity_main);
 
             // Get our UI controls from the loaded layout
-            var refreshButton = FindViewById<Button>(Resource.Id.refreshButton);
-            var connectButton = FindViewById<Button>(Resource.Id.connectButton);
-            var statusButton = FindViewById<Button>(Resource.Id.statusButton);
-            var configurationButton = FindViewById<Button>(Resource.Id.configurationButton);
-            var teamsButton = FindViewById<Button>(Resource.Id.teamsButton);
-            var rfidButton = FindViewById<Button>(Resource.Id.rfidButton);
-            var flashButton = FindViewById<Button>(Resource.Id.flashButton);
+            refreshButton = FindViewById<Button>(Resource.Id.refreshButton);
+            connectButton = FindViewById<Button>(Resource.Id.connectButton);
+            statusButton = FindViewById<Button>(Resource.Id.statusButton);
+            configurationButton = FindViewById<Button>(Resource.Id.configurationButton);
+            teamsButton = FindViewById<Button>(Resource.Id.teamsButton);
+            rfidButton = FindViewById<Button>(Resource.Id.rfidButton);
+            flashButton = FindViewById<Button>(Resource.Id.flashButton);
 
-            var stationNumberText = FindViewById<EditText>(Resource.Id.stationNumberEditText);
+            stationNumberText = FindViewById<EditText>(Resource.Id.stationNumberEditText);
+            
+            terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
 
-            var deviceListSpinner = FindViewById<Spinner>(Resource.Id.DeviceListSpinner);
+            deviceListSpinner = FindViewById<Spinner>(Resource.Id.DeviceListSpinner);
 
             GlobalOperationsIdClass.GetInstance();
 
-            await GlobalOperationsIdClass.Bt.Enable();
-            if (GlobalOperationsIdClass.Bt.IsBtEnabled())
-            {
-                Toast.MakeText(this, "Bluetooth adapter enabled.", ToastLength.Long).Show();
-                var items = GlobalOperationsIdClass.Bt.PairedDevices();
-                var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
-                deviceListSpinner.Adapter = adapter;
-            }
-            else
-            {
-                await GlobalOperationsIdClass.Bt.Enable();
-                Toast.MakeText(this, "Bluetooth adapter not enabled.", ToastLength.Long).Show();
-            }
-            connectButton.Enabled = GlobalOperationsIdClass.Bt.IsBtEnabled();
+            GlobalOperationsIdClass.DumpCancellation = true;
+            GlobalOperationsIdClass.TimerActiveTasks = 0;
 
-            GlobalOperationsIdClass.timerActiveTasks = 0;
+            await StartBt();
 
-            stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();
+            stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();            
 
             refreshButton.Click += async (sender, e) =>
             {
-                await GlobalOperationsIdClass.Bt.Enable();
-
-                if (GlobalOperationsIdClass.Bt.IsBtEnabled())
-                {
-                    Toast.MakeText(this, "Bluetooth adapter enabled.", ToastLength.Long).Show();
-                    var items = GlobalOperationsIdClass.Bt.PairedDevices();
-                    var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
-                    deviceListSpinner.Adapter = adapter;
-                }
-                else
-                {
-                    Toast.MakeText(this, "Bluetooth adapter not enabled.", ToastLength.Long).Show();
-                }
-                connectButton.Enabled = GlobalOperationsIdClass.Bt.IsBtEnabled();
+                await StartBt();
             };
 
             connectButton.Click += async (sender, e) =>
@@ -262,7 +473,7 @@ namespace RfidStationControl
                     connectButton.Text = "Connecting...";
                     connectButton.Invalidate();
                     GlobalOperationsIdClass.Bt.Connecting = true;
-                    var deviceName = deviceListSpinner.SelectedItem.ToString();
+                    var deviceName = deviceListSpinner?.SelectedItem?.ToString();
                     GlobalOperationsIdClass.Bt.Connect(deviceName);
                     while (GlobalOperationsIdClass.Bt.Connecting) await Task.Delay(1);
                     if (GlobalOperationsIdClass.Bt.IsBtConnected())
@@ -322,17 +533,40 @@ namespace RfidStationControl
             };
         }
 
+        private async Task<bool> StartBt()
+        {
+            bool result;
+            await GlobalOperationsIdClass.Bt.Enable();
+            if (GlobalOperationsIdClass.Bt.IsBtEnabled())
+            {
+                Toast.MakeText(this, "Bluetooth adapter enabled.", ToastLength.Long).Show();
+                var items = GlobalOperationsIdClass.Bt.PairedDevices();
+                var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
+                deviceListSpinner.Adapter = adapter;
+                connectButton.Enabled = GlobalOperationsIdClass.Bt.IsBtEnabled();
+                result = true;
+            }
+            else
+            {
+                if (!await GlobalOperationsIdClass.Bt.Enable())
+                {
+                    Toast.MakeText(this, "Bluetooth adapter not enabled.", ToastLength.Long).Show();
+                    result = false;
+                }
+                else result = true;
+            }
+            return result;
+        }
+
         protected override void OnResume()
         {
             base.OnResume();
-            GlobalOperationsIdClass.dumpCancellation = true;
-            GlobalOperationsIdClass.timerActiveTasks = 0;
 
-            var refreshButton = FindViewById<Button>(Resource.Id.refreshButton);
-            var connectButton = FindViewById<Button>(Resource.Id.connectButton);
-            var deviceListSpinner = FindViewById<Spinner>(Resource.Id.DeviceListSpinner);
-            var stationNumberText = FindViewById<EditText>(Resource.Id.stationNumberEditText);
+            GlobalOperationsIdClass.DumpCancellation = true;
+            GlobalOperationsIdClass.TimerActiveTasks = 0;
             stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();
+            terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+
             if (GlobalOperationsIdClass.Bt.IsBtConnected())
             {
                 connectButton.Text = "Disconnect";

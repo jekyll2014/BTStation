@@ -76,8 +76,8 @@ namespace RfidStationControl
         public static bool PrintableByteArray(byte[] str)
         {
             if (str == null) return true;
-            for (var i = 0; i < str.Length; i++)
-                if (str[i] < 32 && str[i] != '\r' && str[i] != '\n' && str[i] != '\t') return false;
+            foreach (var t in str)
+                if (t < 32 && t != '\r' && t != '\n' && t != '\t') return false;
             return true;
         }
 

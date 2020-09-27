@@ -15,6 +15,27 @@ namespace RfidStationControl
     [Activity(Label = "Teams")]
     public class ActivityTeams : AppCompatActivity
     {
+        #region UI controls
+
+        Button getLastTeamsButton;
+        Button getAllTeamsButton;
+        Button getTeamButton;
+        Button updateMaskButton;
+        Button eraseTeamButton;
+        Button dumpButton;
+        Button clearGridButton;
+        Button backButton;
+
+        EditText scanTeamNumberEditText;
+        EditText teamNumberEditText;
+        EditText issuedEditText;
+        EditText maskEditText;
+        EditText eraseTeamNumberEditText;
+
+        GridView teamsGridView;
+
+        #endregion
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -23,23 +44,22 @@ namespace RfidStationControl
             SetContentView(Resource.Layout.activity_teams);
 
             // populate all controls
-            var getLastTeamsButton = FindViewById<Button>(Resource.Id.getLastTeamsButton);
-            var getAllTeamsButton = FindViewById<Button>(Resource.Id.getAllTeamsButton);
-            var getTeamButton = FindViewById<Button>(Resource.Id.getTeamButton);
-            var updateMaskButton = FindViewById<Button>(Resource.Id.updateTeamMaskButton);
-            var eraseTeamButton = FindViewById<Button>(Resource.Id.eraseTeamButton);
-            var dumpButton = FindViewById<Button>(Resource.Id.dumpTeamsButton);
-            var clearGridButton = FindViewById<Button>(Resource.Id.clearGridButton);
-            var backButton = FindViewById<Button>(Resource.Id.backButton);
+            getLastTeamsButton = FindViewById<Button>(Resource.Id.getLastTeamsButton);
+            getAllTeamsButton = FindViewById<Button>(Resource.Id.getAllTeamsButton);
+            getTeamButton = FindViewById<Button>(Resource.Id.getTeamButton);
+            updateMaskButton = FindViewById<Button>(Resource.Id.updateTeamMaskButton);
+            eraseTeamButton = FindViewById<Button>(Resource.Id.eraseTeamButton);
+            dumpButton = FindViewById<Button>(Resource.Id.dumpTeamsButton);
+            clearGridButton = FindViewById<Button>(Resource.Id.clearGridButton);
+            backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            var scanTeamNumberEditText = FindViewById<EditText>(Resource.Id.scanTeamNumberEditText);
-            var teamNumberEditText = FindViewById<EditText>(Resource.Id.teamNumberEditText);
-            var issuedEditText = FindViewById<EditText>(Resource.Id.issuedEditText);
-            var maskEditText = FindViewById<EditText>(Resource.Id.maskEditText);
-            var eraseTeamNumberEditText = FindViewById<EditText>(Resource.Id.eraseTeamNumberEditText);
+            scanTeamNumberEditText = FindViewById<EditText>(Resource.Id.scanTeamNumberEditText);
+            teamNumberEditText = FindViewById<EditText>(Resource.Id.teamNumberEditText);
+            issuedEditText = FindViewById<EditText>(Resource.Id.issuedEditText);
+            maskEditText = FindViewById<EditText>(Resource.Id.maskEditText);
+            eraseTeamNumberEditText = FindViewById<EditText>(Resource.Id.eraseTeamNumberEditText);
 
-
-            var teamsGridView = FindViewById<GridView>(Resource.Id.teamsGridView);
+            teamsGridView = FindViewById<GridView>(Resource.Id.teamsGridView);
 
             if (Table.Count == 0)
             {
@@ -49,12 +69,10 @@ namespace RfidStationControl
                     CheckTime = "Mark time",
                     InitTime = "Init time",
                     Mask = "TeamMask",
-                    DumpSize = "Dump size"
                 };
                 Table.Add(row);
+                teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
             }
-
-            teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
 
             //init page
             Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() + " teams";
@@ -83,7 +101,7 @@ namespace RfidStationControl
                 dumpButton.Enabled = false;
             }
 
-            GlobalOperationsIdClass.timerActiveTasks = 0;
+            GlobalOperationsIdClass.TimerActiveTasks = 0;
 
             getLastTeamsButton.Click += async (sender, e) =>
             {
@@ -100,6 +118,11 @@ namespace RfidStationControl
 
             getTeamButton.Click += async (sender, e) =>
             {
+                /*var rowNum = 0;
+                var row = new TeamsTableItem { TeamNum = rowNum.ToString(), InitTime = "01.01.2019", CheckTime = "02.01.2019", Mask = "000000111"};
+                Table.Add(row);
+                teamsGridView.Adapter = new TeamsGridAdapter(this, Table);*/
+
                 teamNumberEditText.ClearFocus();
                 var outBuffer = GlobalOperationsIdClass.Parser.GetTeamRecord(GetTeamNumber);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
@@ -132,7 +155,7 @@ namespace RfidStationControl
                 dumpButton.Text = "Dumping...";
                 ushort teamNum = 1;
                 var maxTeamNum = (int)(GlobalOperationsIdClass.StationSettings.FlashSize / GlobalOperationsIdClass.StationSettings.TeamBlockSize);
-                GlobalOperationsIdClass.dumpCancellation = false;
+                GlobalOperationsIdClass.DumpCancellation = false;
                 do
                 {
                     dumpButton.Text = "Dumping " + teamNum.ToString() + "/" + maxTeamNum.ToString();
@@ -142,10 +165,10 @@ namespace RfidStationControl
                     if (!await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt)) break;
 
                     var startTime = DateTime.Now;
-                    while (GlobalOperationsIdClass.timerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
+                    while (GlobalOperationsIdClass.TimerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
 
                     teamNum++;
-                } while (!GlobalOperationsIdClass.dumpCancellation && teamNum < maxTeamNum);
+                } while (!GlobalOperationsIdClass.DumpCancellation && teamNum < maxTeamNum);
                 dumpButton.Enabled = false;
                 dumpButton.Text = tmp;
             };
@@ -205,10 +228,15 @@ namespace RfidStationControl
             };
         }
 
+        protected override void OnResume()
+        {
+            base.OnResume();
+            teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
+        }
+
         private async Task<bool> ReadBt()
         {
-            var packageReceived = false;
-
+            bool packageReceived;
             lock (GlobalOperationsIdClass.Bt.SerialReceiveThreadLock)
             {
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
@@ -219,8 +247,8 @@ namespace RfidStationControl
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
                 var reply = GlobalOperationsIdClass.Parser._repliesList[n];
-                GlobalOperationsIdClass.timerActiveTasks--;
-                if (reply.ErrorCode == 0)
+                GlobalOperationsIdClass.TimerActiveTasks--;
+                if (reply.ReplyCode != 0)
                 {
                     GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
 
@@ -228,23 +256,19 @@ namespace RfidStationControl
                     {
                         if (reply.ReplyCode == ProtocolParser.Reply.GET_LAST_TEAMS)
                         {
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
+                            var replyDetails = new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.SCAN_TEAMS)
                         {
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.ScanTeamsReply(reply);
+                            var replyDetails = new ProtocolParser.ReplyData.ScanTeamsReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.GET_TEAM_RECORD)
                         {
-                            var teamsGridView = FindViewById<GridView>(Resource.Id.teamsGridView);
-
-                            var replyDetails =
-                                new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
+                            var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
                             GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+
                             var team = new TeamsContainer.TeamData
                             {
                                 LastCheckTime = replyDetails.LastMarkTime,
@@ -261,7 +285,6 @@ namespace RfidStationControl
                                 InitTime = tmp[1],
                                 CheckTime = tmp[2],
                                 Mask = tmp[3],
-                                DumpSize = tmp[4]
                             };
 
                             var flag = false;
@@ -277,10 +300,10 @@ namespace RfidStationControl
 
                             if (!flag) Table?.Add(row);
 
-
                             teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
                         }
                     }
+
                     GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
                     Toast.MakeText(this,
                         ProtocolParser.ReplyStrings[reply.ReplyCode] + " replied: " +
@@ -320,15 +343,14 @@ namespace RfidStationControl
         {
             var item = _items[position];
 
-            var view = convertView;
+            View view = convertView;
             if (view == null) // no view to re-use, create new
                 view = _context.LayoutInflater.Inflate(Resource.Layout.teamsTable_view, null);
 
-            view.FindViewById<TextView>(Resource.Id.PageNumber).Text = item.TeamNum;
-            view.FindViewById<TextView>(Resource.Id.PageDescription).Text = item.InitTime;
-            view.FindViewById<TextView>(Resource.Id.HexData).Text = item.CheckTime;
-            view.FindViewById<TextView>(Resource.Id.DecodedData).Text = item.Mask;
-            view.FindViewById<TextView>(Resource.Id.DumpSize).Text = item.DumpSize;
+            view.FindViewById<TextView>(Resource.Id.TeamNumber).Text = item.TeamNum;
+            view.FindViewById<TextView>(Resource.Id.TeamMask).Text = item.Mask;
+            view.FindViewById<TextView>(Resource.Id.InitTime).Text = item.InitTime;
+            view.FindViewById<TextView>(Resource.Id.LastCheckTime).Text = item.CheckTime;
 
             return view;
         }

@@ -628,7 +628,7 @@ void processRfidCard()
       Serial.print(F("!!!failed to write chip"));
 #endif
       errorBeep(1);
-      writeErrorCount++;
+      clearErrorCount++;
     }
   }
   clearTime = millis() - clearTime;
@@ -665,10 +665,10 @@ void processRfidCard()
 
   Serial.print(F("; "));
   Serial.print(clearTime);
-  if (verifyErrorCount > 0)
+  if (clearErrorCount > 0)
   {
-    Serial.print(F(", Verify errors: "));
-    Serial.print(String(verifyErrorCount));
+    Serial.print(F(", Clear errors: "));
+    Serial.print(String(clearErrorCount));
   }
   else Serial.print(F(", OK"));
   Serial.println();

@@ -77,7 +77,7 @@ namespace RfidStationControl
             while (hexString.Length > 1)
             {
                 byteValue[i] = Convert.ToByte(Convert.ToUInt32(hexString.Substring(0, 2), 16));
-                if (hexString.Length > 2) hexString = hexString.Substring(2, hexString.Length - 2);
+                hexString = hexString.Substring(2, hexString.Length - 2);
                 i++;
             }
             return byteValue;
@@ -113,11 +113,11 @@ namespace RfidStationControl
 
             if (tmpStr.Length <= 0) return outStr.ToString().ToUpperInvariant();
 
-            
-                for (var i = 0; i < 2 - tmpStr.Length; i++) outStr.Append("0");
-                outStr.Append(tmpStr);
-                outStr.Append(" ");
-            
+
+            for (var i = 0; i < 2 - tmpStr.Length; i++) outStr.Append("0");
+            outStr.Append(tmpStr);
+            outStr.Append(" ");
+
             return outStr.ToString().ToUpperInvariant();
 
         }
