@@ -17,22 +17,22 @@ namespace RfidStationControl
     {
         #region UI controls
 
-        Button getLastTeamsButton;
-        Button getAllTeamsButton;
-        Button getTeamButton;
-        Button updateMaskButton;
-        Button eraseTeamButton;
-        Button dumpButton;
-        Button clearGridButton;
-        Button backButton;
+        private Button getLastTeamsButton;
+        private Button getAllTeamsButton;
+        private Button getTeamButton;
+        private Button updateMaskButton;
+        private Button eraseTeamButton;
+        private Button dumpButton;
+        private Button clearGridButton;
+        private Button backButton;
 
-        EditText scanTeamNumberEditText;
-        EditText teamNumberEditText;
-        EditText issuedEditText;
-        EditText maskEditText;
-        EditText eraseTeamNumberEditText;
+        private EditText scanTeamNumberEditText;
+        private EditText teamNumberEditText;
+        private EditText issuedEditText;
+        private EditText maskEditText;
+        private EditText eraseTeamNumberEditText;
 
-        GridView teamsGridView;
+        private GridView teamsGridView;
 
         #endregion
 
@@ -71,11 +71,11 @@ namespace RfidStationControl
                     Mask = "TeamMask",
                 };
                 Table.Add(row);
-                teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
+                if (teamsGridView != null) teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
             }
 
             //init page
-            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() + " teams";
+            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " teams";
             scanTeamNumberEditText.Text = ScanTeamNumber.ToString();
             teamNumberEditText.Text = GetTeamNumber.ToString();
             issuedEditText.Text = Helpers.DateToString(Issued);
@@ -158,7 +158,7 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.DumpCancellation = false;
                 do
                 {
-                    dumpButton.Text = "Dumping " + teamNum.ToString() + "/" + maxTeamNum.ToString();
+                    dumpButton.Text = "Dumping " + teamNum + "/" + maxTeamNum;
                     dumpButton.Invalidate();
                     //0-1: какую запись
                     var outBuffer = GlobalOperationsIdClass.Parser.GetTeamRecord(teamNum);
@@ -202,7 +202,7 @@ namespace RfidStationControl
 
             maskEditText.FocusChange += (sender, e) =>
             {
-                if (maskEditText.Text.Length > 16)
+                if (maskEditText.Text?.Length > 16)
                     maskEditText.Text = maskEditText.Text.Substring(0, 16);
                 else if (maskEditText.Text.Length < 16)
                     while (maskEditText.Text.Length < 16)
@@ -250,64 +250,70 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
-                        if (reply.ReplyCode == ProtocolParser.Reply.GET_LAST_TEAMS)
+                        switch (reply.ReplyCode)
                         {
-                            var replyDetails = new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-                        }
-                        else if (reply.ReplyCode == ProtocolParser.Reply.SCAN_TEAMS)
-                        {
-                            var replyDetails = new ProtocolParser.ReplyData.ScanTeamsReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-                        }
-                        else if (reply.ReplyCode == ProtocolParser.Reply.GET_TEAM_RECORD)
-                        {
-                            var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            case ProtocolParser.Reply.GET_LAST_TEAMS:
+                                {
+                                    var replyDetails = new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    break;
+                                }
+                            case ProtocolParser.Reply.SCAN_TEAMS:
+                                {
+                                    var replyDetails = new ProtocolParser.ReplyData.ScanTeamsReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    break;
+                                }
+                            case ProtocolParser.Reply.GET_TEAM_RECORD:
+                                {
+                                    var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
 
-                            var team = new TeamsContainer.TeamData
-                            {
-                                LastCheckTime = replyDetails.LastMarkTime,
-                                DumpSize = replyDetails.DumpSize,
-                                InitTime = replyDetails.InitTime,
-                                TeamMask = replyDetails.Mask,
-                                TeamNumber = replyDetails.TeamNumber
-                            };
-                            GlobalOperationsIdClass.Teams.Add(team);
-                            var tmp = GlobalOperationsIdClass.Teams.GetTablePage(replyDetails.TeamNumber);
-                            var row = new TeamsTableItem
-                            {
-                                TeamNum = tmp[0],
-                                InitTime = tmp[1],
-                                CheckTime = tmp[2],
-                                Mask = tmp[3],
-                            };
+                                    var team = new TeamsContainer.TeamData
+                                    {
+                                        LastCheckTime = replyDetails.LastMarkTime,
+                                        DumpSize = replyDetails.DumpSize,
+                                        InitTime = replyDetails.InitTime,
+                                        TeamMask = replyDetails.Mask,
+                                        TeamNumber = replyDetails.TeamNumber
+                                    };
+                                    GlobalOperationsIdClass.Teams.Add(team);
+                                    var tmp = GlobalOperationsIdClass.Teams.GetTablePage(replyDetails.TeamNumber);
+                                    var row = new TeamsTableItem
+                                    {
+                                        TeamNum = tmp[0],
+                                        InitTime = tmp[1],
+                                        CheckTime = tmp[2],
+                                        Mask = tmp[3],
+                                    };
 
-                            var flag = false;
-                            for (var i = 0; i < Table?.Count; i++)
-                            {
-                                if (Table[i].TeamNum != row.TeamNum) continue;
+                                    var flag = false;
+                                    for (var i = 0; i < Table?.Count; i++)
+                                    {
+                                        if (Table[i].TeamNum != row.TeamNum) continue;
 
-                                Table.RemoveAt(i);
-                                Table.Insert(i, row);
-                                flag = true;
-                                break;
-                            }
+                                        Table.RemoveAt(i);
+                                        Table.Insert(i, row);
+                                        flag = true;
+                                        break;
+                                    }
 
-                            if (!flag) Table?.Add(row);
+                                    if (!flag) Table?.Add(row);
 
-                            teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
+                                    teamsGridView.Adapter = new TeamsGridAdapter(this, Table);
+                                    break;
+                                }
                         }
                     }
 
                     GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
                     Toast.MakeText(this,
                         ProtocolParser.ReplyStrings[reply.ReplyCode] + " replied: " +
-                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long).Show();
+                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long)?.Show();
                 }
                 else
                 {

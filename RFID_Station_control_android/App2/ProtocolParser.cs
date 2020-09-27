@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace RfidStationControl
@@ -24,15 +25,15 @@ namespace RfidStationControl
         private bool _receivingData;
         private byte _packageId;
         private readonly object _serialReceiveThreadLock = new object();
-        private DateTime _receiveStartTime = DateTime.Now.ToUniversalTime().ToUniversalTime();
-        private const ulong RECEIVE_TIME_OUT = 2000;
-        private readonly byte _stationNumber;
+        private DateTime _receiveStartTime = DateTime.Now.ToUniversalTime();
+        public ulong ReceiveTimeOut = 2000;
+        public byte StationNumber;
 
         public ProtocolParser(byte stationNumber = 0, ushort maxPacketLength = 255)
         {
             MaxPacketLength = maxPacketLength;
             _uartBuffer = new byte[maxPacketLength];
-            _stationNumber = stationNumber;
+            StationNumber = stationNumber;
         }
 
         //коды команд
@@ -190,15 +191,15 @@ namespace RfidStationControl
 
             public override string ToString()
             {
-                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + System.Environment.NewLine;
-                result += "Station#: " + StationNumber + System.Environment.NewLine;
+                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + Environment.NewLine;
+                result += "Station#: " + StationNumber + Environment.NewLine;
 
                 ReplyStrings.TryGetValue(ReplyCode, out var commandValue);
-                result += "Command reply: " + commandValue + System.Environment.NewLine;
+                result += "Command reply: " + commandValue + Environment.NewLine;
                 if (ErrorCode != 0)
                 {
                     ErrorCodes.TryGetValue(ErrorCode, out var errorValue);
-                    result += System.Environment.NewLine + "Error#: " + errorValue + System.Environment.NewLine;
+                    result += Environment.NewLine + "Error#: " + errorValue + Environment.NewLine;
                 }
 
                 return result;
@@ -206,7 +207,7 @@ namespace RfidStationControl
 
             public class SetTimeReply
             {
-                private readonly DateTime Time;
+                public DateTime Time;
 
                 public SetTimeReply(ReplyData data)
                 {
@@ -214,7 +215,7 @@ namespace RfidStationControl
                 }
                 public override string ToString()
                 {
-                    var result = "Time set to: " + Helpers.DateToString(Time) + System.Environment.NewLine;
+                    var result = "Time set to: " + Helpers.DateToString(Time) + Environment.NewLine;
                     return result;
                 }
             }
@@ -238,11 +239,11 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Current time: " + Helpers.DateToString(Time) + System.Environment.NewLine;
-                    result += "Marks number: " + MarksNumber + System.Environment.NewLine;
-                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + System.Environment.NewLine;
-                    result += "Battery: " + "ADC=" + BatteryLevel + System.Environment.NewLine;
-                    result += "Temperature: " + Temperature + System.Environment.NewLine;
+                    var result = "Current time: " + Helpers.DateToString(Time) + Environment.NewLine;
+                    result += "Marks number: " + MarksNumber + Environment.NewLine;
+                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + Environment.NewLine;
+                    result += "Battery: " + "ADC=" + BatteryLevel + Environment.NewLine;
+                    result += "Temperature: " + Temperature + Environment.NewLine;
                     return result;
                 }
             }
@@ -260,7 +261,7 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Init. time: " + Helpers.DateToString(InitTime) + System.Environment.NewLine;
+                    var result = "Init. time: " + Helpers.DateToString(InitTime) + Environment.NewLine;
                     result += "UID: " + Helpers.ConvertByteArrayToHex(Uid);
                     return result;
                 }
@@ -277,9 +278,9 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Latest teams:" + System.Environment.NewLine;
+                    var result = "Latest teams:" + Environment.NewLine;
                     for (var i = 0; i < TeamsList?.Length; i++)
-                        if (TeamsList[i] > 0) result += "\t" + TeamsList[i].ToString() + System.Environment.NewLine;
+                        if (TeamsList[i] > 0) result += "\t" + TeamsList[i] + Environment.NewLine;
                     return result;
                 }
             }
@@ -290,7 +291,7 @@ namespace RfidStationControl
                 public DateTime InitTime;
                 public ushort Mask;
                 public DateTime LastMarkTime;
-                public byte DumpSize;
+                public ushort DumpSize;
 
                 public GetTeamRecordReply(ReplyData data)
                 {
@@ -303,11 +304,11 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Team#: " + TeamNumber + System.Environment.NewLine;
-                    result += "Init. time: " + Helpers.DateToString(InitTime) + System.Environment.NewLine;
-                    result += "Team mask: " + Helpers.ConvertMaskToString(Mask) + System.Environment.NewLine;
-                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + System.Environment.NewLine;
-                    result += "Dump pages: " + DumpSize + System.Environment.NewLine;
+                    var result = "Team#: " + TeamNumber + Environment.NewLine;
+                    result += "Init. time: " + Helpers.DateToString(InitTime) + Environment.NewLine;
+                    result += "Team mask: " + Helpers.ConvertMaskToString(Mask) + Environment.NewLine;
+                    result += "Last mark time: " + Helpers.DateToString(LastMarkTime) + Environment.NewLine;
+                    result += "Dump pages: " + DumpSize + Environment.NewLine;
                     return result;
                 }
             }
@@ -327,13 +328,13 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "UID: " + Helpers.ConvertByteArrayToHex(Uid) + System.Environment.NewLine;
-                    result += "Card data:" + System.Environment.NewLine;
+                    var result = "UID: " + Helpers.ConvertByteArrayToHex(Uid) + Environment.NewLine;
+                    result += "Card data:" + Environment.NewLine;
                     ushort i = 0;
                     while (i + 3 < PagesData.Length)
                     {
-                        result += "\tpage #" + ((ushort)(startPage + i / 4)).ToString() + ": ";
-                        result += Helpers.ConvertByteArrayToHex(PagesData, i, 4) + System.Environment.NewLine;
+                        result += "\tpage #" + ((ushort)(startPage + i / 4)) + ": ";
+                        result += Helpers.ConvertByteArrayToHex(PagesData, i, 4) + Environment.NewLine;
                         i += 4;
                     }
 
@@ -354,8 +355,8 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Read start address: " + Address + System.Environment.NewLine;
-                    result += "Flash data: " + Helpers.ConvertByteArrayToHex(Data) + System.Environment.NewLine;
+                    var result = "Read start address: " + Address + Environment.NewLine;
+                    result += "Flash data: " + Helpers.ConvertByteArrayToHex(Data) + Environment.NewLine;
                     return result;
                 }
             }
@@ -371,7 +372,7 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Bytes written: " + BytesWritten + System.Environment.NewLine;
+                    var result = "Bytes written: " + BytesWritten + Environment.NewLine;
                     return result;
                 }
             }
@@ -407,17 +408,18 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "FW Version: " + FwVersion.ToString() + System.Environment.NewLine;
-                    result += "Mode: " + Mode + System.Environment.NewLine;
-                    result += "Chip type: " + ChipTypeId + System.Environment.NewLine;
-                    result += "Flash size: " + FlashSize + " байт" + System.Environment.NewLine;
-                    result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + System.Environment.NewLine;
-                    result += "Antenna gain: " + AntennaGain.ToString() + System.Environment.NewLine;
-                    result += "Team block size: " + TeamBlockSize.ToString() + System.Environment.NewLine;
-                    result += "Erase block size: " + EraseBlockSize.ToString() + System.Environment.NewLine;
-                    result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + System.Environment.NewLine;
-                    result += "Max. packet length: " + MaxPacketLength.ToString() + System.Environment.NewLine;
-                    result += "Autoreport mode: " + AutoreportMode.ToString() + System.Environment.NewLine;
+                    var result = "FW Version: " + FwVersion + Environment.NewLine;
+                    result += "Mode: " + GlobalOperationsIdClass.StationSettings.StationMode.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
+                    //result += "Chip type: " + ChipTypeId + Environment.NewLine;
+                    result += "Chip type: " + RfidContainer.ChipTypes.Types.FirstOrDefault(x => x.Value.ToString().Contains(ChipTypeId.ToString())).Key + Environment.NewLine;
+                    result += "Flash size: " + FlashSize + " byte" + Environment.NewLine;
+                    result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + Environment.NewLine;
+                    result += "Antenna gain: " + GlobalOperationsIdClass.StationSettings.Gain.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
+                    result += "Team block size: " + TeamBlockSize + Environment.NewLine;
+                    result += "Erase block size: " + EraseBlockSize + Environment.NewLine;
+                    result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + Environment.NewLine;
+                    result += "Max. packet length: " + MaxPacketLength + Environment.NewLine;
+                    result += "Autoreport mode: " + (AutoreportMode ? "Enabled" : "Disabled") + Environment.NewLine;
                     return result;
                 }
             }
@@ -433,8 +435,8 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Saved teams:" + System.Environment.NewLine;
-                    for (var i = 0; i < TeamsList?.Length; i++) result += "\t" + TeamsList[i].ToString() + System.Environment.NewLine;
+                    var result = "Saved teams:" + Environment.NewLine;
+                    for (var i = 0; i < TeamsList?.Length; i++) result += "\t" + TeamsList[i] + Environment.NewLine;
                     return result;
                 }
             }
@@ -465,12 +467,12 @@ namespace RfidStationControl
 
                 public override string ToString()
                 {
-                    var result = "Latest errors:" + System.Environment.NewLine;
+                    var result = "Latest errors:" + Environment.NewLine;
                     for (var i = 0; i < errorsList?.Length; i++)
                         if (errorsList[i] > 0)
                         {
                             ProcessingErrorCodes.TryGetValue(errorsList[i], out var errorValue);
-                            result += "\t[" + errorsList[i].ToString() + "] " + errorValue + System.Environment.NewLine;
+                            result += "\t[" + errorsList[i] + "] " + errorValue + Environment.NewLine;
                         }
 
                     return result;
@@ -622,7 +624,7 @@ namespace RfidStationControl
             var isReady = false;
             lock (_serialReceiveThreadLock)
             {
-                if (_receivingData && DateTime.Now.ToUniversalTime().Subtract(_receiveStartTime).TotalMilliseconds > RECEIVE_TIME_OUT)
+                if (_receivingData && DateTime.Now.ToUniversalTime().Subtract(_receiveStartTime).TotalMilliseconds > ReceiveTimeOut)
                 {
                     _uartBufferPosition = 0;
                     _uartBuffer = new byte[MaxPacketLength];
@@ -657,7 +659,7 @@ namespace RfidStationControl
                     if (_uartBufferPosition == PacketBytes.DATA_LENGTH_LOW_BYTE &&
                         (ushort)(_uartBuffer[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 + _uartBuffer[PacketBytes.DATA_LENGTH_LOW_BYTE]) > MaxPacketLength - PacketBytes.DATA_START_BYTE)
                     {
-                        result.Append(System.Environment.NewLine + "Incorrect message length: ");
+                        result.Append(Environment.NewLine + "Incorrect message length: ");
                         result.Append(Helpers.ConvertByteArrayToHex(_uartBuffer, _uartBufferPosition));
                         _receivingData = false;
                         _uartBufferPosition = 0;
@@ -675,9 +677,9 @@ namespace RfidStationControl
                         if (_uartBuffer[_uartBufferPosition] == crc)
                         {
                             // incorrect station number
-                            if (_uartBuffer[PacketBytes.STATION_NUMBER_BYTE] != _stationNumber && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_STATUS && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_CONFIG)
+                            if (_uartBuffer[PacketBytes.STATION_NUMBER_BYTE] != StationNumber && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_STATUS && _uartBuffer[PacketBytes.COMMAND_BYTE] != Reply.GET_CONFIG)
                             {
-                                result.Append(System.Environment.NewLine + "Incorrect station number: ");
+                                result.Append(Environment.NewLine + "Incorrect station number: ");
                                 result.Append(Helpers.ConvertByteArrayToHex(_uartBuffer, _uartBufferPosition));
                                 /*_receivingData = false;
                                 _uartBufferPosition = 0;
@@ -701,8 +703,8 @@ namespace RfidStationControl
                             continue;
                         }
 
-                        result.Append(System.Environment.NewLine + "CRC not correct: " + _uartBuffer[_uartBufferPosition].ToString("X2") +
-                                " instead of " + crc.ToString("X2") + System.Environment.NewLine);
+                        result.Append(Environment.NewLine + "CRC not correct: " + _uartBuffer[_uartBufferPosition].ToString("X2") +
+                                " instead of " + crc.ToString("X2") + Environment.NewLine);
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
@@ -722,7 +724,7 @@ namespace RfidStationControl
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
-                        //SetText(System.Environment.NewLine+"Incorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]"+ System.Environment.NewLine);
+                        //SetText(Environment.NewLine+"Incorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]"+ Environment.NewLine);
                     }
                     else
                     {
@@ -735,9 +737,9 @@ namespace RfidStationControl
             if (unrecognizedBytes.Count > 0)
             {
                 if (Helpers.PrintableByteArray(unrecognizedBytes.ToArray()))
-                    result.Append("Comment: " + Helpers.ConvertByteArrayToString(unrecognizedBytes.ToArray()) + System.Environment.NewLine);
+                    result.Append("Comment: " + Helpers.ConvertByteArrayToString(unrecognizedBytes.ToArray()) + Environment.NewLine);
                 else
-                    result.Append("Comment: " + Helpers.ConvertByteArrayToHex(unrecognizedBytes.ToArray()) + System.Environment.NewLine);
+                    result.Append("Comment: " + Helpers.ConvertByteArrayToHex(unrecognizedBytes.ToArray()) + Environment.NewLine);
             }
 
             if (result.Length > 0)
@@ -753,7 +755,7 @@ namespace RfidStationControl
 
         private byte[] GenerateCommand(byte[] command, int staNum = -1)
         {
-            if (staNum < 0 || staNum > 0xff) staNum = _stationNumber;
+            if (staNum < 0 || staNum > 0xff) staNum = StationNumber;
             command[PacketBytes.HEADER_BYTE] = 0xFE;
             command[PacketBytes.PACKET_ID_BYTE] = _packageId++;
             command[PacketBytes.STATION_NUMBER_BYTE] = (byte)staNum;
@@ -1229,7 +1231,7 @@ namespace RfidStationControl
 
                 default:
                     ReplyStrings.TryGetValue(data[PacketBytes.COMMAND_BYTE], out var commandValue);
-                    result.Message = "Incorrect reply: " + commandValue + System.Environment.NewLine;
+                    result.Message = "Incorrect reply: " + commandValue + Environment.NewLine;
                     break;
             }
 

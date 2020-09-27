@@ -255,7 +255,7 @@ namespace RFID_Station_control
             this.button_resetStation.TabIndex = 5;
             this.button_resetStation.Text = "Reset station";
             this.button_resetStation.UseVisualStyleBackColor = false;
-            this.button_resetStation.Click += new System.EventHandler(this.button_resetStation_Click);
+            this.button_resetStation.Click += new System.EventHandler(this.Button_resetStation_Click);
             // 
             // textBox_newStationNumber
             // 
@@ -268,7 +268,7 @@ namespace RFID_Station_control
             this.textBox_newStationNumber.TabIndex = 10;
             this.textBox_newStationNumber.Text = "0";
             this.textBox_newStationNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_newStationNumber.Leave += new System.EventHandler(this.textBox_newStationNumber_Leave);
+            this.textBox_newStationNumber.Leave += new System.EventHandler(this.TextBox_newStationNumber_Leave);
             // 
             // label5
             // 
@@ -290,7 +290,7 @@ namespace RFID_Station_control
             this.textBox_checkedChips.TabIndex = 10;
             this.textBox_checkedChips.Text = "0";
             this.textBox_checkedChips.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_checkedChips.Leave += new System.EventHandler(this.textBox_checkedChips_Leave);
+            this.textBox_checkedChips.Leave += new System.EventHandler(this.TextBox_checkedChips_Leave);
             // 
             // label4
             // 
@@ -321,7 +321,7 @@ namespace RFID_Station_control
             this.textBox_lastCheck.TabIndex = 10;
             this.textBox_lastCheck.Text = "1970.01.01 00:00:00";
             this.textBox_lastCheck.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_lastCheck.Leave += new System.EventHandler(this.textBox_lastCheck_Leave);
+            this.textBox_lastCheck.Leave += new System.EventHandler(this.TextBox_lastCheck_Leave);
             // 
             // comboBox_mode
             // 
@@ -342,7 +342,7 @@ namespace RFID_Station_control
             this.button_setMode.TabIndex = 0;
             this.button_setMode.Text = "Set mode";
             this.button_setMode.UseVisualStyleBackColor = true;
-            this.button_setMode.Click += new System.EventHandler(this.button_setMode_Click);
+            this.button_setMode.Click += new System.EventHandler(this.Button_setMode_Click);
             // 
             // button_getLastErrors
             // 
@@ -354,7 +354,7 @@ namespace RFID_Station_control
             this.button_getLastErrors.TabIndex = 11;
             this.button_getLastErrors.Text = "Get last errors";
             this.button_getLastErrors.UseVisualStyleBackColor = true;
-            this.button_getLastErrors.Click += new System.EventHandler(this.button_getLastErrors_Click);
+            this.button_getLastErrors.Click += new System.EventHandler(this.Button_getLastErrors_Click);
             // 
             // button_getLastTeam
             // 
@@ -366,7 +366,7 @@ namespace RFID_Station_control
             this.button_getLastTeam.TabIndex = 11;
             this.button_getLastTeam.Text = "Get last teams";
             this.button_getLastTeam.UseVisualStyleBackColor = true;
-            this.button_getLastTeam.Click += new System.EventHandler(this.button_getLastTeam_Click);
+            this.button_getLastTeam.Click += new System.EventHandler(this.Button_getLastTeam_Click);
             // 
             // button_getConfig
             // 
@@ -378,7 +378,7 @@ namespace RFID_Station_control
             this.button_getConfig.TabIndex = 0;
             this.button_getConfig.Text = "Get config";
             this.button_getConfig.UseVisualStyleBackColor = true;
-            this.button_getConfig.Click += new System.EventHandler(this.button_getConfig_Click);
+            this.button_getConfig.Click += new System.EventHandler(this.Button_getConfig_Click);
             // 
             // button_getStatus
             // 
@@ -390,7 +390,7 @@ namespace RFID_Station_control
             this.button_getStatus.TabIndex = 0;
             this.button_getStatus.Text = "Get status";
             this.button_getStatus.UseVisualStyleBackColor = true;
-            this.button_getStatus.Click += new System.EventHandler(this.button_getStatus_Click);
+            this.button_getStatus.Click += new System.EventHandler(this.Button_getStatus_Click);
             // 
             // tabPage_Team
             // 
@@ -435,7 +435,7 @@ namespace RFID_Station_control
             this.textBox_TeamNumber.TabIndex = 28;
             this.textBox_TeamNumber.Text = "1";
             this.textBox_TeamNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.textBox_TeamNumber.Leave += new System.EventHandler(this.textBox_getTeamsList_Leave);
+            this.textBox_TeamNumber.Leave += new System.EventHandler(this.TextBox_getTeamsList_Leave);
             // 
             // button_getTeamsList
             // 
@@ -447,7 +447,7 @@ namespace RFID_Station_control
             this.button_getTeamsList.TabIndex = 27;
             this.button_getTeamsList.Text = "Get teams list";
             this.button_getTeamsList.UseVisualStyleBackColor = true;
-            this.button_getTeamsList.Click += new System.EventHandler(this.button_getTeamsList_Click);
+            this.button_getTeamsList.Click += new System.EventHandler(this.Button_getTeamsList_Click);
             // 
             // label19
             // 
@@ -477,7 +477,7 @@ namespace RFID_Station_control
             this.button_updTeamMask.TabIndex = 0;
             this.button_updTeamMask.Text = "Update team mask";
             this.button_updTeamMask.UseVisualStyleBackColor = true;
-            this.button_updTeamMask.Click += new System.EventHandler(this.button_updateTeamMask_Click);
+            this.button_updTeamMask.Click += new System.EventHandler(this.Button_updateTeamMask_Click);
             // 
             // label7
             // 
@@ -498,7 +498,7 @@ namespace RFID_Station_control
             this.button_getTeamRecord.TabIndex = 0;
             this.button_getTeamRecord.Text = "Get team record";
             this.button_getTeamRecord.UseVisualStyleBackColor = true;
-            this.button_getTeamRecord.Click += new System.EventHandler(this.button_getTeamRecord_Click);
+            this.button_getTeamRecord.Click += new System.EventHandler(this.Button_getTeamRecord_Click);
             // 
             // textBox_teamMask
             // 
@@ -513,7 +513,7 @@ namespace RFID_Station_control
             this.textBox_teamMask.Tag = "0";
             this.textBox_teamMask.Text = "0000000000000000";
             this.textBox_teamMask.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_teamMask.Leave += new System.EventHandler(this.textBox_teamMask_Leave);
+            this.textBox_teamMask.Leave += new System.EventHandler(this.TextBox_teamMask_Leave);
             // 
             // button_eraseTeamFlash
             // 
@@ -526,7 +526,7 @@ namespace RFID_Station_control
             this.button_eraseTeamFlash.TabIndex = 3;
             this.button_eraseTeamFlash.Text = "Erase team";
             this.button_eraseTeamFlash.UseVisualStyleBackColor = false;
-            this.button_eraseTeamFlash.Click += new System.EventHandler(this.button_eraseTeamFlash_Click);
+            this.button_eraseTeamFlash.Click += new System.EventHandler(this.Button_eraseTeamFlash_Click);
             // 
             // label8
             // 
@@ -549,7 +549,7 @@ namespace RFID_Station_control
             this.textBox_issueTime.TabIndex = 3;
             this.textBox_issueTime.Text = "2000.01.01 00:00:00";
             this.textBox_issueTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_issueTime.Leave += new System.EventHandler(this.textBox_issueTime_Leave);
+            this.textBox_issueTime.Leave += new System.EventHandler(this.TextBox_issueTime_Leave);
             // 
             // tabPage_Rfid
             // 
@@ -674,7 +674,7 @@ namespace RFID_Station_control
             this.textBox_uid.Tag = "0";
             this.textBox_uid.Text = "00 00 00 00 00 00 00 00 ";
             this.textBox_uid.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_uid.Leave += new System.EventHandler(this.textBox_uid_Leave);
+            this.textBox_uid.Leave += new System.EventHandler(this.TextBox_uid_Leave);
             // 
             // textBox_data
             // 
@@ -689,7 +689,7 @@ namespace RFID_Station_control
             this.textBox_data.Tag = "0";
             this.textBox_data.Text = "00 00 00 00";
             this.textBox_data.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_data.Leave += new System.EventHandler(this.textBox_data_Leave);
+            this.textBox_data.Leave += new System.EventHandler(this.TextBox_data_Leave);
             // 
             // textBox_readChipPage
             // 
@@ -704,7 +704,7 @@ namespace RFID_Station_control
             this.textBox_readChipPage.Tag = "0";
             this.textBox_readChipPage.Text = "0-40";
             this.textBox_readChipPage.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_readChipPage.Leave += new System.EventHandler(this.textBox_readChipPage_Leave);
+            this.textBox_readChipPage.Leave += new System.EventHandler(this.TextBox_readChipPage_Leave);
             // 
             // textBox_writeChipPage
             // 
@@ -717,7 +717,7 @@ namespace RFID_Station_control
             this.textBox_writeChipPage.Tag = "0";
             this.textBox_writeChipPage.Text = "0";
             this.textBox_writeChipPage.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_writeChipPage.Leave += new System.EventHandler(this.textBox_writeChipPage_Leave);
+            this.textBox_writeChipPage.Leave += new System.EventHandler(this.TextBox_writeChipPage_Leave);
             // 
             // button_readChipPage
             // 
@@ -729,7 +729,7 @@ namespace RFID_Station_control
             this.button_readChipPage.TabIndex = 18;
             this.button_readChipPage.Text = "Read chip";
             this.button_readChipPage.UseVisualStyleBackColor = true;
-            this.button_readChipPage.Click += new System.EventHandler(this.button_readCardPage_Click);
+            this.button_readChipPage.Click += new System.EventHandler(this.Button_readCardPage_Click);
             // 
             // button_eraseChip
             // 
@@ -754,7 +754,7 @@ namespace RFID_Station_control
             this.button_writeChipPage.TabIndex = 19;
             this.button_writeChipPage.Text = "Write chip";
             this.button_writeChipPage.UseVisualStyleBackColor = true;
-            this.button_writeChipPage.Click += new System.EventHandler(this.button_writeCardPage_Click);
+            this.button_writeChipPage.Click += new System.EventHandler(this.Button_writeCardPage_Click);
             // 
             // button_initChip
             // 
@@ -766,7 +766,7 @@ namespace RFID_Station_control
             this.button_initChip.TabIndex = 0;
             this.button_initChip.Text = "Init chip";
             this.button_initChip.UseVisualStyleBackColor = true;
-            this.button_initChip.Click += new System.EventHandler(this.button_initChip_Click);
+            this.button_initChip.Click += new System.EventHandler(this.Button_initChip_Click);
             // 
             // tabPage_Flash
             // 
@@ -840,7 +840,7 @@ namespace RFID_Station_control
             this.textBox_flashData.Tag = "0";
             this.textBox_flashData.Text = "00 00 00 00";
             this.textBox_flashData.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_flashData.Leave += new System.EventHandler(this.textBox_flashData_Leave);
+            this.textBox_flashData.Leave += new System.EventHandler(this.TextBox_flashData_Leave);
             // 
             // textBox_readFlashLength
             // 
@@ -870,7 +870,7 @@ namespace RFID_Station_control
             this.textBox_writeAddr.Tag = "0";
             this.textBox_writeAddr.Text = "0";
             this.textBox_writeAddr.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_writeAddr.Leave += new System.EventHandler(this.textBox_writeAddr_Leave);
+            this.textBox_writeAddr.Leave += new System.EventHandler(this.TextBox_writeAddr_Leave);
             // 
             // textBox_readFlashAddress
             // 
@@ -883,7 +883,7 @@ namespace RFID_Station_control
             this.textBox_readFlashAddress.Tag = "0";
             this.textBox_readFlashAddress.Text = "0";
             this.textBox_readFlashAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_readFlashAddress.Leave += new System.EventHandler(this.textBox_readFlash_Leave);
+            this.textBox_readFlashAddress.Leave += new System.EventHandler(this.TextBox_readFlash_Leave);
             // 
             // button_writeFlash
             // 
@@ -895,7 +895,7 @@ namespace RFID_Station_control
             this.button_writeFlash.TabIndex = 3;
             this.button_writeFlash.Text = "Write flash";
             this.button_writeFlash.UseVisualStyleBackColor = true;
-            this.button_writeFlash.Click += new System.EventHandler(this.button_writeFlash_Click);
+            this.button_writeFlash.Click += new System.EventHandler(this.Button_writeFlash_Click);
             // 
             // button_quickDump
             // 
@@ -908,7 +908,7 @@ namespace RFID_Station_control
             this.button_quickDump.TabIndex = 3;
             this.button_quickDump.Text = "Quick dump";
             this.button_quickDump.UseVisualStyleBackColor = true;
-            this.button_quickDump.Click += new System.EventHandler(this.button_quickDump_Click);
+            this.button_quickDump.Click += new System.EventHandler(this.Button_quickDump_Click);
             // 
             // button_readFlash
             // 
@@ -920,7 +920,7 @@ namespace RFID_Station_control
             this.button_readFlash.TabIndex = 3;
             this.button_readFlash.Text = "Read flash";
             this.button_readFlash.UseVisualStyleBackColor = true;
-            this.button_readFlash.Click += new System.EventHandler(this.button_readFlash_Click);
+            this.button_readFlash.Click += new System.EventHandler(this.Button_readFlash_Click);
             // 
             // tabPage_Config
             // 
@@ -967,7 +967,7 @@ namespace RFID_Station_control
             this.button_getConfig2.TabIndex = 26;
             this.button_getConfig2.Text = "Get config";
             this.button_getConfig2.UseVisualStyleBackColor = true;
-            this.button_getConfig2.Click += new System.EventHandler(this.button_getConfig_Click);
+            this.button_getConfig2.Click += new System.EventHandler(this.Button_getConfig_Click);
             // 
             // groupBox2
             // 
@@ -1004,7 +1004,7 @@ namespace RFID_Station_control
             this.button_sendBtCommand.TabIndex = 25;
             this.button_sendBtCommand.Text = "Send command";
             this.button_sendBtCommand.UseVisualStyleBackColor = true;
-            this.button_sendBtCommand.Click += new System.EventHandler(this.button_sendBtCommand_Click);
+            this.button_sendBtCommand.Click += new System.EventHandler(this.Button_sendBtCommand_Click);
             // 
             // button_SetBtName
             // 
@@ -1082,9 +1082,9 @@ namespace RFID_Station_control
             this.button_setEraseBlock.Location = new System.Drawing.Point(6, 425);
             this.button_setEraseBlock.Margin = new System.Windows.Forms.Padding(6);
             this.button_setEraseBlock.Name = "button_setEraseBlock";
-            this.button_setEraseBlock.Size = new System.Drawing.Size(183, 42);
+            this.button_setEraseBlock.Size = new System.Drawing.Size(196, 42);
             this.button_setEraseBlock.TabIndex = 23;
-            this.button_setEraseBlock.Text = "Set flash block size";
+            this.button_setEraseBlock.Text = "Set erase block size";
             this.button_setEraseBlock.UseVisualStyleBackColor = true;
             this.button_setEraseBlock.Click += new System.EventHandler(this.Button_setEraseBlock_Click);
             // 
@@ -1094,9 +1094,9 @@ namespace RFID_Station_control
             this.button_setTeamFlashSize.Location = new System.Drawing.Point(6, 371);
             this.button_setTeamFlashSize.Margin = new System.Windows.Forms.Padding(6);
             this.button_setTeamFlashSize.Name = "button_setTeamFlashSize";
-            this.button_setTeamFlashSize.Size = new System.Drawing.Size(183, 42);
+            this.button_setTeamFlashSize.Size = new System.Drawing.Size(196, 42);
             this.button_setTeamFlashSize.TabIndex = 23;
-            this.button_setTeamFlashSize.Text = "Set team flash size";
+            this.button_setTeamFlashSize.Text = "Set team block size";
             this.button_setTeamFlashSize.UseVisualStyleBackColor = true;
             this.button_setTeamFlashSize.Click += new System.EventHandler(this.Button_setTeamFlashSize_Click);
             // 
@@ -1106,11 +1106,11 @@ namespace RFID_Station_control
             this.button_setChipType.Location = new System.Drawing.Point(6, 276);
             this.button_setChipType.Margin = new System.Windows.Forms.Padding(6);
             this.button_setChipType.Name = "button_setChipType";
-            this.button_setChipType.Size = new System.Drawing.Size(183, 42);
+            this.button_setChipType.Size = new System.Drawing.Size(196, 42);
             this.button_setChipType.TabIndex = 22;
             this.button_setChipType.Text = "Set chip type";
             this.button_setChipType.UseVisualStyleBackColor = true;
-            this.button_setChipType.Click += new System.EventHandler(this.button_setChipType_Click);
+            this.button_setChipType.Click += new System.EventHandler(this.Button_setChipType_Click);
             // 
             // button_setGain
             // 
@@ -1118,7 +1118,7 @@ namespace RFID_Station_control
             this.button_setGain.Location = new System.Drawing.Point(6, 222);
             this.button_setGain.Margin = new System.Windows.Forms.Padding(6);
             this.button_setGain.Name = "button_setGain";
-            this.button_setGain.Size = new System.Drawing.Size(183, 42);
+            this.button_setGain.Size = new System.Drawing.Size(196, 42);
             this.button_setGain.TabIndex = 22;
             this.button_setGain.Text = "Set antenna gain";
             this.button_setGain.UseVisualStyleBackColor = true;
@@ -1169,11 +1169,11 @@ namespace RFID_Station_control
             this.button_setAutoReport.Location = new System.Drawing.Point(6, 479);
             this.button_setAutoReport.Margin = new System.Windows.Forms.Padding(6);
             this.button_setAutoReport.Name = "button_setAutoReport";
-            this.button_setAutoReport.Size = new System.Drawing.Size(183, 42);
+            this.button_setAutoReport.Size = new System.Drawing.Size(196, 42);
             this.button_setAutoReport.TabIndex = 0;
             this.button_setAutoReport.Text = "Set autoreport";
             this.button_setAutoReport.UseVisualStyleBackColor = true;
-            this.button_setAutoReport.Click += new System.EventHandler(this.button_setAutoReport_Click);
+            this.button_setAutoReport.Click += new System.EventHandler(this.Button_setAutoReport_Click);
             // 
             // button_setTime
             // 
@@ -1185,7 +1185,7 @@ namespace RFID_Station_control
             this.button_setTime.TabIndex = 0;
             this.button_setTime.Text = "Set time";
             this.button_setTime.UseVisualStyleBackColor = true;
-            this.button_setTime.Click += new System.EventHandler(this.button_setTime_Click);
+            this.button_setTime.Click += new System.EventHandler(this.Button_setTime_Click);
             // 
             // checkBox_AutoReport
             // 
@@ -1199,7 +1199,7 @@ namespace RFID_Station_control
             this.checkBox_AutoReport.Size = new System.Drawing.Size(15, 14);
             this.checkBox_AutoReport.TabIndex = 7;
             this.checkBox_AutoReport.UseVisualStyleBackColor = true;
-            this.checkBox_AutoReport.CheckedChanged += new System.EventHandler(this.checkBox_AutoReport_CheckedChanged);
+            this.checkBox_AutoReport.CheckedChanged += new System.EventHandler(this.CheckBox_AutoReport_CheckedChanged);
             // 
             // textBox_setTime
             // 
@@ -1212,7 +1212,7 @@ namespace RFID_Station_control
             this.textBox_setTime.TabIndex = 1;
             this.textBox_setTime.Text = "2000.01.01 00:00:00";
             this.textBox_setTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_setTime.Leave += new System.EventHandler(this.textBox_setTime_Leave);
+            this.textBox_setTime.Leave += new System.EventHandler(this.TextBox_setTime_Leave);
             // 
             // checkBox_autoTime
             // 
@@ -1227,7 +1227,7 @@ namespace RFID_Station_control
             this.checkBox_autoTime.TabIndex = 7;
             this.checkBox_autoTime.Text = "current";
             this.checkBox_autoTime.UseVisualStyleBackColor = true;
-            this.checkBox_autoTime.CheckedChanged += new System.EventHandler(this.checkBox_autoTime_CheckedChanged);
+            this.checkBox_autoTime.CheckedChanged += new System.EventHandler(this.CheckBox_autoTime_CheckedChanged);
             // 
             // comboBox_flashSize
             // 
@@ -1280,7 +1280,7 @@ namespace RFID_Station_control
             this.button_setBatteryLimit.Location = new System.Drawing.Point(6, 168);
             this.button_setBatteryLimit.Margin = new System.Windows.Forms.Padding(6);
             this.button_setBatteryLimit.Name = "button_setBatteryLimit";
-            this.button_setBatteryLimit.Size = new System.Drawing.Size(183, 42);
+            this.button_setBatteryLimit.Size = new System.Drawing.Size(196, 42);
             this.button_setBatteryLimit.TabIndex = 0;
             this.button_setBatteryLimit.Text = "Set battery limit";
             this.button_setBatteryLimit.UseVisualStyleBackColor = true;
@@ -1304,11 +1304,11 @@ namespace RFID_Station_control
             this.button_setKoeff.Location = new System.Drawing.Point(6, 114);
             this.button_setKoeff.Margin = new System.Windows.Forms.Padding(6);
             this.button_setKoeff.Name = "button_setKoeff";
-            this.button_setKoeff.Size = new System.Drawing.Size(183, 42);
+            this.button_setKoeff.Size = new System.Drawing.Size(196, 42);
             this.button_setKoeff.TabIndex = 0;
             this.button_setKoeff.Text = "Set V coeff.";
             this.button_setKoeff.UseVisualStyleBackColor = true;
-            this.button_setKoeff.Click += new System.EventHandler(this.button_setVCoeff_Click);
+            this.button_setKoeff.Click += new System.EventHandler(this.Button_setVCoeff_Click);
             // 
             // textBox_koeff
             // 
@@ -1320,7 +1320,7 @@ namespace RFID_Station_control
             this.textBox_koeff.TabIndex = 2;
             this.textBox_koeff.Text = "0,00578";
             this.textBox_koeff.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_koeff.Leave += new System.EventHandler(this.textBox_koeff_Leave);
+            this.textBox_koeff.Leave += new System.EventHandler(this.TextBox_koeff_Leave);
             // 
             // button_dumpFlash
             // 
@@ -1333,7 +1333,7 @@ namespace RFID_Station_control
             this.button_dumpFlash.TabIndex = 17;
             this.button_dumpFlash.Text = "Dump flash";
             this.button_dumpFlash.UseVisualStyleBackColor = true;
-            this.button_dumpFlash.Click += new System.EventHandler(this.button_dumpFlash_Click);
+            this.button_dumpFlash.Click += new System.EventHandler(this.Button_dumpFlash_Click);
             // 
             // button_dumpChip
             // 
@@ -1346,7 +1346,7 @@ namespace RFID_Station_control
             this.button_dumpChip.TabIndex = 3;
             this.button_dumpChip.Text = "Dump chip";
             this.button_dumpChip.UseVisualStyleBackColor = true;
-            this.button_dumpChip.Click += new System.EventHandler(this.button_dumpChip_Click);
+            this.button_dumpChip.Click += new System.EventHandler(this.Button_dumpChip_Click);
             // 
             // label2
             // 
@@ -1366,7 +1366,7 @@ namespace RFID_Station_control
             this.textBox_stationNumber.TabIndex = 9;
             this.textBox_stationNumber.Text = "0";
             this.textBox_stationNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.textBox_stationNumber.Leave += new System.EventHandler(this.textBox_stationNumber_Leave);
+            this.textBox_stationNumber.Leave += new System.EventHandler(this.TextBox_stationNumber_Leave);
             // 
             // textBox_terminal
             // 
@@ -1384,18 +1384,18 @@ namespace RFID_Station_control
             this.textBox_terminal.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox_terminal.Size = new System.Drawing.Size(453, 259);
             this.textBox_terminal.TabIndex = 1;
-            this.textBox_terminal.TextChanged += new System.EventHandler(this.textBox_terminal_TextChanged);
+            this.textBox_terminal.TextChanged += new System.EventHandler(this.TextBox_terminal_TextChanged);
             // 
             // serialPort1
             // 
             this.serialPort1.BaudRate = 57600;
-            this.serialPort1.ErrorReceived += new System.IO.Ports.SerialErrorReceivedEventHandler(this.serialPort1_ErrorReceived);
-            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.serialPort1_DataReceived);
+            this.serialPort1.ErrorReceived += new System.IO.Ports.SerialErrorReceivedEventHandler(this.SerialPort1_ErrorReceived);
+            this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.SerialPort1_DataReceived);
             // 
             // saveFileDialog1
             // 
             this.saveFileDialog1.Title = "Save log to file...";
-            this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.saveFileDialog1_FileOk);
+            this.saveFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileDialog1_FileOk);
             // 
             // comboBox_portName
             // 
@@ -1430,7 +1430,7 @@ namespace RFID_Station_control
             this.button_openPort.TabIndex = 5;
             this.button_openPort.Text = "Open port";
             this.button_openPort.UseVisualStyleBackColor = true;
-            this.button_openPort.Click += new System.EventHandler(this.button_openPort_Click);
+            this.button_openPort.Click += new System.EventHandler(this.Button_openPort_Click);
             // 
             // button_clearLog
             // 
@@ -1442,7 +1442,7 @@ namespace RFID_Station_control
             this.button_clearLog.TabIndex = 6;
             this.button_clearLog.Text = "Clear";
             this.button_clearLog.UseVisualStyleBackColor = true;
-            this.button_clearLog.Click += new System.EventHandler(this.button_clearLog_Click);
+            this.button_clearLog.Click += new System.EventHandler(this.Button_clearLog_Click);
             // 
             // button_closePort
             // 
@@ -1455,7 +1455,7 @@ namespace RFID_Station_control
             this.button_closePort.TabIndex = 4;
             this.button_closePort.Text = "Close port";
             this.button_closePort.UseVisualStyleBackColor = true;
-            this.button_closePort.Click += new System.EventHandler(this.button_closePort_Click);
+            this.button_closePort.Click += new System.EventHandler(this.Button_closePort_Click);
             // 
             // button_saveLog
             // 
@@ -1467,7 +1467,7 @@ namespace RFID_Station_control
             this.button_saveLog.TabIndex = 7;
             this.button_saveLog.Text = "Save";
             this.button_saveLog.UseVisualStyleBackColor = true;
-            this.button_saveLog.Click += new System.EventHandler(this.button_saveLog_Click);
+            this.button_saveLog.Click += new System.EventHandler(this.Button_saveLog_Click);
             // 
             // checkBox_autoScroll
             // 
@@ -1492,7 +1492,7 @@ namespace RFID_Station_control
             this.button_refresh.TabIndex = 10;
             this.button_refresh.Text = "Refresh";
             this.button_refresh.UseVisualStyleBackColor = true;
-            this.button_refresh.Click += new System.EventHandler(this.button_refresh_Click);
+            this.button_refresh.Click += new System.EventHandler(this.Button_refresh_Click);
             // 
             // checkBox_portMon
             // 
@@ -1528,9 +1528,9 @@ namespace RFID_Station_control
             this.dataGridView_teams.RowHeadersVisible = false;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.dataGridView_teams.RowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView_teams.Size = new System.Drawing.Size(456, 262);
+            this.dataGridView_teams.Size = new System.Drawing.Size(456, 251);
             this.dataGridView_teams.TabIndex = 12;
-            this.dataGridView_teams.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_teams_CellDoubleClick);
+            this.dataGridView_teams.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_teams_CellDoubleClick);
             // 
             // tabControl_teamData
             // 
@@ -1544,7 +1544,7 @@ namespace RFID_Station_control
             this.tabControl_teamData.SelectedIndex = 0;
             this.tabControl_teamData.Size = new System.Drawing.Size(464, 346);
             this.tabControl_teamData.TabIndex = 13;
-            this.tabControl_teamData.SelectedIndexChanged += new System.EventHandler(this.tabControl_teamData_SelectedIndexChanged);
+            this.tabControl_teamData.SelectedIndexChanged += new System.EventHandler(this.TabControl_teamData_SelectedIndexChanged);
             // 
             // tabPage_terminal
             // 
@@ -1580,38 +1580,38 @@ namespace RFID_Station_control
             // 
             this.button_dumpTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_dumpTeams.Enabled = false;
-            this.button_dumpTeams.Location = new System.Drawing.Point(118, 271);
+            this.button_dumpTeams.Location = new System.Drawing.Point(118, 260);
             this.button_dumpTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_dumpTeams.Name = "button_dumpTeams";
             this.button_dumpTeams.Size = new System.Drawing.Size(128, 32);
             this.button_dumpTeams.TabIndex = 22;
             this.button_dumpTeams.Text = "Dump teams";
             this.button_dumpTeams.UseVisualStyleBackColor = true;
-            this.button_dumpTeams.Click += new System.EventHandler(this.button_dumpTeams_Click);
+            this.button_dumpTeams.Click += new System.EventHandler(this.Button_dumpTeams_Click);
             // 
             // button_clearTeams
             // 
             this.button_clearTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_clearTeams.Location = new System.Drawing.Point(6, 271);
+            this.button_clearTeams.Location = new System.Drawing.Point(6, 260);
             this.button_clearTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_clearTeams.Name = "button_clearTeams";
             this.button_clearTeams.Size = new System.Drawing.Size(100, 32);
             this.button_clearTeams.TabIndex = 20;
             this.button_clearTeams.Text = "Clear";
             this.button_clearTeams.UseVisualStyleBackColor = true;
-            this.button_clearTeams.Click += new System.EventHandler(this.button_clearTeams_Click);
+            this.button_clearTeams.Click += new System.EventHandler(this.Button_clearTeams_Click);
             // 
             // button_saveTeams
             // 
             this.button_saveTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveTeams.Location = new System.Drawing.Point(350, 271);
+            this.button_saveTeams.Location = new System.Drawing.Point(350, 260);
             this.button_saveTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_saveTeams.Name = "button_saveTeams";
             this.button_saveTeams.Size = new System.Drawing.Size(100, 32);
             this.button_saveTeams.TabIndex = 21;
             this.button_saveTeams.Text = "Save";
             this.button_saveTeams.UseVisualStyleBackColor = true;
-            this.button_saveTeams.Click += new System.EventHandler(this.button_saveTeams_Click);
+            this.button_saveTeams.Click += new System.EventHandler(this.Button_saveTeams_Click);
             // 
             // tabPage_cardContent
             // 
@@ -1621,9 +1621,9 @@ namespace RFID_Station_control
             this.tabPage_cardContent.Controls.Add(this.button_saveRfid);
             this.tabPage_cardContent.Controls.Add(this.dataGridView_chipRawData);
             this.tabPage_cardContent.Controls.Add(this.button_dumpChip);
-            this.tabPage_cardContent.Location = new System.Drawing.Point(4, 33);
+            this.tabPage_cardContent.Location = new System.Drawing.Point(4, 22);
             this.tabPage_cardContent.Name = "tabPage_cardContent";
-            this.tabPage_cardContent.Size = new System.Drawing.Size(456, 309);
+            this.tabPage_cardContent.Size = new System.Drawing.Size(456, 320);
             this.tabPage_cardContent.TabIndex = 2;
             this.tabPage_cardContent.Text = "RFID";
             this.tabPage_cardContent.UseVisualStyleBackColor = true;
@@ -1638,7 +1638,7 @@ namespace RFID_Station_control
             this.button_clearRfid.TabIndex = 19;
             this.button_clearRfid.Text = "Clear";
             this.button_clearRfid.UseVisualStyleBackColor = true;
-            this.button_clearRfid.Click += new System.EventHandler(this.button_clearRfid_Click);
+            this.button_clearRfid.Click += new System.EventHandler(this.Button_clearRfid_Click);
             // 
             // button_loadRfid
             // 
@@ -1662,7 +1662,7 @@ namespace RFID_Station_control
             this.button_saveRfid.TabIndex = 19;
             this.button_saveRfid.Text = "Save";
             this.button_saveRfid.UseVisualStyleBackColor = true;
-            this.button_saveRfid.Click += new System.EventHandler(this.button_saveRfid_Click);
+            this.button_saveRfid.Click += new System.EventHandler(this.Button_saveRfid_Click);
             // 
             // dataGridView_chipRawData
             // 
@@ -1686,7 +1686,7 @@ namespace RFID_Station_control
             this.dataGridView_chipRawData.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView_chipRawData.Size = new System.Drawing.Size(456, 262);
             this.dataGridView_chipRawData.TabIndex = 0;
-            this.dataGridView_chipRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_chipRawData_CellDoubleClick);
+            this.dataGridView_chipRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_chipRawData_CellDoubleClick);
             // 
             // tabPage_flashContent
             // 
@@ -1696,9 +1696,9 @@ namespace RFID_Station_control
             this.tabPage_flashContent.Controls.Add(this.button_saveFlash);
             this.tabPage_flashContent.Controls.Add(this.button_dumpFlash);
             this.tabPage_flashContent.Controls.Add(this.dataGridView_flashRawData);
-            this.tabPage_flashContent.Location = new System.Drawing.Point(4, 33);
+            this.tabPage_flashContent.Location = new System.Drawing.Point(4, 22);
             this.tabPage_flashContent.Name = "tabPage_flashContent";
-            this.tabPage_flashContent.Size = new System.Drawing.Size(456, 309);
+            this.tabPage_flashContent.Size = new System.Drawing.Size(456, 320);
             this.tabPage_flashContent.TabIndex = 3;
             this.tabPage_flashContent.Text = "Flash";
             this.tabPage_flashContent.UseVisualStyleBackColor = true;
@@ -1713,7 +1713,7 @@ namespace RFID_Station_control
             this.button_clearFlash.TabIndex = 20;
             this.button_clearFlash.Text = "Clear";
             this.button_clearFlash.UseVisualStyleBackColor = true;
-            this.button_clearFlash.Click += new System.EventHandler(this.button_clearFlash_Click);
+            this.button_clearFlash.Click += new System.EventHandler(this.Button_clearFlash_Click);
             // 
             // button_loadFlash
             // 
@@ -1737,7 +1737,7 @@ namespace RFID_Station_control
             this.button_saveFlash.TabIndex = 21;
             this.button_saveFlash.Text = "Save";
             this.button_saveFlash.UseVisualStyleBackColor = true;
-            this.button_saveFlash.Click += new System.EventHandler(this.button_saveFlash_Click);
+            this.button_saveFlash.Click += new System.EventHandler(this.Button_saveFlash_Click);
             // 
             // dataGridView_flashRawData
             // 
@@ -1785,7 +1785,7 @@ namespace RFID_Station_control
             this.dataGridView_flashRawData.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.dataGridView_flashRawData.Size = new System.Drawing.Size(456, 262);
             this.dataGridView_flashRawData.TabIndex = 1;
-            this.dataGridView_flashRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_flashRawData_CellDoubleClick);
+            this.dataGridView_flashRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_flashRawData_CellDoubleClick);
             // 
             // splitContainer1
             // 

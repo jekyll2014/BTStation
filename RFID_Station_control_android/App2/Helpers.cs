@@ -77,7 +77,7 @@ namespace RfidStationControl
             while (hexString.Length > 1)
             {
                 byteValue[i] = Convert.ToByte(Convert.ToUInt32(hexString.Substring(0, 2), 16));
-                hexString = hexString.Substring(2, hexString.Length - 2);
+                if (hexString.Length > 2) hexString = hexString.Substring(2, hexString.Length - 2);
                 i++;
             }
             return byteValue;

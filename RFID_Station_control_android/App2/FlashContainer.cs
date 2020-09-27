@@ -17,35 +17,29 @@ namespace RfidStationControl
             public RfidContainer ChipDump;
         }
 
-        public uint Size { get; }
+        private uint Size { get; }
         public uint TeamDumpSize { get; }
 
-        public DataTable Table;
-        public uint BytesPerRow { get; }
+        private readonly DataTable Table;
+        private uint BytesPerRow { get; }
 
-        public readonly ushort _dumpHeaderSize = 16;
+        private const ushort DUMP_HEADER_SIZE = 16;
 
-        public static class TableColumns
+        private static class TableColumns
         {
-            public static string TeamNumber = "Team#";
-            public static string ByteNumber = "Byte#";
-            public static string DecodedData = "Decoded data";
-            public static string RawData = "Raw data";
+            public const string TeamNumber = "Team#";
+            public const string ByteNumber = "Byte#";
+            public const string DecodedData = "Decoded data";
+            public const string RawData = "Raw data";
         }
 
         public FlashContainer(uint size, uint teamDumpSize = 0, uint bytesPerRow = 0)
         {
             Size = size;
 
-            if (teamDumpSize == 0)
-                TeamDumpSize = 1024;
-            else
-                TeamDumpSize = teamDumpSize;
+            TeamDumpSize = teamDumpSize == 0 ? 1024 : teamDumpSize;
 
-            if (bytesPerRow == 0)
-                BytesPerRow = TeamDumpSize;
-            else
-                BytesPerRow = bytesPerRow;
+            BytesPerRow = bytesPerRow == 0 ? TeamDumpSize : bytesPerRow;
 
             Dump = new byte[Size];
             Table = new DataTable("FLASH")
@@ -118,7 +112,7 @@ namespace RfidStationControl
 
             byte chipType = 0;
             for (byte i = 0; i < RfidContainer.ChipTypes.SystemIds.Count; i++)
-                if (RfidContainer.ChipTypes.SystemIds[i] == Dump[_dumpHeaderSize + 14])
+                if (RfidContainer.ChipTypes.SystemIds[i] == Dump[DUMP_HEADER_SIZE + 14])
                 {
                     chipType = i;
                     break;
@@ -126,7 +120,7 @@ namespace RfidStationControl
 
             teamBlock.ChipDump = new RfidContainer(chipType);
             var chip = new byte[RfidContainer.ChipTypes.PageSizes[chipType] * RfidContainer.ChipTypes.PageSize];
-            for (var i = 0; i < chip.Length; i++) chip[i] = Dump[_dumpHeaderSize + i];
+            for (var i = 0; i < chip.Length; i++) chip[i] = Dump[DUMP_HEADER_SIZE + i];
             teamBlock.ChipDump.AddPages(0, chip);
 
             return teamBlock;
@@ -184,65 +178,78 @@ namespace RfidStationControl
                     var page = 4;
                     while (page < dumpSize + 4)
                     {
-                        // page 4+(0..1): UID
-                        if (page == 4)
+                        switch (page)
                         {
-                            byte[] uid = { tmpData[page * 4 + 0],
-                                tmpData[page * 4 + 1],
-                                tmpData[page * 4 + 2],
-                                tmpData[page * 4 + 3],
-                                tmpData[page * 4 + 4],
-                                tmpData[page * 4 + 5],
-                                tmpData[page * 4 + 6],
-                                tmpData[page * 4 + 7] };
-                            result += "UID " + Helpers.ConvertByteArrayToHex(uid) + ", ";
+                            // page 4+(0..1): UID
+                            // page 4+3: chip type
+                            case 4:
+                                {
+                                    byte[] uid = { tmpData[page * 4 + 0],
+                                    tmpData[page * 4 + 1],
+                                    tmpData[page * 4 + 2],
+                                    tmpData[page * 4 + 3],
+                                    tmpData[page * 4 + 4],
+                                    tmpData[page * 4 + 5],
+                                    tmpData[page * 4 + 6],
+                                    tmpData[page * 4 + 7] };
+                                    result += "UID " + Helpers.ConvertByteArrayToHex(uid) + ", ";
+                                    break;
+                                }
+                            // page 4+4: team#, chip type, fw ver.
+                            case 7:
+                                {
+                                    var tagSize = "Ntag";
+                                    if (tmpData[page * 4 + 2] == 0x12)
+                                        tagSize += "213(144 bytes)";
+                                    else if (tmpData[page * 4 + 2] == 0x3e)
+                                        tagSize += "215(496 bytes)";
+                                    else if (tmpData[page * 4 + 2] == 0x6d)
+                                        tagSize += "216(872 bytes)";
+                                    result += tagSize + ", ";
+                                    break;
+                                }
+                            // page 4+5: init time
+                            case 8:
+                                {
+                                    var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
+                                    result += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + ", ";
+                                    break;
+                                }
+                            // page 4+6: team mask
+                            case 9:
+                                {
+                                    todayByte = tmpData[page * 4 + 0];
+                                    long m = tmpData[page * 4 + 0] * 16777216 + tmpData[page * 4 + 1] * 65536 + tmpData[page * 4 + 2] * 256 +
+                                             tmpData[page * 4 + 3];
+                                    var t = Helpers.ConvertFromUnixTimestamp(m);
+                                    result += "InitTime: " + Helpers.DateToString(t) + ", ";
+                                    break;
+                                }
+                            // page4+7: reserved
+                            case 10:
+                                {
+                                    byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
+                                    result += "Mask: " + Helpers.ConvertMaskToString(mask) + ", ";
+                                    break;
+                                }
+                            // page4+8...: marks
+                            case 11:
+                                ;
+                                break;
+                            default:
+                                {
+                                    if (page > 11)
+                                    {
+                                        long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
+                                                 tmpData[page * 4 + 2] * 256 + tmpData[page * 4 + 3];
+                                        var t = Helpers.ConvertFromUnixTimestamp(m);
+                                        result += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + ", ";
+                                    }
+
+                                    break;
+                                }
                         }
-                        // page 4+3: chip type
-                        else if (page == 7)
-                        {
-                            var tagSize = "Ntag";
-                            if (tmpData[page * 4 + 2] == 0x12)
-                                tagSize += "213(144 bytes)";
-                            else if (tmpData[page * 4 + 2] == 0x3e)
-                                tagSize += "215(496 bytes)";
-                            else if (tmpData[page * 4 + 2] == 0x6d)
-                                tagSize += "216(872 bytes)";
-                            result += tagSize + ", ";
-                        }
-                        // page 4+4: team#, chip type, fw ver.
-                        else if (page == 8)
-                        {
-                            var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
-                            result += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + ", ";
-                        }
-                        // page 4+5: init time
-                        else if (page == 9)
-                        {
-                            todayByte = tmpData[page * 4 + 0];
-                            long m = tmpData[page * 4 + 0] * 16777216 + tmpData[page * 4 + 1] * 65536 + tmpData[page * 4 + 2] * 256 +
-                                     tmpData[page * 4 + 3];
-                            var t = Helpers.ConvertFromUnixTimestamp(m);
-                            result += "InitTime: " + Helpers.DateToString(t) + ", ";
-                        }
-                        // page 4+6: team mask
-                        else if (page == 10)
-                        {
-                            byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
-                            result += "Mask: " + Helpers.ConvertMaskToString(mask) + ", ";
-                        }
-                        // page4+7: reserved
-                        else if (page == 10)
-                        {
-                            ;
-                        }
-                        // page4+8...: marks
-                        else if (page > 11)
-                        {
-                            long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
-                                     tmpData[page * 4 + 2] * 256 + tmpData[page * 4 + 3];
-                            var t = Helpers.ConvertFromUnixTimestamp(m);
-                            result += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + ", ";
-                        }
+
                         page++;
                     }
                     Table.Rows[rowFrom][TableColumns.DecodedData] = result;

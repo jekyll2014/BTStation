@@ -15,18 +15,17 @@ namespace RfidStationControl
     {
         public static GlobalOperationsIdClass GetInstance()
         {
-            if (_instance == null) _instance = new GlobalOperationsIdClass();
-            return _instance;
+            return _instance ?? (_instance = new GlobalOperationsIdClass());
         }
 
         private static GlobalOperationsIdClass _instance;
 
-        public static class StationSettings
+        public class StationSettings
         {
             public static byte FwVersion = 0;
             public static byte Number = 0;
             public static byte Mode = 0;
-            public static uint packetLengthkSize = 255;
+            public static uint PacketLengthSize = 255;
             public static float VoltageCoefficient = 0.00578F;
             public static float BatteryLimit = 3.0F;
             public static byte AntennaGain = 80;
@@ -37,18 +36,17 @@ namespace RfidStationControl
             public const string BtName = "Sportduino-xx";
             public const string BtPin = "1111";
             public const string BtCommand = "AT";
-        }
 
-        //режимы станции
-        public static readonly Dictionary<string, byte> StationMode = new Dictionary<string, byte>
+            //режимы станции
+            public static readonly Dictionary<string, byte> StationMode = new Dictionary<string, byte>
             {
                 {"Init" , 0},
                 {"Start" , 1},
                 {"Finish" , 2}
             };
 
-        //усиление антенны
-        public static readonly Dictionary<string, byte> Gain = new Dictionary<string, byte>
+            //усиление антенны
+            public static readonly Dictionary<string, byte> Gain = new Dictionary<string, byte>
             {
                 {"Level 0", 0},
                 {"Level 16", 16},
@@ -59,6 +57,8 @@ namespace RfidStationControl
                 {"Level 96", 96},
                 {"Level 112", 112}
             };
+
+        }
 
         public static readonly Dictionary<string, uint> FlashSizeLimitDictionary = new Dictionary<string, uint>
             {
@@ -72,7 +72,7 @@ namespace RfidStationControl
                 {"4 Mb", 1*1024*1024},
                 {"8 Mb", 1*1024*1024}
             };
-        public static uint FlashSizeLimit = 32 * 1024;
+        public static readonly uint FlashSizeLimit = 32 * 1024;
 
         public static class StatusPageState
         {
@@ -157,22 +157,22 @@ namespace RfidStationControl
         public static readonly TeamsContainer Teams = new TeamsContainer();
 
         public static volatile byte TimerActiveTasks;
-        private const int BtReadPeriod = 500;
+        private const int BT_READ_PERIOD = 500;
         public static volatile bool DumpCancellation;
 
 
         // Write data to the BtDevice
         public static async Task<bool> SendToBtAsync(byte[] outBuffer, Context currentContext, Func<Task<bool>> callBack)
         {
-            if (!await GlobalOperationsIdClass.Bt.WriteBtAsync(outBuffer))
+            if (!await Bt.WriteBtAsync(outBuffer))
             {
-                Toast.MakeText(currentContext, "Can't write to Bluetooth.", ToastLength.Long).Show();
+                Toast.MakeText(currentContext, "Can't write to Bluetooth.", ToastLength.Long)?.Show();
                 return false;
             }
 
-            GlobalOperationsIdClass.TimerActiveTasks++;
-            GlobalOperationsIdClass.StartTimer(GlobalOperationsIdClass.BtReadPeriod, callBack);
-            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + System.Environment.NewLine);
+            TimerActiveTasks++;
+            StartTimer(BT_READ_PERIOD, callBack);
+            StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + System.Environment.NewLine);
 
             return true;
         }
@@ -193,45 +193,44 @@ namespace RfidStationControl
         private async Task<bool> ReadBt()
         {
             bool packageReceived;
-            lock (GlobalOperationsIdClass.Bt.SerialReceiveThreadLock)
+            lock (Bt.SerialReceiveThreadLock)
             {
-                packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
+                packageReceived = Parser.AddData(Bt.BtInputBuffer);
             }
 
-            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0) return packageReceived;
+            if (Parser._repliesList.Count <= 0) return packageReceived;
 
-            for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
+            for (var n = 0; n < Parser._repliesList.Count; n++)
             {
-                var reply = GlobalOperationsIdClass.Parser._repliesList[n];
-                GlobalOperationsIdClass.TimerActiveTasks--;
+                var reply = Parser._repliesList[n];
+                TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
+                    StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
                         if (reply.ReplyCode == ProtocolParser.Reply.GET_STATUS)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.GetStatusReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            if (reply.StationNumber != StationSettings.Number)
                             {
-                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
-                                GlobalOperationsIdClass.Parser =
-                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
+                                StationSettings.Number = reply.StationNumber;
+                                Parser =
+                                    new ProtocolParser(StationSettings.Number);
                             }
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.GET_CONFIG)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.GetConfigReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            if (reply.StationNumber != StationSettings.Number)
                             {
-                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
-                                GlobalOperationsIdClass.Parser =
-                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
+                                StationSettings.Number = reply.StationNumber;
+                                Parser = new ProtocolParser(StationSettings.Number);
                             }
 
                             byte g = 0;
@@ -239,64 +238,64 @@ namespace RfidStationControl
                             {
                                 if (x.Value == replyDetails.ChipTypeId)
                                 {
-                                    GlobalOperationsIdClass.StationSettings.ChipType = g;
+                                    StationSettings.ChipType = g;
                                     break;
                                 }
                                 g++;
                             }
 
-                            if (GlobalOperationsIdClass.StationSettings.ChipType !=
-                                GlobalOperationsIdClass.Rfid.ChipType)
-                                GlobalOperationsIdClass.Rfid =
-                                    new RfidContainer(GlobalOperationsIdClass.StationSettings.ChipType);
+                            if (StationSettings.ChipType !=
+                                Rfid.ChipType)
+                                Rfid =
+                                    new RfidContainer(StationSettings.ChipType);
 
-                            GlobalOperationsIdClass.StationSettings.AntennaGain = replyDetails.AntennaGain;
+                            StationSettings.AntennaGain = replyDetails.AntennaGain;
 
-                            GlobalOperationsIdClass.StationSettings.Mode = replyDetails.Mode;
+                            StationSettings.Mode = replyDetails.Mode;
 
-                            GlobalOperationsIdClass.StationSettings.BatteryLimit = replyDetails.BatteryLimit;
+                            StationSettings.BatteryLimit = replyDetails.BatteryLimit;
 
-                            GlobalOperationsIdClass.StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
+                            StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
 
-                            GlobalOperationsIdClass.StationSettings.FlashSize = replyDetails.FlashSize;
+                            StationSettings.FlashSize = replyDetails.FlashSize;
 
-                            GlobalOperationsIdClass.StationSettings.packetLengthkSize = replyDetails.MaxPacketLength;
+                            StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
 
-                            GlobalOperationsIdClass.StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
-                            if (GlobalOperationsIdClass.StationSettings.TeamBlockSize !=
-                                GlobalOperationsIdClass.Flash.TeamDumpSize)
-                                GlobalOperationsIdClass.Flash = new FlashContainer(
-                                    GlobalOperationsIdClass.FlashSizeLimit,
-                                    GlobalOperationsIdClass.StationSettings.TeamBlockSize,
+                            StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
+                            if (StationSettings.TeamBlockSize !=
+                                Flash.TeamDumpSize)
+                                Flash = new FlashContainer(
+                                    FlashSizeLimit,
+                                    StationSettings.TeamBlockSize,
                                     0);
 
-                            GlobalOperationsIdClass.StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
+                            StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.SET_TIME)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.SetTimeReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.SEND_BT_COMMAND)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.SendBtCommandReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.GET_LAST_TEAMS)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.SCAN_TEAMS)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.ScanTeamsReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.GET_TEAM_RECORD)
                         {
 
                             var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
 
                             var team = new TeamsContainer.TeamData
                             {
@@ -306,8 +305,8 @@ namespace RfidStationControl
                                 TeamMask = replyDetails.Mask,
                                 TeamNumber = replyDetails.TeamNumber
                             };
-                            GlobalOperationsIdClass.Teams.Add(team);
-                            var tmp = GlobalOperationsIdClass.Teams.GetTablePage(replyDetails.TeamNumber);
+                            Teams.Add(team);
+                            var tmp = Teams.GetTablePage(replyDetails.TeamNumber);
                             var row = new TeamsPageState.TeamsTableItem
                             {
                                 TeamNum = tmp[0],
@@ -333,20 +332,20 @@ namespace RfidStationControl
                         else if (reply.ReplyCode == ProtocolParser.Reply.INIT_CHIP)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.InitChipReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.READ_CARD_PAGE)
                         {
 
                             var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
+                            Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
                             // refresh RFID table
-                            var endPage = replyDetails.startPage + (int)(replyDetails.PagesData.Length / 4);
+                            var endPage = replyDetails.startPage + replyDetails.PagesData.Length / 4;
                             for (var i = replyDetails.startPage; i < endPage; i++)
                             {
-                                var tmp = GlobalOperationsIdClass.Rfid.GetTablePage((byte)i);
+                                var tmp = Rfid.GetTablePage(i);
                                 var row = new RfidPageState.RfidTableItem
                                 { PageNum = tmp[0], Data = tmp[1], PageDesc = tmp[2], Decoded = tmp[3] };
 
@@ -365,16 +364,16 @@ namespace RfidStationControl
                         else if (reply.ReplyCode == ProtocolParser.Reply.READ_FLASH)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.ReadFlashReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
+                            Flash.Add(replyDetails.Address, replyDetails.Data);
                             // refresh flash table
-                            var startPage = (int)(replyDetails.Address / GlobalOperationsIdClass.Flash.TeamDumpSize);
+                            var startPage = (int)(replyDetails.Address / Flash.TeamDumpSize);
                             var endPage = (int)((replyDetails.Address + replyDetails.Data.Length) /
-                                                GlobalOperationsIdClass.Flash.TeamDumpSize);
+                                                Flash.TeamDumpSize);
                             for (var i = startPage; i <= endPage; i++)
                             {
-                                var tmp = GlobalOperationsIdClass.Flash.GetTablePage(i);
+                                var tmp = Flash.GetTablePage(i);
                                 var row = new FlashPageState.FlashTableItem { TeamNum = tmp[0], Decoded = tmp[2] };
 
                                 var flag = false;
@@ -393,15 +392,15 @@ namespace RfidStationControl
                         else if (reply.ReplyCode == ProtocolParser.Reply.WRITE_FLASH)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.WriteFlashReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                     }
 
-                    GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
+                    Parser._repliesList.Remove(reply);
                 }
                 else
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                    StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
             return packageReceived;
@@ -420,7 +419,7 @@ namespace RfidStationControl
         private Button teamsButton;
         private Button rfidButton;
         private Button flashButton;
-        
+
         private EditText stationNumberText;
         private TextView terminalTextView;
 
@@ -444,7 +443,7 @@ namespace RfidStationControl
             flashButton = FindViewById<Button>(Resource.Id.flashButton);
 
             stationNumberText = FindViewById<EditText>(Resource.Id.stationNumberEditText);
-            
+
             terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
 
             deviceListSpinner = FindViewById<Spinner>(Resource.Id.DeviceListSpinner);
@@ -456,7 +455,7 @@ namespace RfidStationControl
 
             await StartBt();
 
-            stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();            
+            stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();
 
             refreshButton.Click += async (sender, e) =>
             {
@@ -478,14 +477,14 @@ namespace RfidStationControl
                     while (GlobalOperationsIdClass.Bt.Connecting) await Task.Delay(1);
                     if (GlobalOperationsIdClass.Bt.IsBtConnected())
                     {
-                        Toast.MakeText(this, "Connected to: " + deviceName, ToastLength.Long).Show();
+                        Toast.MakeText(this, "Connected to: " + deviceName, ToastLength.Long)?.Show();
                         connectButton.Text = "Disconnect";
                     }
                     else
                     {
                         Toast.MakeText(this,
                                 "Can not connect to: " + deviceName,
-                                ToastLength.Long)
+                                ToastLength.Long)?
                             .Show();
                         connectButton.Text = "Connect";
                     }
@@ -539,7 +538,7 @@ namespace RfidStationControl
             await GlobalOperationsIdClass.Bt.Enable();
             if (GlobalOperationsIdClass.Bt.IsBtEnabled())
             {
-                Toast.MakeText(this, "Bluetooth adapter enabled.", ToastLength.Long).Show();
+                Toast.MakeText(this, "Bluetooth adapter enabled.", ToastLength.Long)?.Show();
                 var items = GlobalOperationsIdClass.Bt.PairedDevices();
                 var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
                 deviceListSpinner.Adapter = adapter;
@@ -550,7 +549,7 @@ namespace RfidStationControl
             {
                 if (!await GlobalOperationsIdClass.Bt.Enable())
                 {
-                    Toast.MakeText(this, "Bluetooth adapter not enabled.", ToastLength.Long).Show();
+                    Toast.MakeText(this, "Bluetooth adapter not enabled.", ToastLength.Long)?.Show();
                     result = false;
                 }
                 else result = true;

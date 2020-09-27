@@ -17,19 +17,19 @@ namespace RfidStationControl
     {
         #region UI controls
 
-        Button readFlashButton;
-        Button writeFlashButton;
-        Button dumpFlashButton;
-        Button quickDumpFlashButton;
-        Button clearGridButton;
-        Button backButton;
+        private Button readFlashButton;
+        private Button writeFlashButton;
+        private Button dumpFlashButton;
+        private Button quickDumpFlashButton;
+        private Button clearGridButton;
+        private Button backButton;
 
-        EditText readFromEditText;
-        EditText lengthEditText;
-        EditText writeFromEditText;
-        EditText dataEditText;
+        private EditText readFromEditText;
+        private EditText lengthEditText;
+        private EditText writeFromEditText;
+        private EditText dataEditText;
 
-        GridView flashGridView;
+        private GridView flashGridView;
 
         #endregion
 
@@ -65,101 +65,108 @@ namespace RfidStationControl
                 Table.Add(row);
             }
 
-            flashGridView.Adapter = new FlashGridAdapter(this, Table);
-
-            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() + " Flash";
-            readFromEditText.Text = ReadAddress.ToString();
-            lengthEditText.Text = ReadLength.ToString();
-            writeFromEditText.Text = WriteAddress.ToString();
-            dataEditText.Text = Helpers.ConvertByteArrayToHex(WriteData);
-
-            if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
+            if (flashGridView != null)
             {
-                readFlashButton.Enabled = true;
-                writeFlashButton.Enabled = true;
-                dumpFlashButton.Enabled = true;
-                quickDumpFlashButton.Enabled = true;
-            }
-            else
-            {
-                readFlashButton.Enabled = false;
-                writeFlashButton.Enabled = false;
-                dumpFlashButton.Enabled = false;
-                quickDumpFlashButton.Enabled = false;
-            }
-
-            GlobalOperationsIdClass.TimerActiveTasks = 0;
-
-            readFlashButton.Click += async (sender, e) =>
-            {
-                readFromEditText.ClearFocus();
-                lengthEditText.ClearFocus();
-                var outBuffer = GlobalOperationsIdClass.Parser.ReadFlash(ReadAddress, ReadLength);
-                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-            };
-
-            writeFlashButton.Click += async (sender, e) =>
-            {
-                writeFromEditText.ClearFocus();
-                dataEditText.ClearFocus();
-                var outBuffer = GlobalOperationsIdClass.Parser.WriteFlash(WriteAddress, WriteData);
-                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-            };
-
-            dumpFlashButton.Click += async (sender, e) =>
-            {
-                dumpFlashButton.Enabled = false;
-                var tmp = dumpFlashButton.Text;
-                dumpFlashButton.Text = "Dumping...";
-
-                byte maxFrameBytes = 256 - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1;
-                uint addrFrom = 0;
-                uint addrTo = 0;
-                GlobalOperationsIdClass.DumpCancellation = false;
-                do
-                {
-                    addrTo = addrFrom + maxFrameBytes;
-                    if (addrTo >= GlobalOperationsIdClass.FlashSizeLimit)
-                        addrTo = GlobalOperationsIdClass.FlashSizeLimit;
-                    dumpFlashButton.Text = "Dumping " + addrTo.ToString() + "bytes/" + GlobalOperationsIdClass.FlashSizeLimit.ToString() + "Mb";
-                    dumpFlashButton.Invalidate();
-
-                    var outBuffer = GlobalOperationsIdClass.Parser.ReadFlash(addrFrom, (byte)(addrTo - addrFrom));
-
-                    if (!await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt)) break;
-
-                    addrFrom = addrTo;
-
-                    var startTime = DateTime.Now;
-                    while (GlobalOperationsIdClass.TimerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
-                } while (!GlobalOperationsIdClass.DumpCancellation && addrTo < GlobalOperationsIdClass.FlashSizeLimit);
-                dumpFlashButton.Enabled = true;
-                dumpFlashButton.Text = tmp;
-            };
-
-            quickDumpFlashButton.Click += async (sender, e) =>
-            {
-                quickDumpFlashButton.Enabled = false;
-                var tmp = quickDumpFlashButton.Text;
-                quickDumpFlashButton.Text = "Dumping...";
-
-                byte maxFrameBytes = 256 - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1;
-                long addrFrom = 0;
-                long addrTo = 0;
-                GlobalOperationsIdClass.DumpCancellation = false;
-
-                // do the job
-                Toast.MakeText(this, "Not implemented yet!!!", ToastLength.Long).Show();
-
-                quickDumpFlashButton.Enabled = true;
-                quickDumpFlashButton.Text = tmp;
-            };
-
-            clearGridButton.Click += (sender, e) =>
-            {
-                Table.Clear();
                 flashGridView.Adapter = new FlashGridAdapter(this, Table);
-            };
+
+                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " Flash";
+                readFromEditText.Text = ReadAddress.ToString();
+                lengthEditText.Text = ReadLength.ToString();
+                writeFromEditText.Text = WriteAddress.ToString();
+                dataEditText.Text = Helpers.ConvertByteArrayToHex(WriteData);
+
+                if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
+                {
+                    readFlashButton.Enabled = true;
+                    writeFlashButton.Enabled = true;
+                    dumpFlashButton.Enabled = true;
+                    quickDumpFlashButton.Enabled = true;
+                }
+                else
+                {
+                    readFlashButton.Enabled = false;
+                    writeFlashButton.Enabled = false;
+                    dumpFlashButton.Enabled = false;
+                    quickDumpFlashButton.Enabled = false;
+                }
+
+                GlobalOperationsIdClass.TimerActiveTasks = 0;
+
+                readFlashButton.Click += async (sender, e) =>
+                {
+                    readFromEditText.ClearFocus();
+                    lengthEditText.ClearFocus();
+                    var outBuffer = GlobalOperationsIdClass.Parser.ReadFlash(ReadAddress, ReadLength);
+                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                };
+
+                writeFlashButton.Click += async (sender, e) =>
+                {
+                    writeFromEditText.ClearFocus();
+                    dataEditText.ClearFocus();
+                    var outBuffer = GlobalOperationsIdClass.Parser.WriteFlash(WriteAddress, WriteData);
+                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                };
+
+                dumpFlashButton.Click += async (sender, e) =>
+                {
+                    dumpFlashButton.Enabled = false;
+                    var tmp = dumpFlashButton.Text;
+                    dumpFlashButton.Text = "Dumping...";
+
+                    const byte maxFrameBytes = 256 - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1;
+                    uint addrFrom = 0;
+                    uint addrTo = 0;
+                    GlobalOperationsIdClass.DumpCancellation = false;
+                    do
+                    {
+                        addrTo = addrFrom + maxFrameBytes;
+                        if (addrTo >= GlobalOperationsIdClass.FlashSizeLimit)
+                            addrTo = GlobalOperationsIdClass.FlashSizeLimit;
+                        dumpFlashButton.Text = "Dumping " + addrTo + "bytes/" +
+                                               GlobalOperationsIdClass.FlashSizeLimit + "Mb";
+                        dumpFlashButton.Invalidate();
+
+                        var outBuffer = GlobalOperationsIdClass.Parser.ReadFlash(addrFrom, (byte)(addrTo - addrFrom));
+
+                        if (!await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt)) break;
+
+                        addrFrom = addrTo;
+
+                        var startTime = DateTime.Now;
+                        while (GlobalOperationsIdClass.TimerActiveTasks > 0 &&
+                               DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
+                    } while (!GlobalOperationsIdClass.DumpCancellation &&
+                             addrTo < GlobalOperationsIdClass.FlashSizeLimit);
+
+                    dumpFlashButton.Enabled = true;
+                    dumpFlashButton.Text = tmp;
+                };
+
+                quickDumpFlashButton.Click += async (sender, e) =>
+                {
+                    quickDumpFlashButton.Enabled = false;
+                    var tmp = quickDumpFlashButton.Text;
+                    quickDumpFlashButton.Text = "Dumping...";
+
+                    byte maxFrameBytes = 256 - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1;
+                    long addrFrom = 0;
+                    long addrTo = 0;
+                    GlobalOperationsIdClass.DumpCancellation = false;
+
+                    // do the job
+                    Toast.MakeText(this, "Not implemented yet!!!", ToastLength.Long)?.Show();
+
+                    quickDumpFlashButton.Enabled = true;
+                    quickDumpFlashButton.Text = tmp;
+                };
+
+                clearGridButton.Click += (sender, e) =>
+                {
+                    Table.Clear();
+                    flashGridView.Adapter = new FlashGridAdapter(this, Table);
+                };
+            }
 
             backButton.Click += (sender, e) =>
             {
@@ -219,51 +226,57 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
-                        if (reply.ReplyCode == ProtocolParser.Reply.READ_FLASH)
+                        switch (reply.ReplyCode)
                         {
-                            var replyDetails = new ProtocolParser.ReplyData.ReadFlashReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-
-                            GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
-                            // refresh flash table
-                            var startPage = (int)(replyDetails.Address / GlobalOperationsIdClass.Flash.TeamDumpSize);
-                            var endPage = (int)((replyDetails.Address + replyDetails.Data.Length) /
-                                                GlobalOperationsIdClass.Flash.TeamDumpSize);
-                            for (var i = startPage; i <= endPage; i++)
-                            {
-                                var tmp = GlobalOperationsIdClass.Flash.GetTablePage(i);
-                                var row = new FlashTableItem { TeamNum = tmp[0], Decoded = tmp[2] };
-
-                                var flag = false;
-                                for (var j = 0; j < Table?.Count; j++)
+                            case ProtocolParser.Reply.READ_FLASH:
                                 {
-                                    if (Table[j].TeamNum != row.TeamNum) continue;
+                                    var replyDetails = new ProtocolParser.ReplyData.ReadFlashReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
 
-                                    Table.RemoveAt(j);
-                                    Table.Insert(j, row);
-                                    flag = true;
+                                    GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
+                                    // refresh flash table
+                                    var startPage = (int)(replyDetails.Address / GlobalOperationsIdClass.Flash.TeamDumpSize);
+                                    var endPage = (int)((replyDetails.Address + replyDetails.Data.Length) /
+                                                        GlobalOperationsIdClass.Flash.TeamDumpSize);
+                                    for (var i = startPage; i <= endPage; i++)
+                                    {
+                                        var tmp = GlobalOperationsIdClass.Flash.GetTablePage(i);
+                                        var row = new FlashTableItem { TeamNum = tmp[0], Decoded = tmp[2] };
+
+                                        var flag = false;
+                                        for (var j = 0; j < Table?.Count; j++)
+                                        {
+                                            if (Table[j].TeamNum != row.TeamNum) continue;
+
+                                            Table.RemoveAt(j);
+                                            Table.Insert(j, row);
+                                            flag = true;
+                                            break;
+                                        }
+                                        if (!flag) Table?.Add(row);
+                                    }
+
+                                    flashGridView.Adapter = new FlashGridAdapter(this, Table);
                                     break;
                                 }
-                                if (!flag) Table?.Add(row);
-                            }
-
-                            flashGridView.Adapter = new FlashGridAdapter(this, Table);
-                        }
-                        else if (reply.ReplyCode == ProtocolParser.Reply.WRITE_FLASH)
-                        {
-                            var replyDetails = new ProtocolParser.ReplyData.WriteFlashReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                            case ProtocolParser.Reply.WRITE_FLASH:
+                                {
+                                    var replyDetails = new ProtocolParser.ReplyData.WriteFlashReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                                    break;
+                                }
                         }
                     }
 
                     GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
                     Toast.MakeText(this,
                         ProtocolParser.ReplyStrings[reply.ReplyCode] + " replied: " +
-                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long).Show();
+                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long)
+                        ?.Show();
                 }
                 else
                 {

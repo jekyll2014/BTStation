@@ -68,21 +68,22 @@ namespace RfidStationControl
         public async Task<bool> Enable()
         {
             _isEnabled = false;
-            var BtAdapter = BluetoothAdapter.DefaultAdapter;
-            if (BtAdapter == null) return _isEnabled;
+            var btAdapter = BluetoothAdapter.DefaultAdapter;
+            if (btAdapter == null) return _isEnabled;
 
-            if (!BtAdapter.IsEnabled)
+            if (!btAdapter.IsEnabled)
             {
-                var _manager = (BluetoothManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService);
-                if (_manager == null) return _isEnabled;
+                var manager = (BluetoothManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService);
+                if (manager == null) return _isEnabled;
 
-                _manager.Adapter.Enable();
+                manager.Adapter?.Enable();
                 var enableStarted = DateTime.Now;
                 while (!GlobalOperationsIdClass.Bt.IsBtEnabled() && DateTime.Now.Subtract(enableStarted).TotalMilliseconds < CONNECTION_TIMEOUT) await Task.Delay(1);
 
-                BtAdapter = BluetoothAdapter.DefaultAdapter;
+                btAdapter = BluetoothAdapter.DefaultAdapter;
             }
-            _isEnabled = BtAdapter.IsEnabled;
+
+            if (btAdapter != null) _isEnabled = btAdapter.IsEnabled;
 
             return _isEnabled;
         }
@@ -147,15 +148,18 @@ namespace RfidStationControl
                             {
                                 var inputBuffer = new byte[4096];
 
-                                var c = await _btSocket.InputStream.ReadAsync(inputBuffer, 0,
-                                    inputBuffer.Length);
-                                lock (SerialReceiveThreadLock)
+                                if (_btSocket.InputStream != null)
                                 {
-                                    for (var i = 0; i < c; i++) BtInputBuffer.Add(inputBuffer[i]);
+                                    var c = await _btSocket.InputStream.ReadAsync(inputBuffer, 0,
+                                        inputBuffer.Length);
+                                    lock (SerialReceiveThreadLock)
+                                    {
+                                        for (var i = 0; i < c; i++) BtInputBuffer.Add(inputBuffer[i]);
+                                    }
                                 }
                             }
 
-                            // A little stop to the uneverending thread...
+                            // A little stop to the neverending thread...
                             Thread.Sleep(sleepTime);
                             if (_btSocket.IsConnected) continue;
 
@@ -218,7 +222,7 @@ namespace RfidStationControl
         {
             try
             {
-                await _btSocket.OutputStream.WriteAsync(Data, 0, Data.Length);
+                if (_btSocket.OutputStream != null) await _btSocket.OutputStream.WriteAsync(Data, 0, Data.Length);
             }
             catch (Exception)
             {
@@ -235,8 +239,9 @@ namespace RfidStationControl
             _btAdapter = BluetoothAdapter.DefaultAdapter;
             var devices = new ObservableCollection<string>();
 
-            foreach (var bd in _btAdapter.BondedDevices)
-                devices.Add(bd.Name);
+            if (_btAdapter?.BondedDevices != null)
+                foreach (var bd in _btAdapter.BondedDevices)
+                    devices.Add(bd.Name);
 
             return devices;
         }

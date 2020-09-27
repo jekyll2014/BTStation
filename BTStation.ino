@@ -4,6 +4,7 @@
 #include <MFRC522.h>
 #include <EEPROM.h>
 #include <SPIFlash.h>
+#include <SPI.h>
 #include "command_definitions.h"
 #include "card_definitions.h"
 #include "error_codes.h"
@@ -74,6 +75,65 @@ uint32_t rfidReadStartTime = 0;
 
 // перезагрузка контроллера
 void(*resetFunc) () = 0; // declare reset function @ address 0
+
+int eepromread(uint16_t);
+bool selectChipType(uint8_t);
+uint16_t refreshChipCounter();
+void beep(uint8_t, uint16_t);
+void errorBeepMs(uint8_t, uint16_t);
+void addLastError(uint8_t);
+uint16_t getBatteryLevel();
+void processRfidCard();
+bool readUart();
+void executeCommand();
+bool ntagRead4pages(uint8_t);
+void errorBeep(uint8_t);
+void clearNewMask();
+bool ntagWritePage(uint8_t*, uint8_t);
+int findNewPage();
+bool writeCheckPointToCard(uint8_t, uint32_t);
+bool writeDumpToFlash(uint16_t, uint32_t, uint32_t, uint16_t);
+void addLastTeam(uint16_t, bool);
+bool readTeamFromFlash(uint16_t);
+void init_package(uint8_t);
+bool addData(uint8_t);
+void sendData();
+void sendError(uint8_t, uint8_t);
+void sendError(uint8_t);
+uint8_t crcCalc(uint8_t*, uint16_t, uint16_t);
+bool eepromwrite(uint16_t, uint8_t);
+void saveNewMask();
+bool eraseTeamFromFlash(uint16_t);
+void floatToByte(uint8_t*, float);
+String sendCommandToBt(String, uint8_t);
+bool copyTeam(uint16_t, uint16_t);
+void setMode();
+void setTime();
+void resetStation();
+void getStatus();
+void initChip();
+void getLastTeams();
+void getTeamRecord();
+void readCardPages();
+void updateTeamMask();
+void writeCardPage();
+void readFlash();
+void writeFlash();
+void eraseTeamFlash();
+void getConfig();
+void setVCoeff();
+void setGain();
+void setChipType();
+void setTeamFlashSize();
+void setFlashBlockSize();
+void setBtName();
+void setBtPinCode();
+void setBatteryLimit();
+void scanTeams();
+void sendBtCommand();
+void getLastErrors();
+void setAutoReport();
+
 
 void setup()
 {

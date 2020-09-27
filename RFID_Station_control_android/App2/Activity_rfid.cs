@@ -17,23 +17,23 @@ namespace RfidStationControl
     {
         #region UI controls
 
-        Button initButton;
-        Button readButton;
-        Button writeButton;
-        Button eraseButton;
-        Button dumpButton;
-        Button clearGridButton;
-        Button backButton;
+        private Button initButton;
+        private Button readButton;
+        private Button writeButton;
+        private Button eraseButton;
+        private Button dumpButton;
+        private Button clearGridButton;
+        private Button backButton;
 
-        EditText teamNumberEditText;
-        EditText maskEditText;
-        EditText readFromEditText;
-        EditText readToEditText;
-        EditText pageNumberEditText;
-        EditText dataEditText;
-        EditText uidEditText;
+        private EditText teamNumberEditText;
+        private EditText maskEditText;
+        private EditText readFromEditText;
+        private EditText readToEditText;
+        private EditText pageNumberEditText;
+        private EditText dataEditText;
+        private EditText uidEditText;
 
-        GridView rfidGridView;
+        private GridView rfidGridView;
 
         #endregion
 
@@ -74,103 +74,114 @@ namespace RfidStationControl
                 Table.Add(row);
             }
 
-            rfidGridView.Adapter = new RfidGridAdapter(this, Table);
-
-            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() + " RFID";
-
-            // just for test
-            teamNumberEditText.Text = InitChipNumber.ToString();
-            maskEditText.Text = Helpers.ConvertMaskToString(Mask);
-            readFromEditText.Text = ReadFrom.ToString();
-            readToEditText.Text = ReadTo.ToString();
-            pageNumberEditText.Text = WriteFrom.ToString();
-            dataEditText.Text = Helpers.ConvertByteArrayToHex(WriteData);
-            uidEditText.Text = Helpers.ConvertByteArrayToHex(Uid);
-
-            if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
+            if (rfidGridView != null)
             {
-                initButton.Enabled = true;
-                readButton.Enabled = true;
-                writeButton.Enabled = true;
-                eraseButton.Enabled = true;
-                dumpButton.Enabled = true;
-            }
-            else
-            {
-                initButton.Enabled = false;
-                readButton.Enabled = false;
-                writeButton.Enabled = false;
-                eraseButton.Enabled = false;
-                dumpButton.Enabled = false;
-            }
-
-            GlobalOperationsIdClass.TimerActiveTasks = 0;
-
-            initButton.Click += async (sender, e) =>
-            {
-                teamNumberEditText.ClearFocus();
-                maskEditText.ClearFocus();
-                var outBuffer = GlobalOperationsIdClass.Parser.InitChip(InitChipNumber, Mask);
-                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-            };
-
-            readButton.Click += async (sender, e) =>
-            {
-                readFromEditText.ClearFocus();
-                readToEditText.ClearFocus();
-                var outBuffer = GlobalOperationsIdClass.Parser.ReadCardPage(ReadFrom, ReadTo);
-                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-            };
-
-            writeButton.Click += async (sender, e) =>
-            {
-                pageNumberEditText.ClearFocus();
-                dataEditText.ClearFocus();
-                var outBuffer = GlobalOperationsIdClass.Parser.WriteCardPage(Uid, WriteFrom, WriteData);
-                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-            };
-
-            dumpButton.Click += async (sender, e) =>
-            {
-                var rowNum = 0;
-                var row = new RfidTableItem { PageNum = rowNum.ToString(), Data = "0x00", PageDesc = "Page #" + rowNum.ToString() + " description", Decoded = "none" };
-                Table.Add(row);
                 rfidGridView.Adapter = new RfidGridAdapter(this, Table);
-                dumpButton.Enabled = false;
-                var tmp = dumpButton.Text;
-                dumpButton.Text = "Dumping...";
 
-                var chipSize = RfidContainer.ChipTypes.PageSizes[GlobalOperationsIdClass.StationSettings.ChipType];
-                const byte maxFramePages = 45;
-                var pagesFrom = 0;
-                int pagesTo;
-                GlobalOperationsIdClass.DumpCancellation = false;
-                do
+                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " RFID";
+
+                // just for test
+                teamNumberEditText.Text = InitChipNumber.ToString();
+                maskEditText.Text = Helpers.ConvertMaskToString(Mask);
+                readFromEditText.Text = ReadFrom.ToString();
+                readToEditText.Text = ReadTo.ToString();
+                pageNumberEditText.Text = WriteFrom.ToString();
+                dataEditText.Text = Helpers.ConvertByteArrayToHex(WriteData);
+                uidEditText.Text = Helpers.ConvertByteArrayToHex(Uid);
+
+                if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
                 {
-                    pagesTo = pagesFrom + maxFramePages - 1;
-                    if (pagesTo >= chipSize)
-                        pagesTo = chipSize - 1;
-                    dumpButton.Text = "Dumping " + pagesTo.ToString() + "/" + chipSize.ToString();
-                    dumpButton.Invalidate();
+                    initButton.Enabled = true;
+                    readButton.Enabled = true;
+                    writeButton.Enabled = true;
+                    eraseButton.Enabled = true;
+                    dumpButton.Enabled = true;
+                }
+                else
+                {
+                    initButton.Enabled = false;
+                    readButton.Enabled = false;
+                    writeButton.Enabled = false;
+                    eraseButton.Enabled = false;
+                    dumpButton.Enabled = false;
+                }
 
-                    var outBuffer = GlobalOperationsIdClass.Parser.ReadCardPage((byte)pagesFrom, (byte)pagesTo);
+                GlobalOperationsIdClass.TimerActiveTasks = 0;
 
-                    if (!await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt)) break;
+                initButton.Click += async (sender, e) =>
+                {
+                    teamNumberEditText.ClearFocus();
+                    maskEditText.ClearFocus();
+                    var outBuffer = GlobalOperationsIdClass.Parser.InitChip(InitChipNumber, Mask);
+                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                };
 
-                    pagesFrom = pagesTo + 1;
+                readButton.Click += async (sender, e) =>
+                {
+                    readFromEditText.ClearFocus();
+                    readToEditText.ClearFocus();
+                    var outBuffer = GlobalOperationsIdClass.Parser.ReadCardPage(ReadFrom, ReadTo);
+                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                };
 
-                    var startTime = DateTime.Now;
-                    while (GlobalOperationsIdClass.TimerActiveTasks > 0 && DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
-                } while (!GlobalOperationsIdClass.DumpCancellation && pagesTo < chipSize - 1);
-                dumpButton.Enabled = false;
-                dumpButton.Text = tmp;
-            };
+                writeButton.Click += async (sender, e) =>
+                {
+                    pageNumberEditText.ClearFocus();
+                    dataEditText.ClearFocus();
+                    var outBuffer = GlobalOperationsIdClass.Parser.WriteCardPage(Uid, WriteFrom, WriteData);
+                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                };
 
-            clearGridButton.Click += (sender, e) =>
-            {
-                GlobalOperationsIdClass.Rfid.InitTable();
-                rfidGridView.Adapter = new RfidGridAdapter(this, Table);
-            };
+                dumpButton.Click += async (sender, e) =>
+                {
+                    const int rowNum = 0;
+                    var row = new RfidTableItem
+                    {
+                        PageNum = rowNum.ToString(),
+                        Data = "0x00",
+                        PageDesc = "Page #" + rowNum + " description",
+                        Decoded = "none"
+                    };
+                    Table.Add(row);
+                    rfidGridView.Adapter = new RfidGridAdapter(this, Table);
+                    dumpButton.Enabled = false;
+                    var tmp = dumpButton.Text;
+                    dumpButton.Text = "Dumping...";
+
+                    var chipSize = RfidContainer.ChipTypes.PageSizes[GlobalOperationsIdClass.StationSettings.ChipType];
+                    const byte maxFramePages = 45;
+                    var pagesFrom = 0;
+                    int pagesTo;
+                    GlobalOperationsIdClass.DumpCancellation = false;
+                    do
+                    {
+                        pagesTo = pagesFrom + maxFramePages - 1;
+                        if (pagesTo >= chipSize)
+                            pagesTo = chipSize - 1;
+                        dumpButton.Text = "Dumping " + pagesTo + "/" + chipSize;
+                        dumpButton.Invalidate();
+
+                        var outBuffer = GlobalOperationsIdClass.Parser.ReadCardPage((byte)pagesFrom, (byte)pagesTo);
+
+                        if (!await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt)) break;
+
+                        pagesFrom = pagesTo + 1;
+
+                        var startTime = DateTime.Now;
+                        while (GlobalOperationsIdClass.TimerActiveTasks > 0 &&
+                               DateTime.Now.Subtract(startTime).TotalMilliseconds < 2000) await Task.Delay(1);
+                    } while (!GlobalOperationsIdClass.DumpCancellation && pagesTo < chipSize - 1);
+
+                    dumpButton.Enabled = false;
+                    dumpButton.Text = tmp;
+                };
+
+                clearGridButton.Click += (sender, e) =>
+                {
+                    GlobalOperationsIdClass.Rfid.InitTable();
+                    rfidGridView.Adapter = new RfidGridAdapter(this, Table);
+                };
+            }
 
             backButton.Click += (sender, e) =>
             {
@@ -186,8 +197,8 @@ namespace RfidStationControl
 
             maskEditText.FocusChange += (sender, e) =>
             {
-                if (maskEditText.Text.Length > 16) maskEditText.Text = maskEditText.Text.Substring(0, 16);
-                else if (maskEditText.Text.Length < 16)
+                if (maskEditText.Text?.Length > 16) maskEditText.Text = maskEditText.Text.Substring(0, 16);
+                else if (maskEditText.Text?.Length < 16)
                     while (maskEditText.Text.Length < 16)
                         maskEditText.Text = "0" + maskEditText.Text;
 
@@ -231,9 +242,9 @@ namespace RfidStationControl
                 uidEditText.Text = Helpers.CheckHexString(uidEditText.Text);
                 var n = Helpers.ConvertHexToByteArray(uidEditText.Text);
                 uidEditText.Text = Helpers.ConvertByteArrayToHex(n);
-                if (uidEditText.Text.Length > 24)
+                if (uidEditText.Text?.Length > 24)
                     uidEditText.Text = uidEditText.Text.Substring(0, 24);
-                else if (uidEditText.Text.Length < 24)
+                else if (uidEditText.Text?.Length < 24)
                     while (uidEditText.Text.Length < 24)
                         uidEditText.Text = "00 " + uidEditText.Text;
                 Uid = n;
@@ -262,48 +273,54 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.ToString());
+                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
-                        if (reply.ReplyCode == ProtocolParser.Reply.INIT_CHIP)
+                        switch (reply.ReplyCode)
                         {
-                            var replyDetails = new ProtocolParser.ReplyData.InitChipReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-                        }
-                        else if (reply.ReplyCode == ProtocolParser.Reply.READ_CARD_PAGE)
-                        {
-                            var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
-
-                            GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
-                            // refresh RFID table
-                            var endPage = replyDetails.startPage + (int)(replyDetails.PagesData.Length / 4);
-                            for (var i = replyDetails.startPage; i < endPage; i++)
-                            {
-                                var tmp = GlobalOperationsIdClass.Rfid.GetTablePage((byte)i);
-                                var row = new RfidTableItem
-                                { PageNum = tmp[0], PageDesc = tmp[1], Decoded = tmp[3] };
-
-                                var flag = false;
-                                for (var j = 0; j < Table?.Count; j++)
+                            case ProtocolParser.Reply.INIT_CHIP:
                                 {
-                                    if (Table[j].PageNum != row.PageNum) continue;
-                                    Table.RemoveAt(j);
-                                    Table.Insert(j, row);
-                                    flag = true;
+                                    var replyDetails = new ProtocolParser.ReplyData.InitChipReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
                                     break;
                                 }
-                                if (!flag) Table?.Add(row);
-                                rfidGridView.Adapter = new RfidGridAdapter(this, Table);
-                            }
+                            case ProtocolParser.Reply.READ_CARD_PAGE:
+                                {
+                                    var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
+                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+
+                                    GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
+                                    // refresh RFID table
+                                    var endPage = replyDetails.startPage + replyDetails.PagesData.Length / 4;
+                                    for (var i = replyDetails.startPage; i < endPage; i++)
+                                    {
+                                        var tmp = GlobalOperationsIdClass.Rfid.GetTablePage(i);
+                                        var row = new RfidTableItem
+                                        { PageNum = tmp[0], PageDesc = tmp[1], Decoded = tmp[3] };
+
+                                        var flag = false;
+                                        for (var j = 0; j < Table?.Count; j++)
+                                        {
+                                            if (Table[j].PageNum != row.PageNum) continue;
+                                            Table.RemoveAt(j);
+                                            Table.Insert(j, row);
+                                            flag = true;
+                                            break;
+                                        }
+                                        if (!flag) Table?.Add(row);
+                                        rfidGridView.Adapter = new RfidGridAdapter(this, Table);
+                                    }
+
+                                    break;
+                                }
                         }
                     }
 
                     GlobalOperationsIdClass.Parser._repliesList.Remove(reply);
                     Toast.MakeText(this,
                         ProtocolParser.ReplyStrings[reply.ReplyCode] + " replied: " +
-                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long).Show();
+                        ProtocolParser.ErrorCodes[reply.ErrorCode], ToastLength.Long)?.Show();
                 }
                 else
                 {
@@ -341,7 +358,8 @@ namespace RfidStationControl
 
             var view = convertView;
             if (view == null) // no view to re-use, create new
-                view = _context.LayoutInflater.Inflate(Resource.Layout.rfidTable_view, null);
+                if (_context.LayoutInflater != null)
+                    view = _context.LayoutInflater.Inflate(Resource.Layout.rfidTable_view, null);
 
             view.FindViewById<TextView>(Resource.Id.PageNumber).Text = item.PageNum;
             view.FindViewById<TextView>(Resource.Id.PageDescription).Text = item.PageDesc;
