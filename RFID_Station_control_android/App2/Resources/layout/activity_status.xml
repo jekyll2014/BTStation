@@ -36,7 +36,8 @@
                     android:text="Get Status"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:id="@+id/getStatusButton" />
+                    android:id="@+id/getStatusButton"
+                    android:focusedByDefault="true" />
                 <Button
                     android:text="Get config"
                     android:layout_width="wrap_content"

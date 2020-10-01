@@ -91,7 +91,8 @@
                 android:text="Read chip"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:id="@+id/readButton" />
+                android:id="@+id/readButton"
+                android:focusedByDefault="true" />
             <TextView
                 android:text="pages from"
                 android:layout_width="wrap_content"

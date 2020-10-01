@@ -23,7 +23,8 @@
             android:text="Get last teams"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/getLastTeamsButton" />
+            android:id="@+id/getLastTeamsButton"
+            android:focusedByDefault="true" />
         <LinearLayout
             android:orientation="horizontal"
             android:minWidth="25px"

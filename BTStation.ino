@@ -1,4 +1,5 @@
 //#define DEBUG
+#include <require_cpp11.h>
 #include <Wire.h>
 #include "ds3231.h"
 #include <MFRC522.h>
@@ -12,101 +13,47 @@
 #include "protocol_definitions.h"
 #include "eeprom_definitions.h"
 
-// тип чипа
-uint8_t chipType = NTAG215_ID;
-// отметка для чипа
-uint8_t ntagMark = NTAG215_MARK;
-// размер чипа в страницах
-uint8_t tagMaxPage = NTAG215_MAX_PAGE;
-
-// размер записи лога (на 1 чип)
-uint16_t teamFlashSize = 1024;
-uint16_t flashBlockSize = 4096;
-
-// максимальное кол-во записей в логе
-uint16_t maxTeamNumber = 1; // = (flashSize - flashBlockSize) / teamFlashSize - 1;
-
-// станция запоминает последние команды сюда
-uint8_t lastTeams[LAST_TEAMS_LENGTH * 2];
-uint32_t lastTimeChecked = 0;
-// количество отмеченных чипов в памяти
-uint16_t totalChipsChecked = 0;
-
-// станция запоминает последние коды ошибок сюда
-uint8_t lastErrors[LAST_TEAMS_LENGTH];
-
-// по умолчанию номер станции и режим.
-uint8_t stationNumber = 0;
-uint8_t stationMode = MODE_INIT;
-const uint32_t maxTimeInit = 600000UL; // одна неделя
-bool scanAutoreport = false;
-
-// коэфф. перевода значения АЦП в напряжение для делителя 10кОм/2.2кОм
-float voltageCoeff = 0.00578;
-
-// минимальное напряжение батареи
-float batteryLimit = 3;
-
-uint8_t ntag_page[16]; // буфер для чтения из чипа через ntagRead4pages()
-
 SPIFlash SPIflash(FLASH_SS_PIN); // флэш-память
-
-// рфид-модуль
-MFRC522 mfrc522(RFID_SS_PIN, RFID_RST_PIN);
-// коэфф. усиления антенны - работают только биты 4,5,6
-uint8_t gainCoeff = 0x40; // [0, 16, 32, 48, 64, 80, 96, 112]
-
-// UART command buffer
-uint8_t uartBuffer[MAX_PAKET_LENGTH];
-uint16_t uartBufferPosition = 0;
-bool uartReady = false;
-bool receivingData = false;
-uint32_t receiveStartTime = 0;
-uint16_t batteryLevel = 500;
-uint8_t batteryAlarmCount = 0;
-
-// новая маска для замены в чипе
-uint8_t newTeamMask[8];
-
-// флаг последней команды для отсечки двойной отметки
-uint16_t lastTeamFlag = 0;
+MFRC522 mfrc522(RFID_SS_PIN, RFID_RST_PIN); // рфид-модуль
 
 uint32_t rfidReadStartTime = 0;
 
-// перезагрузка контроллера
-void(*resetFunc) () = 0; // declare reset function @ address 0
+uint8_t lastTeams[LAST_TEAMS_LENGTH * 2]; // последние отмеченные команды
+uint8_t lastErrors[LAST_TEAMS_LENGTH]; // последние коды ошибок станции
+uint8_t ntag_page[16]; // буфер для чтения из чипа через ntagRead4pages()
+uint32_t lastTimeChecked = 0; // время последней отметки чипа
+uint16_t totalChipsChecked = 0; // количество отмеченных чипов
 
-int eepromread(uint16_t);
-bool selectChipType(uint8_t);
-uint16_t refreshChipCounter();
-void beep(uint8_t, uint16_t);
-void errorBeepMs(uint8_t, uint16_t);
-void addLastError(uint8_t);
-uint16_t getBatteryLevel();
+uint8_t newTeamMask[8]; // новая маска для замены в чипе
+uint16_t lastTeamFlag = 0; // номер последней отмеченной команды для отсечки двойной отметки
+
+uint8_t stationNumber = 0; // номер станции по умолчанию
+uint8_t stationMode = MODE_INIT; // режим станции по умолчанию
+bool scanAutoreport = false; // автоматически отправлять данные сканирования в UART порт
+uint8_t chipType = NTAG215_ID; // тип чипа
+uint8_t ntagMark = NTAG215_MARK; // метка в страницу 3 чипа
+uint8_t tagMaxPage = NTAG215_MAX_PAGE; // размер чипа в страницах
+uint16_t teamFlashSize = 1024; // размер записи лога
+uint16_t flashBlockSize = 4096; // размер страницы при стирании
+uint16_t maxTeamNumber = 1; // максимальное кол-во записей в логе = (flashSize - flashBlockSize) / teamFlashSize - 1;
+const uint32_t maxTimeInit = 600000UL; // максимальный срок годности чипа - дата инициализации одна неделя назад от текущего момента
+float voltageCoeff = 0.00578; // коэфф. перевода значения АЦП в напряжение для делителя 10кОм/2.2кОм
+float batteryLimit = 3; // минимальное напряжение батареи
+uint8_t gainCoeff = 0x40; // коэфф. усиления антенны - работают только биты 4,5,6; значения [0, 16, 32, 48, 64, 80, 96, 112]
+
+uint8_t uartBuffer[MAX_PAKET_LENGTH]; // UART command buffer
+uint16_t uartBufferPosition = 0;
+bool uartReady = false; // получен пакет
+bool receivingData = false; // идет прием пакета
+uint32_t receiveStartTime = 0; // время начала получения пакета
+
+uint16_t batteryLevel = 500; // текущий уровень напряжения (замер АЦП)
+uint8_t batteryAlarmCount = 0; // счетчик нарушений границы допустимого напряжения
+
+
 void processRfidCard();
 bool readUart();
 void executeCommand();
-bool ntagRead4pages(uint8_t);
-void errorBeep(uint8_t);
-void clearNewMask();
-bool ntagWritePage(uint8_t*, uint8_t);
-int findNewPage();
-bool writeCheckPointToCard(uint8_t, uint32_t);
-bool writeDumpToFlash(uint16_t, uint32_t, uint32_t, uint16_t);
-void addLastTeam(uint16_t, bool);
-bool readTeamFromFlash(uint16_t);
-void init_package(uint8_t);
-bool addData(uint8_t);
-void sendData();
-void sendError(uint8_t, uint8_t);
-void sendError(uint8_t);
-uint8_t crcCalc(uint8_t*, uint16_t, uint16_t);
-bool eepromwrite(uint16_t, uint8_t);
-void saveNewMask();
-bool eraseTeamFromFlash(uint16_t);
-void floatToByte(uint8_t*, float);
-String sendCommandToBt(String, uint8_t);
-bool copyTeam(uint16_t, uint16_t);
 void setMode();
 void setTime();
 void resetStation();
@@ -133,7 +80,35 @@ void scanTeams();
 void sendBtCommand();
 void getLastErrors();
 void setAutoReport();
-
+String sendCommandToBt(String, uint8_t);
+void saveNewMask();
+void clearNewMask();
+uint16_t getBatteryLevel();
+bool eepromwrite(uint16_t, uint8_t);
+int eepromread(uint16_t);
+void beep(uint8_t, uint16_t);
+void errorBeepMs(uint8_t, uint16_t);
+void errorBeep(uint8_t);
+void init_package(uint8_t);
+bool addData(uint8_t);
+void sendData();
+bool ntagWritePage(uint8_t*, uint8_t);
+bool ntagRead4pages(uint8_t);
+bool writeCheckPointToCard(uint8_t, uint32_t);
+int findNewPage();
+bool writeDumpToFlash(uint16_t, uint32_t, uint32_t, uint16_t);
+bool eraseTeamFromFlash(uint16_t);
+bool copyTeam(uint16_t, uint16_t);
+bool readTeamFromFlash(uint16_t);
+uint16_t refreshChipCounter();
+void sendError(uint8_t, uint8_t);
+void sendError(uint8_t);
+void addLastTeam(uint16_t, bool);
+void addLastError(uint8_t);
+uint8_t crcCalc(uint8_t*, uint16_t, uint16_t);
+void floatToByte(uint8_t*, float);
+bool selectChipType(uint8_t);
+void(*resetFunc) () = 0; // перезагрузка контроллера, declare reset function @ address 0
 
 void setup()
 {
@@ -375,9 +350,9 @@ void processRfidCard()
 
 	// включаем SPI ищем чип вблизи. Если не находим выходим из функции чтения чипов
 	SPI.begin();      // Init SPI bus
-	mfrc522.PCD_SetAntennaGain(gainCoeff);
 	mfrc522.PCD_Init();    // Init MFRC522
-	delay(100);
+	mfrc522.PCD_SetAntennaGain(gainCoeff);
+        delay(10);
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())

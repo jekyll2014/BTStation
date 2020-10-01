@@ -24,7 +24,8 @@
                 android:text="Get config"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/getConfigButton" />
+                android:id="@+id/getConfigButton"
+                android:focusedByDefault="true" />
             <LinearLayout
                 android:orientation="horizontal"
                 android:minWidth="25px"

@@ -33,11 +33,16 @@
                     android:text="Refresh"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:id="@+id/refreshButton" />
+                    android:id="@+id/refreshButton"
+                    android:focusedByDefault="true" />
                 <Spinner
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/DeviceListSpinner" />
+                    android:id="@+id/DeviceListSpinner"
+                    android:spinnerMode="dropdown"
+                    android:scrollbars="horizontal|vertical"
+                    android:verticalScrollbarPosition="defaultPosition"
+                    android:focusedByDefault="true" />
             </LinearLayout>
             <Button
                 android:text="Connect"
@@ -61,7 +66,8 @@
                     android:inputType="numberDecimal"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/stationNumberEditText" />
+                    android:id="@+id/stationNumberEditText"
+                    android:focusedByDefault="false" />
             </LinearLayout>
             <Button
                 android:text="Status"
