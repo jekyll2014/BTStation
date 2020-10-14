@@ -159,10 +159,14 @@ namespace RFID_Station_control
             this.button_saveRfid = new System.Windows.Forms.Button();
             this.dataGridView_chipRawData = new System.Windows.Forms.DataGridView();
             this.tabPage_flashContent = new System.Windows.Forms.TabPage();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.dataGridView_flashRawData = new System.Windows.Forms.DataGridView();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.textBox_chackPoints = new System.Windows.Forms.TextBox();
+            this.textBox_rawData = new System.Windows.Forms.TextBox();
             this.button_clearFlash = new System.Windows.Forms.Button();
             this.button_loadFlash = new System.Windows.Forms.Button();
             this.button_saveFlash = new System.Windows.Forms.Button();
-            this.dataGridView_flashRawData = new System.Windows.Forms.DataGridView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.label22 = new System.Windows.Forms.Label();
             this.textBox_fwVersion = new System.Windows.Forms.TextBox();
@@ -182,7 +186,15 @@ namespace RFID_Station_control
             this.tabPage_cardContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_chipRawData)).BeginInit();
             this.tabPage_flashContent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_flashRawData)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -1528,7 +1540,7 @@ namespace RFID_Station_control
             this.dataGridView_teams.RowHeadersVisible = false;
             dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.dataGridView_teams.RowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView_teams.Size = new System.Drawing.Size(456, 251);
+            this.dataGridView_teams.Size = new System.Drawing.Size(456, 262);
             this.dataGridView_teams.TabIndex = 12;
             this.dataGridView_teams.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_teams_CellDoubleClick);
             // 
@@ -1580,7 +1592,7 @@ namespace RFID_Station_control
             // 
             this.button_dumpTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_dumpTeams.Enabled = false;
-            this.button_dumpTeams.Location = new System.Drawing.Point(118, 260);
+            this.button_dumpTeams.Location = new System.Drawing.Point(118, 271);
             this.button_dumpTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_dumpTeams.Name = "button_dumpTeams";
             this.button_dumpTeams.Size = new System.Drawing.Size(128, 32);
@@ -1592,7 +1604,7 @@ namespace RFID_Station_control
             // button_clearTeams
             // 
             this.button_clearTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_clearTeams.Location = new System.Drawing.Point(6, 260);
+            this.button_clearTeams.Location = new System.Drawing.Point(6, 271);
             this.button_clearTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_clearTeams.Name = "button_clearTeams";
             this.button_clearTeams.Size = new System.Drawing.Size(100, 32);
@@ -1604,7 +1616,7 @@ namespace RFID_Station_control
             // button_saveTeams
             // 
             this.button_saveTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveTeams.Location = new System.Drawing.Point(350, 260);
+            this.button_saveTeams.Location = new System.Drawing.Point(350, 271);
             this.button_saveTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_saveTeams.Name = "button_saveTeams";
             this.button_saveTeams.Size = new System.Drawing.Size(100, 32);
@@ -1621,9 +1633,9 @@ namespace RFID_Station_control
             this.tabPage_cardContent.Controls.Add(this.button_saveRfid);
             this.tabPage_cardContent.Controls.Add(this.dataGridView_chipRawData);
             this.tabPage_cardContent.Controls.Add(this.button_dumpChip);
-            this.tabPage_cardContent.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_cardContent.Location = new System.Drawing.Point(4, 33);
             this.tabPage_cardContent.Name = "tabPage_cardContent";
-            this.tabPage_cardContent.Size = new System.Drawing.Size(456, 320);
+            this.tabPage_cardContent.Size = new System.Drawing.Size(456, 309);
             this.tabPage_cardContent.TabIndex = 2;
             this.tabPage_cardContent.Text = "RFID";
             this.tabPage_cardContent.UseVisualStyleBackColor = true;
@@ -1691,17 +1703,121 @@ namespace RFID_Station_control
             // tabPage_flashContent
             // 
             this.tabPage_flashContent.AutoScroll = true;
+            this.tabPage_flashContent.Controls.Add(this.splitContainer2);
             this.tabPage_flashContent.Controls.Add(this.button_clearFlash);
             this.tabPage_flashContent.Controls.Add(this.button_loadFlash);
             this.tabPage_flashContent.Controls.Add(this.button_saveFlash);
             this.tabPage_flashContent.Controls.Add(this.button_dumpFlash);
-            this.tabPage_flashContent.Controls.Add(this.dataGridView_flashRawData);
-            this.tabPage_flashContent.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_flashContent.Location = new System.Drawing.Point(4, 33);
             this.tabPage_flashContent.Name = "tabPage_flashContent";
-            this.tabPage_flashContent.Size = new System.Drawing.Size(456, 320);
+            this.tabPage_flashContent.Size = new System.Drawing.Size(456, 309);
             this.tabPage_flashContent.TabIndex = 3;
             this.tabPage_flashContent.Text = "Flash";
             this.tabPage_flashContent.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer2
+            // 
+            this.splitContainer2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitContainer2.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer2.Name = "splitContainer2";
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.dataGridView_flashRawData);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.splitContainer3);
+            this.splitContainer2.Size = new System.Drawing.Size(453, 262);
+            this.splitContainer2.SplitterDistance = 265;
+            this.splitContainer2.TabIndex = 22;
+            // 
+            // dataGridView_flashRawData
+            // 
+            this.dataGridView_flashRawData.AllowUserToAddRows = false;
+            this.dataGridView_flashRawData.AllowUserToDeleteRows = false;
+            this.dataGridView_flashRawData.AllowUserToResizeRows = false;
+            this.dataGridView_flashRawData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dataGridView_flashRawData.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
+            this.dataGridView_flashRawData.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
+            this.dataGridView_flashRawData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView_flashRawData.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dataGridView_flashRawData.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dataGridView_flashRawData.Location = new System.Drawing.Point(0, 0);
+            this.dataGridView_flashRawData.MultiSelect = false;
+            this.dataGridView_flashRawData.Name = "dataGridView_flashRawData";
+            this.dataGridView_flashRawData.ReadOnly = true;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            this.dataGridView_flashRawData.RowHeadersVisible = false;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowTemplate.ReadOnly = true;
+            this.dataGridView_flashRawData.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_flashRawData.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dataGridView_flashRawData.Size = new System.Drawing.Size(265, 262);
+            this.dataGridView_flashRawData.TabIndex = 1;
+            this.dataGridView_flashRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_flashRawData_CellDoubleClick);
+            this.dataGridView_flashRawData.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_flashRawData_RowEnter);
+            // 
+            // splitContainer3
+            // 
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer3.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer3.Name = "splitContainer3";
+            this.splitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.Controls.Add(this.textBox_chackPoints);
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.textBox_rawData);
+            this.splitContainer3.Size = new System.Drawing.Size(184, 262);
+            this.splitContainer3.SplitterDistance = 126;
+            this.splitContainer3.TabIndex = 0;
+            // 
+            // textBox_chackPoints
+            // 
+            this.textBox_chackPoints.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox_chackPoints.Location = new System.Drawing.Point(0, 0);
+            this.textBox_chackPoints.Multiline = true;
+            this.textBox_chackPoints.Name = "textBox_chackPoints";
+            this.textBox_chackPoints.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_chackPoints.Size = new System.Drawing.Size(184, 126);
+            this.textBox_chackPoints.TabIndex = 0;
+            // 
+            // textBox_rawData
+            // 
+            this.textBox_rawData.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox_rawData.Location = new System.Drawing.Point(0, 0);
+            this.textBox_rawData.Multiline = true;
+            this.textBox_rawData.Name = "textBox_rawData";
+            this.textBox_rawData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox_rawData.Size = new System.Drawing.Size(184, 132);
+            this.textBox_rawData.TabIndex = 0;
             // 
             // button_clearFlash
             // 
@@ -1738,54 +1854,6 @@ namespace RFID_Station_control
             this.button_saveFlash.Text = "Save";
             this.button_saveFlash.UseVisualStyleBackColor = true;
             this.button_saveFlash.Click += new System.EventHandler(this.Button_saveFlash_Click);
-            // 
-            // dataGridView_flashRawData
-            // 
-            this.dataGridView_flashRawData.AllowUserToAddRows = false;
-            this.dataGridView_flashRawData.AllowUserToDeleteRows = false;
-            this.dataGridView_flashRawData.AllowUserToResizeRows = false;
-            this.dataGridView_flashRawData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView_flashRawData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dataGridView_flashRawData.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
-            this.dataGridView_flashRawData.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
-            this.dataGridView_flashRawData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView_flashRawData.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dataGridView_flashRawData.Location = new System.Drawing.Point(0, 0);
-            this.dataGridView_flashRawData.MultiSelect = false;
-            this.dataGridView_flashRawData.Name = "dataGridView_flashRawData";
-            this.dataGridView_flashRawData.ReadOnly = true;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
-            this.dataGridView_flashRawData.RowHeadersVisible = false;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowsDefaultCellStyle = dataGridViewCellStyle5;
-            this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowTemplate.ReadOnly = true;
-            this.dataGridView_flashRawData.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_flashRawData.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGridView_flashRawData.Size = new System.Drawing.Size(456, 262);
-            this.dataGridView_flashRawData.TabIndex = 1;
-            this.dataGridView_flashRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_flashRawData_CellDoubleClick);
             // 
             // splitContainer1
             // 
@@ -1881,7 +1949,17 @@ namespace RFID_Station_control
             this.tabPage_cardContent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_chipRawData)).EndInit();
             this.tabPage_flashContent.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
+            this.splitContainer2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_flashRawData)).EndInit();
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel1.PerformLayout();
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            this.splitContainer3.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -2021,6 +2099,10 @@ namespace RFID_Station_control
         private CheckBox checkBox_AutoReport;
         private Label label24;
         private TextBox textBox_packetLength;
+        private SplitContainer splitContainer2;
+        private SplitContainer splitContainer3;
+        private TextBox textBox_chackPoints;
+        private TextBox textBox_rawData;
     }
 }
 

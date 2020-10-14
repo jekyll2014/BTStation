@@ -944,19 +944,19 @@ namespace RFID_Station_control
         private void RefreshFlashGrid(uint flashSize, uint teamDumpSize, uint bytesPerRow)
         {
             _stationFlash = new FlashContainer(flashSize, teamDumpSize, bytesPerRow);
-            dataGridView_flashRawData.DataSource = _stationFlash.Table;
+            dataGridView_flashRawData.DataSource = null;
+            dataGridView_flashRawData.Columns.Clear();
             dataGridView_flashRawData.AutoGenerateColumns = true;
-            //dataGridView_flashRawData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-            dataGridView_flashRawData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+            dataGridView_flashRawData.DataSource = _stationFlash.Table;
+            dataGridView_flashRawData.AutoGenerateColumns = false;
+            dataGridView_flashRawData.Columns.Remove(FlashContainer.TableColumns.RawData);
+            dataGridView_flashRawData.Columns.Remove(FlashContainer.TableColumns.DecodedData);
+            dataGridView_flashRawData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             dataGridView_flashRawData.AutoResizeColumns();
             dataGridView_flashRawData.ScrollBars = ScrollBars.Both;
             dataGridView_flashRawData.AllowUserToResizeColumns = true;
             dataGridView_flashRawData.AllowUserToOrderColumns = false;
             for (var i = 0; i < dataGridView_flashRawData.Columns.Count; i++) dataGridView_flashRawData.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
-
-            var rawColumnFont = new Font(dataGridView_flashRawData.DefaultCellStyle.Font.FontFamily, 10, FontStyle.Regular);
-            dataGridView_flashRawData.Columns[FlashContainer.TableColumns.RawData].DefaultCellStyle.Font =
-                rawColumnFont;
         }
 
         private void RefreshChipGrid(byte chipTypeId)
@@ -1038,7 +1038,6 @@ namespace RFID_Station_control
             RefreshChipGrid(_station.ChipType);
 
             _stationFlash = new FlashContainer(_selectedFlashSize, _station.TeamBlockSize, _bytesPerRow);
-            RefreshFlashGrid(_selectedFlashSize, _station.TeamBlockSize, _bytesPerRow);
 
             textBox_flashSize.Text = (int)(_station.FlashSize / 1024 / 1024) + " Mb";
             textBox_teamFlashSize.Text = _station.TeamBlockSize.ToString();
@@ -1351,10 +1350,10 @@ namespace RFID_Station_control
             _noTerminalOutputFlag = true;
             _asyncFlag = 0;
             startTime = DateTime.Now.ToUniversalTime();
-            while (rowNum < dataGridView_teams.RowCount)
+            while (rowNum < _teams.Table.Rows.Count)
             {
                 if (!ushort.TryParse(
-                        dataGridView_teams.Rows[rowNum].Cells[0].Value.ToString(),
+                    _teams.Table.Rows[rowNum][0].ToString(),
                         out teamNum))
                     break;
 
@@ -1642,6 +1641,7 @@ namespace RFID_Station_control
             dataGridView_flashRawData.PerformLayout();
 
             button_dumpFlash.Enabled = true;
+            DataGridView_flashRawData_RowEnter(this, new DataGridViewCellEventArgs(e.ColumnIndex, e.RowIndex));
         }
 
         private void ComboBox_flashSize_SelectedIndexChanged(object sender, EventArgs e)
@@ -1836,7 +1836,12 @@ namespace RFID_Station_control
             _station.AutoReport = checkBox_AutoReport.Checked;
         }
 
-        #endregion
+        private void DataGridView_flashRawData_RowEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            textBox_chackPoints.Text = _stationFlash.Table.Rows[e.RowIndex][FlashContainer.TableColumns.DecodedData].ToString();
+            textBox_rawData.Text = _stationFlash.Table.Rows[e.RowIndex][FlashContainer.TableColumns.RawData].ToString();
+        }
 
+        #endregion
     }
 }

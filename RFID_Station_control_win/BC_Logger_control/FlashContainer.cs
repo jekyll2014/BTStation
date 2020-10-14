@@ -29,6 +29,7 @@ namespace RfidStationControl
         {
             public static string TeamNumber = "Team#";
             public static string ByteNumber = "Byte#";
+            public static string ChipInfo = "Chip info#";
             public static string DecodedData = "Decoded data";
             public static string RawData = "Raw data";
         }
@@ -54,11 +55,12 @@ namespace RfidStationControl
                 {
                     TableColumns.TeamNumber,
                     TableColumns.ByteNumber,
+                    TableColumns.ChipInfo,
                     TableColumns.DecodedData,
                     TableColumns.RawData
                 }
             };
-            Table.Columns[3].MaxLength = (int)bytesPerRow * 3;
+            Table.Columns[TableColumns.RawData].MaxLength = (int)bytesPerRow * 3;
             InitTable(Size);
         }
 
@@ -74,6 +76,7 @@ namespace RfidStationControl
                 var row = Table.NewRow();
                 row[TableColumns.TeamNumber] = ((int)(i * k)).ToString();
                 row[TableColumns.ByteNumber] = (i * _bytesPerRow).ToString();
+                row[TableColumns.ChipInfo] = "";
                 row[TableColumns.DecodedData] = "";
                 row[TableColumns.RawData] = "";
                 Table.Rows.Add(row);
@@ -169,7 +172,7 @@ namespace RfidStationControl
                     if (dumpSize * 4 + 16 >= _bytesPerRow)
                         dumpSize = 0;
 
-                    var result = "Team #" + teamNum +
+                    var chipInfo = "Team #" + teamNum +
                        ", InitTime: " + Helpers.DateToString(initTime) +
                        ", Mask: " + Helpers.ConvertMaskToString(maskNumber) +
                        ", Last check: " + Helpers.DateToString(lastCheck) +
@@ -178,7 +181,7 @@ namespace RfidStationControl
                     //1st byte of time
                     var todayByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
 
-                    result += "Dump data: ";
+                    var checkPointsList = "";
                     var page = 4;
                     while (page < dumpSize + 4)
                     {
@@ -193,7 +196,7 @@ namespace RfidStationControl
                                 tmpData[page * 4 + 5],
                                 tmpData[page * 4 + 6],
                                 tmpData[page * 4 + 7] };
-                            result += "UID " + Helpers.ConvertByteArrayToHex(uid) + ", ";
+                            checkPointsList += "UID " + Helpers.ConvertByteArrayToHex(uid) + Environment.NewLine;
                         }
                         // page 4+3: chip type
                         else if (page == 7)
@@ -205,13 +208,13 @@ namespace RfidStationControl
                                 tagSize += "215(496 bytes)";
                             else if (tmpData[page * 4 + 2] == 0x6d)
                                 tagSize += "216(872 bytes)";
-                            result += tagSize + ", ";
+                            checkPointsList += tagSize + Environment.NewLine;
                         }
                         // page 4+4: team#, chip type, fw ver.
                         else if (page == 8)
                         {
                             var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
-                            result += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + ", ";
+                            checkPointsList += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + Environment.NewLine;
                         }
                         // page 4+5: init time
                         else if (page == 9)
@@ -220,13 +223,13 @@ namespace RfidStationControl
                             long m = tmpData[page * 4 + 0] * 16777216 + tmpData[page * 4 + 1] * 65536 + tmpData[page * 4 + 2] * 256 +
                                      tmpData[page * 4 + 3];
                             var t = Helpers.ConvertFromUnixTimestamp(m);
-                            result += "InitTime: " + Helpers.DateToString(t) + ", ";
+                            checkPointsList += "InitTime: " + Helpers.DateToString(t) + Environment.NewLine;
                         }
                         // page 4+6: team mask
                         else if (page == 10)
                         {
                             byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
-                            result += "Mask: " + Helpers.ConvertMaskToString(mask) + ", ";
+                            checkPointsList += "Mask: " + Helpers.ConvertMaskToString(mask) + Environment.NewLine;
                         }
                         // page4+7: reserved
                         else if (page == 10)
@@ -239,14 +242,16 @@ namespace RfidStationControl
                             long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
                                      tmpData[page * 4 + 2] * 256 + tmpData[page * 4 + 3];
                             var t = Helpers.ConvertFromUnixTimestamp(m);
-                            result += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + ", ";
+                            checkPointsList += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + Environment.NewLine;
                         }
                         page++;
                     }
-                    Table.Rows[rowFrom][TableColumns.DecodedData] = result;
+                    Table.Rows[rowFrom][TableColumns.ChipInfo] = chipInfo;
+                    Table.Rows[rowFrom][TableColumns.DecodedData] = checkPointsList;
                 }
                 else
                 {
+                    Table.Rows[rowFrom][TableColumns.ChipInfo] = "-";
                     Table.Rows[rowFrom][TableColumns.DecodedData] = "-";
                 }
                 rowFrom++;
