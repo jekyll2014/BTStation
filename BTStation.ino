@@ -50,7 +50,8 @@ uint32_t receiveStartTime = 0; // время начала получения п�
 uint16_t batteryLevel = 500; // текущий уровень напряжения (замер АЦП)
 uint8_t batteryAlarmCount = 0; // счетчик нарушений границы допустимого напряжения
 
-
+void SpiStart();
+void SpiEnd();
 void processRfidCard();
 bool readUart();
 void executeCommand();
@@ -114,7 +115,7 @@ void setup()
 {
 	Serial.begin(UART_SPEED);
 
-	analogReference(INTERNAL);
+	//analogReference(INTERNAL);
 
 	pinMode(GREEN_LED_PIN, OUTPUT);
 	pinMode(RED_LED_PIN, OUTPUT);
@@ -341,6 +342,22 @@ void loop()
 	else batteryAlarmCount = 0;
 }
 
+void SpiStart()
+{
+	// включаем SPI ищем чип вблизи. Если не находим выходим из функции чтения чипов
+	SPI.begin();      // Init SPI bus
+	mfrc522.PCD_Init();    // Init MFRC522
+	mfrc522.PCD_SetAntennaGain(gainCoeff);
+	delay(5);
+}
+
+void SpiEnd()
+{
+	mfrc522.PCD_AntennaOff();
+	SPI.end();
+	delay(5);
+}
+
 // Обработка поднесенного чипа
 void processRfidCard()
 {
@@ -349,16 +366,12 @@ void processRfidCard()
 	DS3231_get(&checkTime);
 
 	// включаем SPI ищем чип вблизи. Если не находим выходим из функции чтения чипов
-	SPI.begin();      // Init SPI bus
-	mfrc522.PCD_Init();    // Init MFRC522
-	mfrc522.PCD_SetAntennaGain(gainCoeff);
-        delay(10);
+	SpiStart();      // Init SPI bus
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		lastTeamFlag = 0;
 		return;
 	}
@@ -369,8 +382,7 @@ void processRfidCard()
 	// Select one of the cards
 	if (!mfrc522.PICC_ReadCardSerial())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.println(F("!!!fail to select chip"));
 #endif
@@ -380,8 +392,7 @@ void processRfidCard()
 	// читаем блок информации
 	if (!ntagRead4pages(PAGE_CHIP_SYS))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.println(F("!!!fail to read chip"));
 #endif
@@ -393,8 +404,7 @@ void processRfidCard()
 	//неправильный тип чипа
 	if (ntag_page[2] != chipType)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.println(F("!!!incorrect hw chip type"));
 #endif
@@ -415,8 +425,7 @@ void processRfidCard()
 	// неправильный тип чипа
 	/*if (ntag_page[6] != NTAG_MARK)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.println(F("!!!incorrect sw chip type"));
 #endif
@@ -428,8 +437,7 @@ void processRfidCard()
 	// чип от другой прошивки
 	if (ntag_page[7] != FW_VERSION)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.println(F("!!!incorrect fw ver."));
 #endif
@@ -448,8 +456,7 @@ void processRfidCard()
 	initTime += ntag_page[11];
 	if ((checkTime.unixtime - initTime) > maxTimeInit)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.println(F("!!!outdated chip"));
 #endif
@@ -462,8 +469,7 @@ void processRfidCard()
 	uint16_t teamNumber = (ntag_page[4] << 8) + ntag_page[5];
 	if (teamNumber < 1 || teamNumber > maxTeamNumber)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 #ifdef DEBUG
 		Serial.print(F("!!!incorrect chip #: "));
 		Serial.println(String(teamNumber));
@@ -494,8 +500,7 @@ void processRfidCard()
 			uint8_t dataBlock[4] = { newTeamMask[6], newTeamMask[7], ntag_page[14], ntag_page[15] };
 			if (!ntagWritePage(dataBlock, PAGE_TEAM_MASK))
 			{
-				mfrc522.PCD_AntennaOff();
-				SPI.end();
+				SpiEnd();
 #ifdef DEBUG
 				Serial.print(F("!!!failed to write chip"));
 #endif
@@ -505,8 +510,7 @@ void processRfidCard()
 				return;
 			}
 		}
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		clearNewMask();
 		lastTeamFlag = teamNumber;
 		digitalWrite(GREEN_LED_PIN, LOW);
@@ -524,8 +528,7 @@ void processRfidCard()
 #ifdef DEBUG
 		Serial.print(F("!!!same chip attached"));
 #endif
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		return;
 	}
 
@@ -561,8 +564,7 @@ void processRfidCard()
 #ifdef DEBUG
 		Serial.println(F("!!!Can't read chip"));
 #endif
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		//digitalWrite(GREEN_LED_PIN, LOW);
 		errorBeep(1);
 		addLastError(PROCESS_ALREADY_CHECKED);
@@ -580,8 +582,7 @@ void processRfidCard()
 	// ошибка чтения чипа
 	if (newPage == 0)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		//digitalWrite(GREEN_LED_PIN, LOW);
 		errorBeep(1);
 		addLastError(PROCESS_READ_CHIP);
@@ -594,8 +595,7 @@ void processRfidCard()
 	// больше/меньше нормы... Наверное, переполнен???
 	if (newPage != -1 && (newPage < PAGE_DATA_START || newPage >= tagMaxPage))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		//digitalWrite(GREEN_LED_PIN, LOW);
 		errorBeep(4);
 		addLastError(PROCESS_FIND_FREE_PAGE);
@@ -624,8 +624,7 @@ void processRfidCard()
 	digitalWrite(GREEN_LED_PIN, HIGH);
 	if (!writeCheckPointToCard(newPage, checkTime.unixtime))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		errorBeep(1);
 		addLastError(PROCESS_WRITE_CHIP); //CARD PROCESSING: error writing chip
@@ -637,8 +636,7 @@ void processRfidCard()
 	// Пишем дамп чипа во флэш
 	if (!writeDumpToFlash(teamNumber, checkTime.unixtime, initTime, mask))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		errorBeep(2);
 		addLastError(PROCESS_SAVE_DUMP); //CARD PROCESSING: error saving dump
@@ -647,8 +645,7 @@ void processRfidCard()
 #endif
 		return;
 	}
-	mfrc522.PCD_AntennaOff();
-	SPI.end();
+	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 	beep(1, 200);
 
@@ -678,7 +675,7 @@ void processRfidCard()
 				// 7-8: маска команды
 				// 9-12 : время последней отметки на станции
 				// 13: счетчик сохраненных страниц
-				for (uint8_t i = 0; i < 12; i++)
+				for (uint8_t i = 0; i < 13; i++)
 				{
 					if (!addData(ntag_page[i])) return;
 				}
@@ -1116,16 +1113,12 @@ void initChip()
 	DS3231_get(&systemTime);
 
 	digitalWrite(GREEN_LED_PIN, HIGH);
-	SPI.begin();      // Init SPI bus
-	mfrc522.PCD_Init();   // Init MFRC522
-	mfrc522.PCD_SetAntennaGain(gainCoeff);
-	delay(10);
+	SpiStart();      // Init SPI bus
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(NO_CHIP, REPLY_INIT_CHIP);
 		return;
@@ -1133,8 +1126,7 @@ void initChip()
 	// Select one of the cards
 	if (!mfrc522.PICC_ReadCardSerial())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_INIT_CHIP);
 		return;
@@ -1143,8 +1135,7 @@ void initChip()
 	// читаем блок информации
 	if (!ntagRead4pages(PAGE_CHIP_SYS))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_INIT_CHIP);
 		return;
@@ -1153,8 +1144,7 @@ void initChip()
 	// Фильтруем неправильный тип чипа
 	if (ntag_page[2] != chipType)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(WRONG_CHIP_TYPE, REPLY_INIT_CHIP);
 		return;
@@ -1170,8 +1160,7 @@ void initChip()
 	initTime += ntag_page[11];
 	if ((systemTime.unixtime - initTime) < maxTimeInit)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(LOW_INIT_TIME, REPLY_INIT_CHIP);
 		return;
@@ -1183,8 +1172,7 @@ void initChip()
 	{
 		if (!ntagWritePage(dataBlock, page))
 		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
+			SpiEnd();
 			digitalWrite(GREEN_LED_PIN, LOW);
 			sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
 			return;
@@ -1202,8 +1190,7 @@ void initChip()
 	dataBlock[3] = FW_VERSION;
 	if (!ntagWritePage(dataBlock, PAGE_CHIP_NUM))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
 		return;
@@ -1216,8 +1203,7 @@ void initChip()
 	dataBlock[3] = systemTime.unixtime & 0x000000FF;
 	if (!ntagWritePage(dataBlock, PAGE_INIT_TIME))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
 		return;
@@ -1230,8 +1216,7 @@ void initChip()
 	dataBlock[3] = 0;
 	if (!ntagWritePage(dataBlock, PAGE_TEAM_MASK))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
 		return;
@@ -1240,14 +1225,12 @@ void initChip()
 	// получаем UID чипа
 	if (!ntagRead4pages(PAGE_UID))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_INIT_CHIP);
 		return;
 	}
-	mfrc522.PCD_AntennaOff();
-	SPI.end();
+	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 
 	init_package(REPLY_INIT_CHIP);
@@ -1331,16 +1314,12 @@ void getTeamRecord()
 void readCardPages()
 {
 	digitalWrite(GREEN_LED_PIN, HIGH);
-	SPI.begin();      // Init SPI bus
-	mfrc522.PCD_Init();   // Init MFRC522
-	mfrc522.PCD_SetAntennaGain(gainCoeff);
-	delay(10);
+	SpiStart();      // Init SPI bus
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(NO_CHIP, REPLY_READ_CARD_PAGE);
 		return;
@@ -1348,8 +1327,7 @@ void readCardPages()
 	// Select one of the cards
 	if (!mfrc522.PICC_ReadCardSerial())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_READ_CARD_PAGE);
 		return;
@@ -1365,8 +1343,7 @@ void readCardPages()
 	// 9-12: данные из страницы чипа(4 байта)
 	if (!addData(OK))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		return;
 	}
@@ -1374,8 +1351,7 @@ void readCardPages()
 	// читаем UID
 	if (!ntagRead4pages(PAGE_UID))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_READ_CARD_PAGE);
 		return;
@@ -1386,8 +1362,7 @@ void readCardPages()
 	{
 		if (!addData(ntag_page[i]))
 		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
+			SpiEnd();
 			digitalWrite(GREEN_LED_PIN, LOW);
 			return;
 		}
@@ -1396,8 +1371,7 @@ void readCardPages()
 	// начальная страница
 	if (!addData(pageFrom))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		return;
 	}
@@ -1405,8 +1379,7 @@ void readCardPages()
 	{
 		if (!ntagRead4pages(pageFrom))
 		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
+			SpiEnd();
 			digitalWrite(GREEN_LED_PIN, LOW);
 			sendError(RFID_READ_ERROR, REPLY_READ_CARD_PAGE);
 			return;
@@ -1419,8 +1392,7 @@ void readCardPages()
 			{
 				if (!addData(ntag_page[i * 4 + j]))
 				{
-					mfrc522.PCD_AntennaOff();
-					SPI.end();
+					SpiEnd();
 					digitalWrite(GREEN_LED_PIN, LOW);
 					return;
 				}
@@ -1428,8 +1400,7 @@ void readCardPages()
 			pageFrom++;
 		}
 	}
-	mfrc522.PCD_AntennaOff();
-	SPI.end();
+	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 
 	sendData();
@@ -1451,83 +1422,75 @@ void updateTeamMask()
 	if (!addData(OK)) return;
 	sendData();
 
-	if (stationMode == MODE_INIT)
+	if (stationMode != MODE_INIT)
+		return;
+
+	// включаем SPI ищем чип вблизи. Если не находим выходим из функции чтения чипов
+	SpiStart();      // Init SPI bus
+
+	// Look for new cards
+	if (!mfrc522.PICC_IsNewCardPresent())
 	{
-		// включаем SPI ищем чип вблизи. Если не находим выходим из функции чтения чипов
-		SPI.begin();      // Init SPI bus
-		mfrc522.PCD_Init();    // Init MFRC522
-		mfrc522.PCD_SetAntennaGain(gainCoeff);
-		delay(10);
-
-		// Look for new cards
-		if (!mfrc522.PICC_IsNewCardPresent())
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-			lastTeamFlag = 0;
-			sendError(NO_CHIP, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
+		SpiEnd();
+		lastTeamFlag = 0;
+		sendError(NO_CHIP, REPLY_UPDATE_TEAM_MASK);
+		return;
+	}
 #ifdef DEBUG
-		Serial.println(F("!!!chip found"));
+	Serial.println(F("!!!chip found"));
 #endif
 
-		// Select one of the cards
-		if (!mfrc522.PICC_ReadCardSerial())
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-			sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
+	// Select one of the cards
+	if (!mfrc522.PICC_ReadCardSerial())
+	{
+		SpiEnd();
+		sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
 #ifdef DEBUG
-			Serial.println(F("!!!fail to select card"));
+		Serial.println(F("!!!fail to select card"));
 #endif
-			return;
-		}
+		return;
+	}
 
-		// читаем блок информации
-		if (!ntagRead4pages(PAGE_UID))
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-			sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
+	// читаем блок информации
+	if (!ntagRead4pages(PAGE_UID))
+	{
+		SpiEnd();
+		sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
+		return;
+	}
 
-		//неправильный тип чипа
-		if (ntag_page[14] != chipType)
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
+	//неправильный тип чипа
+	if (ntag_page[14] != chipType)
+	{
+		SpiEnd();
 #ifdef DEBUG
-			Serial.println(F("!!!incorrect chip"));
+		Serial.println(F("!!!incorrect chip"));
 #endif
-			sendError(WRONG_CHIP_TYPE, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
+		sendError(WRONG_CHIP_TYPE, REPLY_UPDATE_TEAM_MASK);
+		return;
+	}
 
-		/*
-		Фильтруем
-		1 - неправильный тип чипа
-		2 - чип от другой прошивки
-		3 - чип более недельной давности инициализации
-		4 - чипы с командой №0 или >maxTeamNumber
-		5 - чип, который совпадает с уже отмеченным (в lastTeams[])
-		*/
+	/*
+	Фильтруем
+	1 - неправильный тип чипа
+	2 - чип от другой прошивки
+	3 - чип более недельной давности инициализации
+	4 - чипы с командой №0 или >maxTeamNumber
+	5 - чип, который совпадает с уже отмеченным (в lastTeams[])
+	*/
 
-		// читаем блок информации
-		if (!ntagRead4pages(PAGE_CHIP_NUM))
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-			sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
+	// читаем блок информации
+	if (!ntagRead4pages(PAGE_CHIP_NUM))
+	{
+		SpiEnd();
+		sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
+		return;
+	}
 
-		// неправильный тип чипа
-		/*if (ntag_page[2] != NTAG_MARK)
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
+	// неправильный тип чипа
+	/*if (ntag_page[2] != NTAG_MARK)
+	{
+		SpiEnd();
 #ifdef DEBUG
 			Serial.println(F("!!!incorrect chip"));
 #endif
@@ -1536,102 +1499,93 @@ void updateTeamMask()
 		}*/
 
 		// чип от другой прошивки
-		if (ntag_page[3] != FW_VERSION)
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
+	if (ntag_page[3] != FW_VERSION)
+	{
+		SpiEnd();
 #ifdef DEBUG
-			Serial.println(F("!!!incorrect fw"));
+		Serial.println(F("!!!incorrect fw"));
 #endif
-			sendError(WRONG_FW_VERSION, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
-
-		// Не слишком ли старый чип? Недельной давности и более
-		uint32_t timeInit = ntag_page[4];
-		timeInit = timeInit << 8;
-		timeInit += ntag_page[5];
-		timeInit = timeInit << 8;
-		timeInit += ntag_page[6];
-		timeInit = timeInit << 8;
-		timeInit += ntag_page[7];
-		if ((systemTime.unixtime - timeInit) > maxTimeInit)
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-#ifdef DEBUG
-			Serial.println(F("!!!outdated chip"));
-#endif
-			sendError(LOW_INIT_TIME, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
-
-		uint16_t chipNum = (ntag_page[0] << 8) + ntag_page[1];
-
-		// Если номер чипа =0 или >maxTeamNumber
-
-		if (chipNum < 1 || chipNum > maxTeamNumber)
-		{
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-#ifdef DEBUG
-			Serial.print(F("!!!incorrect chip #"));
-			Serial.println(String(chipNum));
-#endif
-			sendError(WRONG_TEAM, REPLY_UPDATE_TEAM_MASK);
-			return;
-		}
-
-		// не надо ли обновить у чипа маску?
-		// 0-1: номер команды
-		// 2-5: время выдачи чипа
-		// 6-7: маска участников
-		if (newTeamMask[0] + newTeamMask[1] != 0
-			&& ntag_page[0] == newTeamMask[0]
-			&& ntag_page[1] == newTeamMask[1]
-			&& ntag_page[4] == newTeamMask[2]
-			&& ntag_page[5] == newTeamMask[3]
-			&& ntag_page[6] == newTeamMask[4]
-			&& ntag_page[7] == newTeamMask[5])
-		{
-			if (ntag_page[8] != newTeamMask[6] || ntag_page[9] != newTeamMask[7])
-			{
-#ifdef DEBUG
-				Serial.print(F("!!!updating mask"));
-#endif
-				digitalWrite(GREEN_LED_PIN, HIGH);
-				uint8_t dataBlock[4] = { newTeamMask[6], newTeamMask[7], ntag_page[10], ntag_page[11] };
-				if (!ntagWritePage(dataBlock, PAGE_TEAM_MASK))
-				{
-					mfrc522.PCD_AntennaOff();
-					SPI.end();
-					digitalWrite(GREEN_LED_PIN, LOW);
-					sendError(RFID_WRITE_ERROR, REPLY_UPDATE_TEAM_MASK);
-					return;
-				}
-			}
-			mfrc522.PCD_AntennaOff();
-			SPI.end();
-			digitalWrite(GREEN_LED_PIN, LOW);
-			clearNewMask();
-		}
+		sendError(WRONG_FW_VERSION, REPLY_UPDATE_TEAM_MASK);
+		return;
 	}
+
+	// Не слишком ли старый чип? Недельной давности и более
+	uint32_t timeInit = ntag_page[4];
+	timeInit = timeInit << 8;
+	timeInit += ntag_page[5];
+	timeInit = timeInit << 8;
+	timeInit += ntag_page[6];
+	timeInit = timeInit << 8;
+	timeInit += ntag_page[7];
+	if ((systemTime.unixtime - timeInit) > maxTimeInit)
+	{
+		SpiEnd();
+#ifdef DEBUG
+		Serial.println(F("!!!outdated chip"));
+#endif
+		sendError(LOW_INIT_TIME, REPLY_UPDATE_TEAM_MASK);
+		return;
+	}
+
+	uint16_t chipNum = (ntag_page[0] << 8) + ntag_page[1];
+
+	// Если номер чипа =0 или >maxTeamNumber
+	if (chipNum < 1 || chipNum > maxTeamNumber)
+	{
+		SpiEnd();
+#ifdef DEBUG
+		Serial.print(F("!!!incorrect chip #"));
+		Serial.println(String(chipNum));
+#endif
+		sendError(WRONG_TEAM, REPLY_UPDATE_TEAM_MASK);
+		return;
+	}
+
+	// не надо ли обновить у чипа маску?
+	// 0-1: номер команды
+	// 2-5: время выдачи чипа
+	// 6-7: маска участников
+	if (newTeamMask[0] + newTeamMask[1] != 0
+		&& ntag_page[0] == newTeamMask[0]
+		&& ntag_page[1] == newTeamMask[1]
+		&& ntag_page[4] == newTeamMask[2]
+		&& ntag_page[5] == newTeamMask[3]
+		&& ntag_page[6] == newTeamMask[4]
+		&& ntag_page[7] == newTeamMask[5])
+	{
+		if (ntag_page[8] != newTeamMask[6] || ntag_page[9] != newTeamMask[7])
+		{
+#ifdef DEBUG
+			Serial.print(F("!!!updating mask"));
+#endif
+			digitalWrite(GREEN_LED_PIN, HIGH);
+			uint8_t dataBlock[4] = { newTeamMask[6], newTeamMask[7], ntag_page[10], ntag_page[11] };
+			if (!ntagWritePage(dataBlock, PAGE_TEAM_MASK))
+			{
+				SpiEnd();
+				digitalWrite(GREEN_LED_PIN, LOW);
+				sendError(RFID_WRITE_ERROR, REPLY_UPDATE_TEAM_MASK);
+				return;
+			}
+		}
+		SpiEnd();
+		digitalWrite(GREEN_LED_PIN, LOW);
+		clearNewMask();
+	}
+
+	SpiEnd();
 }
 
 // пишем присланные с ББ 4 байта в указанную страницу
 void writeCardPage()
 {
 	digitalWrite(GREEN_LED_PIN, HIGH);
-	SPI.begin();      // Init SPI bus
-	mfrc522.PCD_Init();   // Init MFRC522
-	mfrc522.PCD_SetAntennaGain(gainCoeff);
-	delay(10);
+	SpiStart();      // Init SPI bus
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(NO_CHIP, REPLY_WRITE_CARD_PAGE);
 		return;
@@ -1640,8 +1594,7 @@ void writeCardPage()
 	// Select one of the cards
 	if (!mfrc522.PICC_ReadCardSerial())
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_WRITE_CARD_PAGE);
 		return;
@@ -1654,8 +1607,7 @@ void writeCardPage()
 	// проверить UID
 	if (!ntagRead4pages(PAGE_UID))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_WRITE_CARD_PAGE);
 		return;
@@ -1671,8 +1623,7 @@ void writeCardPage()
 	}
 	if (flag)
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(WRONG_UID, REPLY_WRITE_CARD_PAGE);
 		return;
@@ -1688,14 +1639,12 @@ void writeCardPage()
 	};
 	if (!ntagWritePage(dataBlock, uartBuffer[DATA_START_BYTE + 8]))
 	{
-		mfrc522.PCD_AntennaOff();
-		SPI.end();
+		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_WRITE_CARD_PAGE);
 		return;
 	}
-	mfrc522.PCD_AntennaOff();
-	SPI.end();
+	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 
 	init_package(REPLY_WRITE_CARD_PAGE);
@@ -2490,8 +2439,7 @@ bool ntagWritePage(uint8_t* dataBlock, uint8_t pageAdr)
 		n++;
 		if (status != MFRC522::STATUS_OK)
 		{
-			mfrc522.PCD_SetAntennaGain(gainCoeff);
-			mfrc522.PCD_Init();
+			SpiStart();
 			mfrc522.PICC_IsNewCardPresent();
 			mfrc522.PICC_ReadCardSerial();
 		}
@@ -2553,8 +2501,7 @@ bool ntagRead4pages(uint8_t pageAdr)
 		status = MFRC522::StatusCode(mfrc522.MIFARE_Read(pageAdr, buffer, &size));
 		if (status != MFRC522::STATUS_OK)
 		{
-			mfrc522.PCD_SetAntennaGain(gainCoeff);
-			mfrc522.PCD_Init();
+			SpiStart();
 			mfrc522.PICC_IsNewCardPresent();
 			mfrc522.PICC_ReadCardSerial();
 		}
