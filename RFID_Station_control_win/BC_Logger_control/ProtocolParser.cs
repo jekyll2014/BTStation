@@ -193,11 +193,11 @@ namespace RfidStationControl
 
             public override string ToString()
             {
-                var result = "<< " + Helpers.ConvertByteArrayToHex(Packet) + Environment.NewLine;
+                var result = Helpers.ConvertByteArrayToHex(Packet) + Environment.NewLine;
                 result += "Station#: " + StationNumber + Environment.NewLine;
 
                 ReplyStrings.TryGetValue(ReplyCode, out var commandValue);
-                result += "Command reply: " + commandValue + Environment.NewLine;
+                result += "Command reply: " + commandValue;
                 if (ErrorCode != 0)
                 {
                     ErrorCodes.TryGetValue(ErrorCode, out var errorValue);
@@ -725,7 +725,6 @@ namespace RfidStationControl
                         _receivingData = false;
                         _uartBufferPosition = 0;
                         _uartBuffer = new byte[MaxPacketLength];
-                        //SetText(Environment.NewLine+"Incorrect bytes: [" + Accessory.ConvertByteArrayToHex(error.ToArray()) + "]"+ Environment.NewLine);
                     }
                     else
                     {
@@ -748,7 +747,6 @@ namespace RfidStationControl
                 {
                     Message = result.ToString()
                 });
-            //SetText(result.ToString());
             return completed;
         }
 

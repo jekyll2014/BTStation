@@ -41,6 +41,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BTStation.ino" />
+    <ClCompile Include="BTStation.ino" />
   </ItemGroup>
 </Project>
