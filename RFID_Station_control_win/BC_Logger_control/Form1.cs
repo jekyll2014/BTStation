@@ -13,6 +13,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace RFID_Station_control
@@ -22,6 +23,7 @@ namespace RFID_Station_control
         private const int INPUT_CODE_PAGE = 866;
         private int _portSpeed = 38400;
         private const ulong _receiveTimeOut = 1000;
+        private string _decimalSeparator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
         private bool _receivingData;
 
@@ -583,10 +585,17 @@ namespace RFID_Station_control
         private void Button_setVCoeff_Click(object sender, EventArgs e)
         {
             //0-3: коэффициент пересчета напряжения
-            float.TryParse(textBox_koeff.Text, out _station.VoltageCoefficient);
+            textBox_koeff.Text =
+                textBox_koeff.Text.Replace(".", _decimalSeparator);
+            textBox_koeff.Text =
+                textBox_koeff.Text.Replace(",", _decimalSeparator);
 
-            var setKoeff = Parser.SetVCoeff(_station.VoltageCoefficient);
-            SendCommand(setKoeff);
+            if (float.TryParse(textBox_koeff.Text, out _station.VoltageCoefficient))
+            {
+                textBox_koeff.Text = _station.VoltageCoefficient.ToString();
+                var setKoeff = Parser.SetVCoeff(_station.VoltageCoefficient);
+                SendCommand(setKoeff);
+            }
         }
 
         private void Button_setGain_Click(object sender, EventArgs e)
@@ -645,9 +654,16 @@ namespace RFID_Station_control
         private void Button_setBatteryLimit_Click(object sender, EventArgs e)
         {
             //0-3: коэффициент пересчета напряжения
-            float.TryParse(textBox_setBatteryLimit.Text, out _station.BatteryLimit);
-            var setBatteryLimit = Parser.SetBatteryLimit(_station.BatteryLimit);
-            SendCommand(setBatteryLimit);
+            textBox_setBatteryLimit.Text =
+                textBox_setBatteryLimit.Text.Replace(".", _decimalSeparator);
+            textBox_setBatteryLimit.Text =
+                textBox_setBatteryLimit.Text.Replace(",", _decimalSeparator);
+            if (float.TryParse(textBox_setBatteryLimit.Text, out _station.BatteryLimit))
+            {
+                textBox_setBatteryLimit.Text = _station.BatteryLimit.ToString();
+                var setBatteryLimit = Parser.SetBatteryLimit(_station.BatteryLimit);
+                SendCommand(setBatteryLimit);
+            }
         }
 
         private void Button_getTeamsList_Click(object sender, EventArgs e)
@@ -986,7 +1002,11 @@ namespace RFID_Station_control
             _logger.AutoScroll = checkBox_autoScroll.Checked;
             CheckBox_autoScroll_CheckedChanged(null, EventArgs.Empty);
 
+            comboBox_portSpeed.Items.AddRange(new object[] { 9600, 38400, 57600, 115200, 230400, 256000, 512000, 921600 });
+
             _portSpeed = Settings.Default.BaudRate;
+            comboBox_portSpeed.SelectedItem = _portSpeed;
+
             serialPort1.Encoding = Encoding.GetEncoding(INPUT_CODE_PAGE);
             //Serial init
             Button_refresh_Click(null, EventArgs.Empty);
@@ -1153,7 +1173,9 @@ namespace RFID_Station_control
         private void TextBox_koeff_Leave(object sender, EventArgs e)
         {
             textBox_koeff.Text =
-                textBox_koeff.Text.Replace('.', ',');
+                textBox_koeff.Text.Replace(".", _decimalSeparator);
+            textBox_koeff.Text =
+                textBox_koeff.Text.Replace(",", _decimalSeparator);
             float.TryParse(textBox_koeff.Text, out var koeff);
             textBox_koeff.Text = koeff.ToString("F5");
         }
@@ -1771,7 +1793,9 @@ namespace RFID_Station_control
         private void TextBox_setBatteryLimit_Leave(object sender, EventArgs e)
         {
             textBox_setBatteryLimit.Text =
-                textBox_setBatteryLimit.Text.Replace('.', ',');
+                textBox_setBatteryLimit.Text.Replace(".", _decimalSeparator);
+            textBox_setBatteryLimit.Text =
+                textBox_setBatteryLimit.Text.Replace(",", _decimalSeparator);
             float.TryParse(textBox_setBatteryLimit.Text, out var limit);
             textBox_setBatteryLimit.Text = limit.ToString("F3");
         }
@@ -1845,7 +1869,7 @@ namespace RFID_Station_control
 
         private void DataGridView_flashRawData_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
-            textBox_chackPoints.Text =
+            textBox_checkPoints.Text =
                 _stationFlash.Table.Rows[e.RowIndex][FlashContainer.TableColumns.DecodedData].ToString();
             textBox_rawData.Text = _stationFlash.Table.Rows[e.RowIndex][FlashContainer.TableColumns.RawData].ToString();
         }
@@ -1874,7 +1898,21 @@ namespace RFID_Station_control
         {
             if (checkBox_portMon.Checked) this.serialPort1.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.SerialPort1_DataReceived);
             else this.serialPort1.DataReceived -= new System.IO.Ports.SerialDataReceivedEventHandler(this.SerialPort1_DataReceived);
+        }
 
+        private void comboBox_portSpeed_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _portSpeed = (int)comboBox_portSpeed.SelectedItem;
+        }
+
+        private void checkBox_dtr_CheckedChanged(object sender, EventArgs e)
+        {
+            serialPort1.DtrEnable = checkBox_dtr.Checked;
+        }
+
+        private void checkBox_rts_CheckedChanged(object sender, EventArgs e)
+        {
+            serialPort1.RtsEnable = checkBox_rts.Checked;
         }
 
         #endregion

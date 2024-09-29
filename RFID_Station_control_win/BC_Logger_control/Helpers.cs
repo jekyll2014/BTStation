@@ -59,7 +59,7 @@ namespace RfidStationControl
             if (byteArr == null) return "";
             if (length == 0 || length > byteArr.Length) length = (uint)byteArr.Length;
             var hexStr = new StringBuilder();
-            var endByte = startByte + length - 1;
+            var endByte = startByte + length;
             for (; startByte < endByte; startByte++)
             {
                 hexStr.Append(byteArr[startByte].ToString("X2"));

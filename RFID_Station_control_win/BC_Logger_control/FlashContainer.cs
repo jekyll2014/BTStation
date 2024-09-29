@@ -176,7 +176,7 @@ namespace RfidStationControl
                        ", InitTime: " + Helpers.DateToString(initTime) +
                        ", Mask: " + Helpers.ConvertMaskToString(maskNumber) +
                        ", Last check: " + Helpers.DateToString(lastCheck) +
-                       ", Dump size: " + dumpSize + ", ";
+                       ", Dump size: " + dumpSize;
 
                     //1st byte of time
                     var todayByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);

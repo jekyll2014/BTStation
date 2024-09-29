@@ -201,7 +201,7 @@ namespace RfidStationControl
                 if (ErrorCode != 0)
                 {
                     ErrorCodes.TryGetValue(ErrorCode, out var errorValue);
-                    result += Environment.NewLine + "Error#: " + errorValue + Environment.NewLine;
+                    result += "Error#: " + errorValue + Environment.NewLine;
                 }
 
                 return result;
