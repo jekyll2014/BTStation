@@ -366,7 +366,10 @@ void processRfidCard()
 	DS3231_get(&checkTime);
 
 	// включаем SPI ищем чип вблизи. Если не находим выходим из функции чтения чипов
-	SpiStart();      // Init SPI bus
+	SPI.begin();      // Init SPI bus
+	mfrc522.PCD_Init();    // Init MFRC522
+	mfrc522.PCD_SetAntennaGain(gainCoeff);
+        delay(10);
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
@@ -1668,7 +1671,11 @@ void readFlash()
 	startAddress += uartBuffer[DATA_START_BYTE + 3];
 
 	uint32_t length = uint32_t(uint32_t(uint32_t(uartBuffer[DATA_START_BYTE + 4]) * uint32_t(256)) + uint32_t(uartBuffer[DATA_START_BYTE + 5]));
-	if (length > uint32_t(uint32_t(MAX_PAKET_LENGTH) - 7 - uint32_t(DATA_LENGTH_READ_FLASH) - 1)) length = uint32_t(MAX_PAKET_LENGTH - 7 - DATA_LENGTH_READ_FLASH - 1);
+	if (length > uint32_t(uint32_t(MAX_PAKET_LENGTH) - 7 - 5 - 1))
+	{
+		sendError(FLASH_WRITE_ERROR, REPLY_WRITE_FLASH);
+		return;
+	}
 
 #ifdef DEBUG
 	Serial.print(F("!!!flash read="));
@@ -1680,8 +1687,8 @@ void readFlash()
 	init_package(REPLY_READ_FLASH);
 
 	// 0: код ошибки
-	// 0-3: адрес начала чтения
-	// 4-n: данные из флэша
+	// 1-4: адрес начала чтения
+	// 5-n: данные из флэша
 	if (!addData(OK)) return;
 #ifdef DEBUG
 	Serial.print(F("!!!OK "));

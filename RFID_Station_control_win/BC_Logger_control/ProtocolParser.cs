@@ -197,7 +197,7 @@ namespace RfidStationControl
                 result += "Station#: " + StationNumber + Environment.NewLine;
 
                 ReplyStrings.TryGetValue(ReplyCode, out var commandValue);
-                result += "Command reply: " + commandValue + Environment.NewLine;
+                result += "Command reply: " + commandValue;
                 if (ErrorCode != 0)
                 {
                     ErrorCodes.TryGetValue(ErrorCode, out var errorValue);
