@@ -185,7 +185,7 @@ namespace RfidStationControl
                     var page = 4;
                     while (page < dumpSize + 4)
                     {
-                        // page 4+(0..1): UID
+                        // page (0..1): UID
                         if (page == 4)
                         {
                             byte[] uid = { tmpData[page * 4 + 0],
@@ -198,7 +198,7 @@ namespace RfidStationControl
                                 tmpData[page * 4 + 7] };
                             checkPointsList += "UID " + Helpers.ConvertByteArrayToHex(uid) + Environment.NewLine;
                         }
-                        // page 4+3: chip type
+                        // page 3: chip type
                         else if (page == 7)
                         {
                             var tagSize = "Ntag";
@@ -210,13 +210,13 @@ namespace RfidStationControl
                                 tagSize += "216(872 bytes)";
                             checkPointsList += tagSize + Environment.NewLine;
                         }
-                        // page 4+4: team#, chip type, fw ver.
+                        // page 4: team#, chip type, fw ver.
                         else if (page == 8)
                         {
                             var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
                             checkPointsList += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + Environment.NewLine;
                         }
-                        // page 4+5: init time
+                        // page 5: init time
                         else if (page == 9)
                         {
                             todayByte = tmpData[page * 4 + 0];
@@ -225,18 +225,18 @@ namespace RfidStationControl
                             var t = Helpers.ConvertFromUnixTimestamp(m);
                             checkPointsList += "InitTime: " + Helpers.DateToString(t) + Environment.NewLine;
                         }
-                        // page 4+6: team mask
+                        // page 6: team mask
                         else if (page == 10)
                         {
                             byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
                             checkPointsList += "Mask: " + Helpers.ConvertMaskToString(mask) + Environment.NewLine;
                         }
-                        // page4+7: reserved
+                        // page 7: reserved
                         else if (page == 10)
                         {
                             ;
                         }
-                        // page4+8...: marks
+                        // page 8...: marks
                         else if (page > 11)
                         {
                             long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
