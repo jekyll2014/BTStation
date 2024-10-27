@@ -9,31 +9,29 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Android.Content;
 
 namespace RfidStationControl
 {
     public class BtConnector
     {
+        private readonly Context _context;
         private CancellationTokenSource CancellationToken { get; set; }
 
         private const int CONNECTION_TIMEOUT = 5000;
 
         public volatile List<byte> BtInputBuffer = new List<byte>();
 
-        public volatile object SerialReceiveThreadLock = new object();
-
-        private bool _isEnabled = false;
+        public readonly object SerialReceiveThreadLock = new object();
 
         public bool IsBtEnabled()
         {
-            return _isEnabled;
+            return _btAdapter?.IsEnabled ?? false;
         }
-
-        private volatile bool _isConnected = false;
 
         public bool IsBtConnected()
         {
-            return _isConnected;
+            return _btSocket?.IsConnected ?? false;
         }
 
         private string _deviceName = "";
@@ -50,42 +48,52 @@ namespace RfidStationControl
             return _deviceAddress;
         }
 
-        public volatile bool Connecting = false;
+        private readonly BluetoothManager? _btManager;
+        private readonly BluetoothAdapter? _btAdapter;
+        private readonly Intent enable = new Intent(BluetoothAdapter.ActionRequestEnable);
 
-        public bool IsBtConnecting()
+        private readonly Intent disable = new Intent(BluetoothAdapter.ActionRequestDiscoverable);
+
+
+        private BluetoothDevice? _btDevice;
+        private BluetoothSocket? _btSocket;
+        private InputStreamReader? _btStreamReader;
+        private BufferedReader? _btBufferReader;
+        private OutputStreamWriter? _btStreamWriter;
+        private BufferedWriter? _btBufferWriter;
+
+        public BtConnector(Context context)
         {
-            return Connecting;
+            _context = context;
+
+            _btManager = _context.GetSystemService(Context.BluetoothService) as BluetoothManager;
+            _btAdapter = _btManager?.Adapter;
+
+            enable.SetFlags(ActivityFlags.NewTask);
+            disable.SetFlags(ActivityFlags.NewTask);
         }
 
-        private BluetoothAdapter _btAdapter = BluetoothAdapter.DefaultAdapter;
-        private BluetoothDevice _btDevice;
-        private BluetoothSocket _btSocket;
-        private InputStreamReader _btStreamReader;
-        private BufferedReader _btBufferReader;
-        private OutputStreamWriter _btStreamWriter;
-        private BufferedWriter _btBufferWriter;
-
-        public async Task<bool> Enable()
+        public async Task<bool> Enable(bool state)
         {
-            _isEnabled = false;
-            var btAdapter = BluetoothAdapter.DefaultAdapter;
-            if (btAdapter == null) return _isEnabled;
+            if (_btManager == null || _btAdapter == null)
+                return false;
 
-            if (!btAdapter.IsEnabled)
+            if (_btAdapter.IsEnabled != state)
             {
-                var manager = (BluetoothManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.BluetoothService);
-                if (manager == null) return _isEnabled;
+                if (state)
+                    // enable the bluetooth
+                    Android.App.Application.Context.StartActivity(enable);
+                else
+                    //  disable the bluetooth;
+                    Android.App.Application.Context.StartActivity(disable);
 
-                manager.Adapter?.Enable();
                 var enableStarted = DateTime.Now;
-                while (!GlobalOperationsIdClass.Bt.IsBtEnabled() && DateTime.Now.Subtract(enableStarted).TotalMilliseconds < CONNECTION_TIMEOUT) await Task.Delay(1);
-
-                btAdapter = BluetoothAdapter.DefaultAdapter;
+                while (!_btAdapter.IsEnabled
+                       && DateTime.Now.Subtract(enableStarted).TotalMilliseconds < CONNECTION_TIMEOUT)
+                    await Task.Delay(1);
             }
 
-            if (btAdapter != null) _isEnabled = btAdapter.IsEnabled;
-
-            return _isEnabled;
+            return _btAdapter.IsEnabled == state;
         }
 
         /// <summary>
@@ -93,14 +101,14 @@ namespace RfidStationControl
         /// </summary>
         /// <param name="name">Name of the paired bluetooth device (also a part of the name)</param>
         /// <param name="sleepTime"></param>
-        public async void Connect(string name, int sleepTime = 100)
+        public void Connect(string name, int sleepTime = 100)
         {
-            if (_isEnabled) await Task.Run(async () => await Loop(name, sleepTime));
+            if (IsBtEnabled())
+                Task.Run(async () => await Loop(name, sleepTime));
         }
 
         private async Task Loop(string deviceName, int sleepTime)
         {
-            Connecting = true;
             CancellationToken = new CancellationTokenSource();
             var connectionStarted = DateTime.Now;
             try
@@ -130,10 +138,9 @@ namespace RfidStationControl
                     {
                         await _btSocket.ConnectAsync();
 
-                        if (!_btSocket.IsConnected) continue;
+                        if (!_btSocket.IsConnected)
+                            continue;
 
-                        Connecting = false;
-                        _isConnected = true;
                         _deviceName = deviceName;
                         _deviceAddress = _btDevice.Address;
                         System.Diagnostics.Debug.WriteLine("Connected!");
@@ -196,10 +203,7 @@ namespace RfidStationControl
                 _btSocket?.Close();
                 _btSocket = null;
                 _btDevice = null;
-                _btAdapter = BluetoothAdapter.DefaultAdapter;
                 System.Diagnostics.Debug.WriteLine("Exit the connection loop");
-                Connecting = false;
-                _isConnected = false;
                 _deviceName = "";
                 _deviceAddress = "";
             }
@@ -212,8 +216,6 @@ namespace RfidStationControl
         public void Close()
         {
             CancellationToken?.Cancel();
-            Connecting = false;
-            _isConnected = false;
             _deviceName = "";
             _deviceAddress = "";
         }
@@ -236,9 +238,7 @@ namespace RfidStationControl
 
         public ObservableCollection<string> PairedDevices()
         {
-            _btAdapter = BluetoothAdapter.DefaultAdapter;
             var devices = new ObservableCollection<string>();
-
             if (_btAdapter?.BondedDevices != null)
                 foreach (var bd in _btAdapter.BondedDevices)
                     devices.Add(bd.Name);

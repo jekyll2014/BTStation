@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using static RfidStationControl.GlobalOperationsIdClass.FlashPageState;
+using static RfidStationControl.FlashPageState;
 
 namespace RfidStationControl
 {
@@ -69,7 +69,7 @@ namespace RfidStationControl
             {
                 flashGridView.Adapter = new FlashGridAdapter(this, Table);
 
-                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " Flash";
+                Title = "Station " + StationSettings.Number + " Flash";
                 readFromEditText.Text = ReadAddress.ToString();
                 lengthEditText.Text = ReadLength.ToString();
                 writeFromEditText.Text = WriteAddress.ToString();
@@ -226,7 +226,7 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
+                    StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
@@ -235,7 +235,7 @@ namespace RfidStationControl
                             case ProtocolParser.Reply.READ_FLASH:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.ReadFlashReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    StatusPageState.TerminalText.Append(replyDetails);
 
                                     GlobalOperationsIdClass.Flash.Add(replyDetails.Address, replyDetails.Data);
                                     // refresh flash table
@@ -266,7 +266,7 @@ namespace RfidStationControl
                             case ProtocolParser.Reply.WRITE_FLASH:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.WriteFlashReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails.ToString());
+                                    StatusPageState.TerminalText.Append(replyDetails.ToString());
                                     break;
                                 }
                         }
@@ -280,7 +280,7 @@ namespace RfidStationControl
                 }
                 else
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                    StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
 

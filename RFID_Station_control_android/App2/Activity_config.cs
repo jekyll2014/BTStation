@@ -16,40 +16,40 @@ namespace RfidStationControl
     {
         #region UI controls
 
-        private Button backButton;
-        private Button getConfigButton;
-        private Button setTimeButton;
-        private Button setKoeffButton;
-        private Button setBatLimitButton;
-        private Button setAntennaButton;
-        private Button setChipButton;
-        private Button setTeamSizeButton;
-        private Button setEraseBlockSizeButton;
-        private Button setBtNameButton;
-        private Button setBtPinButton;
-        private Button sendBtCommandButton;
-        private Button setAutoreportButton;
-        private Button clearTerminalButton;
+        private Button _backButton;
+        private Button _getConfigButton;
+        private Button _setTimeButton;
+        private Button _setKoeffButton;
+        private Button _setBatLimitButton;
+        private Button _setAntennaButton;
+        private Button _setChipButton;
+        private Button _setTeamSizeButton;
+        private Button _setEraseBlockSizeButton;
+        private Button _setBtNameButton;
+        private Button _setBtPinButton;
+        private Button _sendBtCommandButton;
+        private Button _setAutoreportButton;
+        private Button _clearTerminalButton;
 
-        private EditText timeEditText;
-        private EditText koeffEditText;
-        private EditText batLimitEditText;
-        private EditText teamSizeEditText;
-        private EditText flashSizeEditText;
-        private EditText setBtNameEditText;
-        private EditText setBtPinEditText;
-        private EditText sendBtCommandEditText;
+        private EditText _timeEditText;
+        private EditText _koeffEditText;
+        private EditText _batLimitEditText;
+        private EditText _teamSizeEditText;
+        private EditText _flashSizeEditText;
+        private EditText _setBtNameEditText;
+        private EditText _setBtPinEditText;
+        private EditText _sendBtCommandEditText;
 
-        private TextView flashSizeText;
-        private TextView packetLengthTextView;
-        private TextView terminalTextView;
+        private TextView _flashSizeText;
+        private TextView _packetLengthTextView;
+        private TextView _terminalTextView;
 
-        private Spinner antennaSpinner;
-        private Spinner chipTypeSpinner;
-        private Spinner dumpSizeSpinner;
+        private Spinner _antennaSpinner;
+        private Spinner _chipTypeSpinner;
+        private Spinner _dumpSizeSpinner;
 
-        private CheckBox currentCheckBox;
-        private CheckBox autoreportCheckBox;
+        private CheckBox _currentCheckBox;
+        private CheckBox _autoreportCheckBox;
         #endregion
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -60,81 +60,81 @@ namespace RfidStationControl
             SetContentView(Resource.Layout.activity_config);
 
             // populate all controls
-            backButton = FindViewById<Button>(Resource.Id.backButton);
-            getConfigButton = FindViewById<Button>(Resource.Id.getConfigButton);
-            setTimeButton = FindViewById<Button>(Resource.Id.setTimeButton);
-            setKoeffButton = FindViewById<Button>(Resource.Id.setKoeffButton);
-            setBatLimitButton = FindViewById<Button>(Resource.Id.setBatLimitButton);
-            setAntennaButton = FindViewById<Button>(Resource.Id.setAntennaButton);
-            setChipButton = FindViewById<Button>(Resource.Id.setChipButton);
-            setTeamSizeButton = FindViewById<Button>(Resource.Id.setTeamSizeButton);
-            setEraseBlockSizeButton = FindViewById<Button>(Resource.Id.setFlashSizeButton);
-            setBtNameButton = FindViewById<Button>(Resource.Id.setBtNameButton);
-            setBtPinButton = FindViewById<Button>(Resource.Id.setBtPinButton);
-            sendBtCommandButton = FindViewById<Button>(Resource.Id.sendBtCommandButton);
-            setAutoreportButton = FindViewById<Button>(Resource.Id.setAutoreportButton);
-            clearTerminalButton = FindViewById<Button>(Resource.Id.clearTerminalButton);
+            _backButton = FindViewById<Button>(Resource.Id.backButton);
+            _getConfigButton = FindViewById<Button>(Resource.Id.getConfigButton);
+            _setTimeButton = FindViewById<Button>(Resource.Id.setTimeButton);
+            _setKoeffButton = FindViewById<Button>(Resource.Id.setKoeffButton);
+            _setBatLimitButton = FindViewById<Button>(Resource.Id.setBatLimitButton);
+            _setAntennaButton = FindViewById<Button>(Resource.Id.setAntennaButton);
+            _setChipButton = FindViewById<Button>(Resource.Id.setChipButton);
+            _setTeamSizeButton = FindViewById<Button>(Resource.Id.setTeamSizeButton);
+            _setEraseBlockSizeButton = FindViewById<Button>(Resource.Id.setFlashSizeButton);
+            _setBtNameButton = FindViewById<Button>(Resource.Id.setBtNameButton);
+            _setBtPinButton = FindViewById<Button>(Resource.Id.setBtPinButton);
+            _sendBtCommandButton = FindViewById<Button>(Resource.Id.sendBtCommandButton);
+            _setAutoreportButton = FindViewById<Button>(Resource.Id.setAutoreportButton);
+            _clearTerminalButton = FindViewById<Button>(Resource.Id.clearTerminalButton);
 
-            timeEditText = FindViewById<EditText>(Resource.Id.timeEditText);
-            koeffEditText = FindViewById<EditText>(Resource.Id.koeffEditText);
-            batLimitEditText = FindViewById<EditText>(Resource.Id.batLimitEditText);
-            teamSizeEditText = FindViewById<EditText>(Resource.Id.teamSizeEditText);
-            flashSizeEditText = FindViewById<EditText>(Resource.Id.flashSizeEditText);
-            setBtNameEditText = FindViewById<EditText>(Resource.Id.setBtNameEditText);
-            setBtPinEditText = FindViewById<EditText>(Resource.Id.setBtPinEditText);
-            sendBtCommandEditText = FindViewById<EditText>(Resource.Id.sendBtCommandEditText);
+            _timeEditText = FindViewById<EditText>(Resource.Id.timeEditText);
+            _koeffEditText = FindViewById<EditText>(Resource.Id.koeffEditText);
+            _batLimitEditText = FindViewById<EditText>(Resource.Id.batLimitEditText);
+            _teamSizeEditText = FindViewById<EditText>(Resource.Id.teamSizeEditText);
+            _flashSizeEditText = FindViewById<EditText>(Resource.Id.flashSizeEditText);
+            _setBtNameEditText = FindViewById<EditText>(Resource.Id.setBtNameEditText);
+            _setBtPinEditText = FindViewById<EditText>(Resource.Id.setBtPinEditText);
+            _sendBtCommandEditText = FindViewById<EditText>(Resource.Id.sendBtCommandEditText);
 
-            flashSizeText = FindViewById<TextView>(Resource.Id.flashSizeTextView);
-            packetLengthTextView = FindViewById<TextView>(Resource.Id.packetLengthTextView);
-            terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
+            _flashSizeText = FindViewById<TextView>(Resource.Id.flashSizeTextView);
+            _packetLengthTextView = FindViewById<TextView>(Resource.Id.packetLengthTextView);
+            _terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
 
-            antennaSpinner = FindViewById<Spinner>(Resource.Id.antennaSpinner);
-            chipTypeSpinner = FindViewById<Spinner>(Resource.Id.chipSpinner);
-            dumpSizeSpinner = FindViewById<Spinner>(Resource.Id.dumpSizeSpinner);
+            _antennaSpinner = FindViewById<Spinner>(Resource.Id.antennaSpinner);
+            _chipTypeSpinner = FindViewById<Spinner>(Resource.Id.chipSpinner);
+            _dumpSizeSpinner = FindViewById<Spinner>(Resource.Id.dumpSizeSpinner);
 
-            currentCheckBox = FindViewById<CheckBox>(Resource.Id.currentCheckBox);
-            autoreportCheckBox = FindViewById<CheckBox>(Resource.Id.autoreportCheckBox);
+            _currentCheckBox = FindViewById<CheckBox>(Resource.Id.currentCheckBox);
+            _autoreportCheckBox = FindViewById<CheckBox>(Resource.Id.autoreportCheckBox);
 
             //Initialise page
-            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number.ToString() + " configuration";
+            Title = "Station " + StationSettings.Number.ToString() + " configuration";
 
-            timeEditText.Text = Helpers.DateToString(DateTime.Now);
-            koeffEditText.Text = GlobalOperationsIdClass.StationSettings.VoltageCoefficient.ToString("F5");
-            batLimitEditText.Text = GlobalOperationsIdClass.StationSettings.BatteryLimit.ToString("F2");
-            teamSizeEditText.Text = GlobalOperationsIdClass.StationSettings.TeamBlockSize.ToString();
-            flashSizeEditText.Text = GlobalOperationsIdClass.StationSettings.EraseBlockSize.ToString();
-            flashSizeText.Text = (GlobalOperationsIdClass.StationSettings.FlashSize / 1024 / 1024).ToString("F2") + "Mb";
-            packetLengthTextView.Text = (GlobalOperationsIdClass.StationSettings.PacketLengthSize).ToString();
-            setBtNameEditText.Text = GlobalOperationsIdClass.StationSettings.BtName;
-            setBtPinEditText.Text = GlobalOperationsIdClass.StationSettings.BtPin;
-            sendBtCommandEditText.Text = GlobalOperationsIdClass.StationSettings.BtCommand;
-            currentCheckBox.Checked = GlobalOperationsIdClass.ConfigPageState.UseCurrentTime;
-            timeEditText.Enabled = !currentCheckBox.Checked;
+            _timeEditText.Text = Helpers.DateToString(DateTime.Now);
+            _koeffEditText.Text = StationSettings.VoltageCoefficient.ToString("F5");
+            _batLimitEditText.Text = StationSettings.BatteryLimit.ToString("F2");
+            _teamSizeEditText.Text = StationSettings.TeamBlockSize.ToString();
+            _flashSizeEditText.Text = StationSettings.EraseBlockSize.ToString();
+            _flashSizeText.Text = (StationSettings.FlashSize / 1024 / 1024).ToString("F2") + "Mb";
+            _packetLengthTextView.Text = (StationSettings.PacketLengthSize).ToString();
+            _setBtNameEditText.Text = StationSettings.BtName;
+            _setBtPinEditText.Text = StationSettings.BtPin;
+            _sendBtCommandEditText.Text = StationSettings.BtCommand;
+            _currentCheckBox.Checked = ConfigPageState.UseCurrentTime;
+            _timeEditText.Enabled = !_currentCheckBox.Checked;
 
-            terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+            _terminalTextView.Text = StatusPageState.TerminalText.ToString();
 
-            var items = GlobalOperationsIdClass.StationSettings.Gain.Keys.ToArray();
+            var items = StationSettings.Gain.Keys.ToArray();
             var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
-            antennaSpinner.Adapter = adapter;
-            antennaSpinner.SetSelection(5);
+            _antennaSpinner.Adapter = adapter;
+            _antennaSpinner.SetSelection(5);
             var g = 0;
-            foreach (var x in GlobalOperationsIdClass.StationSettings.Gain)
+            foreach (var x in StationSettings.Gain)
             {
-                if (x.Value == GlobalOperationsIdClass.StationSettings.AntennaGain)
+                if (x.Value == StationSettings.AntennaGain)
                     break;
                 g++;
             }
-            antennaSpinner.SetSelection(g);
+            _antennaSpinner.SetSelection(g);
 
             items = RfidContainer.ChipTypes.Types.Keys.ToArray();
             adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
-            chipTypeSpinner.Adapter = adapter;
-            chipTypeSpinner.SetSelection(GlobalOperationsIdClass.StationSettings.ChipType);
+            _chipTypeSpinner.Adapter = adapter;
+            _chipTypeSpinner.SetSelection(StationSettings.ChipType);
 
             items = GlobalOperationsIdClass.FlashSizeLimitDictionary.Keys.ToArray();
             adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
-            dumpSizeSpinner.Adapter = adapter;
-            dumpSizeSpinner.SetSelection(0);
+            _dumpSizeSpinner.Adapter = adapter;
+            _dumpSizeSpinner.SetSelection(0);
             g = 0;
             foreach (var x in GlobalOperationsIdClass.FlashSizeLimitDictionary)
             {
@@ -142,37 +142,37 @@ namespace RfidStationControl
                     break;
                 g++;
             }
-            dumpSizeSpinner.SetSelection(g);
+            _dumpSizeSpinner.SetSelection(g);
 
             if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
             {
-                getConfigButton.Enabled = true;
-                setTimeButton.Enabled = true;
-                setKoeffButton.Enabled = true;
-                setBatLimitButton.Enabled = true;
-                setAntennaButton.Enabled = true;
-                setChipButton.Enabled = true;
-                setTeamSizeButton.Enabled = true;
-                setEraseBlockSizeButton.Enabled = true;
-                setBtNameButton.Enabled = true;
-                setBtPinButton.Enabled = true;
-                sendBtCommandButton.Enabled = true;
-                setAutoreportButton.Enabled = true;
+                _getConfigButton.Enabled = true;
+                _setTimeButton.Enabled = true;
+                _setKoeffButton.Enabled = true;
+                _setBatLimitButton.Enabled = true;
+                _setAntennaButton.Enabled = true;
+                _setChipButton.Enabled = true;
+                _setTeamSizeButton.Enabled = true;
+                _setEraseBlockSizeButton.Enabled = true;
+                _setBtNameButton.Enabled = true;
+                _setBtPinButton.Enabled = true;
+                _sendBtCommandButton.Enabled = true;
+                _setAutoreportButton.Enabled = true;
             }
             else
             {
-                getConfigButton.Enabled = false;
-                setTimeButton.Enabled = false;
-                setKoeffButton.Enabled = false;
-                setBatLimitButton.Enabled = false;
-                setAntennaButton.Enabled = false;
-                setChipButton.Enabled = false;
-                setTeamSizeButton.Enabled = false;
-                setEraseBlockSizeButton.Enabled = false;
-                setBtNameButton.Enabled = false;
-                setBtPinButton.Enabled = false;
-                sendBtCommandButton.Enabled = false;
-                setAutoreportButton.Enabled = false;
+                _getConfigButton.Enabled = false;
+                _setTimeButton.Enabled = false;
+                _setKoeffButton.Enabled = false;
+                _setBatLimitButton.Enabled = false;
+                _setAntennaButton.Enabled = false;
+                _setChipButton.Enabled = false;
+                _setTeamSizeButton.Enabled = false;
+                _setEraseBlockSizeButton.Enabled = false;
+                _setBtNameButton.Enabled = false;
+                _setBtPinButton.Enabled = false;
+                _sendBtCommandButton.Enabled = false;
+                _setAutoreportButton.Enabled = false;
             }
 
             GlobalOperationsIdClass.TimerActiveTasks = 0;
@@ -181,50 +181,50 @@ namespace RfidStationControl
             var currentFocus = Window.CurrentFocus;
             inputManager?.HideSoftInputFromWindow(currentFocus?.WindowToken, HideSoftInputFlags.None);
 
-            getConfigButton.Click += async (sender, e) =>
+            _getConfigButton.Click += async (sender, e) =>
             {
                 var outBuffer = GlobalOperationsIdClass.Parser.GetConfig();
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setTimeButton.Click += async (sender, e) =>
+            _setTimeButton.Click += async (sender, e) =>
             {
                 byte[] outBuffer;
-                if (currentCheckBox.Checked)
+                if (_currentCheckBox.Checked)
                 {
                     outBuffer = GlobalOperationsIdClass.Parser.SetTime(DateTime.Now);
                 }
                 else
                 {
-                    timeEditText.ClearFocus();
-                    outBuffer = GlobalOperationsIdClass.Parser.SetTime(GlobalOperationsIdClass.ConfigPageState.SetTime);
+                    _timeEditText.ClearFocus();
+                    outBuffer = GlobalOperationsIdClass.Parser.SetTime(ConfigPageState.SetTime);
                 }
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setKoeffButton.Click += async (sender, e) =>
+            _setKoeffButton.Click += async (sender, e) =>
             {
-                koeffEditText.ClearFocus();
-                float.TryParse(koeffEditText.Text, out var batteryCoefficient);
+                _koeffEditText.ClearFocus();
+                float.TryParse(_koeffEditText.Text, out var batteryCoefficient);
                 var outBuffer = GlobalOperationsIdClass.Parser.SetVCoeff(batteryCoefficient);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setBatLimitButton.Click += async (sender, e) =>
+            _setBatLimitButton.Click += async (sender, e) =>
             {
-                batLimitEditText.ClearFocus();
-                float.TryParse(batLimitEditText.Text, out var batteryLimit);
+                _batLimitEditText.ClearFocus();
+                float.TryParse(_batLimitEditText.Text, out var batteryLimit);
                 var outBuffer = GlobalOperationsIdClass.Parser.SetBatteryLimit(batteryLimit);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setAntennaButton.Click += async (sender, e) =>
+            _setAntennaButton.Click += async (sender, e) =>
             {
-                if (!GlobalOperationsIdClass.StationSettings.Gain.TryGetValue(antennaSpinner.SelectedItem?.ToString(),
+                if (!StationSettings.Gain.TryGetValue(_antennaSpinner.SelectedItem?.ToString(),
                     out var gain))
                 {
                     Toast.MakeText(this, "Incorrect gain selected", ToastLength.Long)?.Show();
@@ -232,12 +232,12 @@ namespace RfidStationControl
                 }
                 var outBuffer = GlobalOperationsIdClass.Parser.SetGain(gain);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setChipButton.Click += async (sender, e) =>
+            _setChipButton.Click += async (sender, e) =>
             {
-                if (!RfidContainer.ChipTypes.Types.TryGetValue(chipTypeSpinner.SelectedItem?.ToString(),
+                if (!RfidContainer.ChipTypes.Types.TryGetValue(_chipTypeSpinner.SelectedItem?.ToString(),
                     out var chipType))
                 {
                     Toast.MakeText(this, "Incorrect chip type selected", ToastLength.Long)?.Show();
@@ -245,124 +245,124 @@ namespace RfidStationControl
                 }
                 var outBuffer = GlobalOperationsIdClass.Parser.SetChipType(chipType);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setTeamSizeButton.Click += async (sender, e) =>
+            _setTeamSizeButton.Click += async (sender, e) =>
             {
-                teamSizeEditText.ClearFocus();
-                uint.TryParse(teamSizeEditText.Text, out var n);
+                _teamSizeEditText.ClearFocus();
+                uint.TryParse(_teamSizeEditText.Text, out var n);
                 var outBuffer = GlobalOperationsIdClass.Parser.SetTeamFlashSize(n);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setEraseBlockSizeButton.Click += async (sender, e) =>
+            _setEraseBlockSizeButton.Click += async (sender, e) =>
             {
-                flashSizeEditText.ClearFocus();
-                uint.TryParse(flashSizeEditText.Text, out var n);
+                _flashSizeEditText.ClearFocus();
+                uint.TryParse(_flashSizeEditText.Text, out var n);
                 var outBuffer = GlobalOperationsIdClass.Parser.SetEraseBlock(n);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setBtNameButton.Click += async (sender, e) =>
+            _setBtNameButton.Click += async (sender, e) =>
             {
-                var outBuffer = GlobalOperationsIdClass.Parser.SetBtName(setBtNameEditText.Text);
+                var outBuffer = GlobalOperationsIdClass.Parser.SetBtName(_setBtNameEditText.Text);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setBtPinButton.Click += async (sender, e) =>
+            _setBtPinButton.Click += async (sender, e) =>
             {
-                var outBuffer = GlobalOperationsIdClass.Parser.SetBtPin(setBtPinEditText.Text);
+                var outBuffer = GlobalOperationsIdClass.Parser.SetBtPin(_setBtPinEditText.Text);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            sendBtCommandButton.Click += async (sender, e) =>
+            _sendBtCommandButton.Click += async (sender, e) =>
             {
-                var outBuffer = GlobalOperationsIdClass.Parser.SendBtCommand(sendBtCommandEditText.Text);
+                var outBuffer = GlobalOperationsIdClass.Parser.SendBtCommand(_sendBtCommandEditText.Text);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            setAutoreportButton.Click += async (sender, e) =>
+            _setAutoreportButton.Click += async (sender, e) =>
             {
-                var outBuffer = GlobalOperationsIdClass.Parser.SetAutoReport(autoreportCheckBox.Checked);
+                var outBuffer = GlobalOperationsIdClass.Parser.SetAutoReport(_autoreportCheckBox.Checked);
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            clearTerminalButton.Click += (sender, e) =>
+            _clearTerminalButton.Click += (sender, e) =>
             {
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Clear();
-                terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                StatusPageState.TerminalText.Clear();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
-            backButton.Click += (sender, e) =>
+            _backButton.Click += (sender, e) =>
             {
                 Finish();
             };
 
-            timeEditText.FocusChange += (sender, e) =>
+            _timeEditText.FocusChange += (sender, e) =>
             {
-                var t = Helpers.DateStringToUnixTime(timeEditText.Text);
-                timeEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
-                GlobalOperationsIdClass.ConfigPageState.SetTime = Helpers.ConvertFromUnixTimestamp(Helpers.DateStringToUnixTime(timeEditText.Text));
+                var t = Helpers.DateStringToUnixTime(_timeEditText.Text);
+                _timeEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
+                ConfigPageState.SetTime = Helpers.ConvertFromUnixTimestamp(Helpers.DateStringToUnixTime(_timeEditText.Text));
             };
 
-            koeffEditText.FocusChange += (sender, e) =>
+            _koeffEditText.FocusChange += (sender, e) =>
             {
                 //koeffEditText.Text = koeffEditText.Text.Replace('.', ',');
-                float.TryParse(koeffEditText.Text, out var batteryCoefficient);
-                koeffEditText.Text = batteryCoefficient.ToString("F5");
+                float.TryParse(_koeffEditText.Text, out var batteryCoefficient);
+                _koeffEditText.Text = batteryCoefficient.ToString("F5");
             };
 
-            batLimitEditText.FocusChange += (sender, e) =>
+            _batLimitEditText.FocusChange += (sender, e) =>
             {
                 //batLimitEditText.Text = batLimitEditText.Text.Replace('.', ',');
-                float.TryParse(batLimitEditText.Text, out var batteryLimit);
-                batLimitEditText.Text = batteryLimit.ToString("F2");
+                float.TryParse(_batLimitEditText.Text, out var batteryLimit);
+                _batLimitEditText.Text = batteryLimit.ToString("F2");
             };
 
-            teamSizeEditText.FocusChange += (sender, e) =>
+            _teamSizeEditText.FocusChange += (sender, e) =>
             {
-                uint.TryParse(teamSizeEditText.Text, out var n);
-                teamSizeEditText.Text = n.ToString();
+                uint.TryParse(_teamSizeEditText.Text, out var n);
+                _teamSizeEditText.Text = n.ToString();
             };
 
-            flashSizeEditText.FocusChange += (sender, e) =>
+            _flashSizeEditText.FocusChange += (sender, e) =>
             {
-                uint.TryParse(flashSizeEditText.Text, out var n);
-                flashSizeEditText.Text = n.ToString();
+                uint.TryParse(_flashSizeEditText.Text, out var n);
+                _flashSizeEditText.Text = n.ToString();
             };
 
-            setBtNameEditText.FocusChange += (sender, e) =>
+            _setBtNameEditText.FocusChange += (sender, e) =>
             {
-                if (setBtNameEditText.Text.Length > 32)
-                    setBtNameEditText.Text = setBtNameEditText.Text.Substring(0, 32);
+                if (_setBtNameEditText.Text.Length > 32)
+                    _setBtNameEditText.Text = _setBtNameEditText.Text.Substring(0, 32);
             };
 
-            setBtPinEditText.FocusChange += (sender, e) =>
+            _setBtPinEditText.FocusChange += (sender, e) =>
             {
-                if (setBtPinEditText.Text.Length > 32)
-                    setBtPinEditText.Text = setBtPinEditText.Text.Substring(0, 16);
+                if (_setBtPinEditText.Text.Length > 32)
+                    _setBtPinEditText.Text = _setBtPinEditText.Text.Substring(0, 16);
             };
 
-            currentCheckBox.CheckedChange += (sender, e) =>
+            _currentCheckBox.CheckedChange += (sender, e) =>
             {
-                timeEditText.Enabled = !currentCheckBox.Checked;
-                GlobalOperationsIdClass.ConfigPageState.UseCurrentTime = currentCheckBox.Checked;
+                _timeEditText.Enabled = !_currentCheckBox.Checked;
+                ConfigPageState.UseCurrentTime = _currentCheckBox.Checked;
             };
 
-            dumpSizeSpinner.ItemSelected += (sender, e) =>
+            _dumpSizeSpinner.ItemSelected += (sender, e) =>
             {
-                GlobalOperationsIdClass.FlashSizeLimitDictionary.TryGetValue(dumpSizeSpinner.SelectedItem?.ToString(),
+                GlobalOperationsIdClass.FlashSizeLimitDictionary.TryGetValue(_dumpSizeSpinner.SelectedItem?.ToString(),
                     out var size);
-                GlobalOperationsIdClass.ConfigPageState.FlashLimitSize = size;
+                ConfigPageState.FlashLimitSize = size;
                 GlobalOperationsIdClass.Flash = new FlashContainer(GlobalOperationsIdClass.FlashSizeLimit,
-                    GlobalOperationsIdClass.StationSettings.TeamBlockSize);
+                    StationSettings.TeamBlockSize);
             };
         }
 
@@ -374,7 +374,8 @@ namespace RfidStationControl
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
             }
 
-            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0) return packageReceived;
+            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0)
+                return packageReceived;
 
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
@@ -382,21 +383,21 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
-
+                    StatusPageState.TerminalText.Append(reply);
                     if (reply.ErrorCode == 0)
                     {
                         if (reply.ReplyCode == ProtocolParser.Reply.GET_CONFIG)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.GetConfigReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            if (reply.StationNumber != StationSettings.Number)
                             {
-                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                StationSettings.Number = reply.StationNumber;
                                 GlobalOperationsIdClass.Parser =
-                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
-                                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number +
+                                    new ProtocolParser(StationSettings.Number);
+
+                                Title = "Station " + StationSettings.Number +
                                         " status";
                             }
 
@@ -405,40 +406,42 @@ namespace RfidStationControl
                             {
                                 if (x.Value == replyDetails.ChipTypeId)
                                 {
-                                    GlobalOperationsIdClass.StationSettings.ChipType = g;
+                                    StationSettings.ChipType = g;
                                     break;
                                 }
                                 g++;
                             }
 
-                            if (GlobalOperationsIdClass.StationSettings.ChipType !=
+                            if (StationSettings.ChipType !=
                                 GlobalOperationsIdClass.Rfid.ChipType)
                                 GlobalOperationsIdClass.Rfid =
-                                    new RfidContainer(GlobalOperationsIdClass.StationSettings.ChipType);
-                            GlobalOperationsIdClass.StationSettings.AntennaGain = replyDetails.AntennaGain;
-                            GlobalOperationsIdClass.StationSettings.Mode = replyDetails.Mode;
-                            GlobalOperationsIdClass.StationSettings.BatteryLimit = replyDetails.BatteryLimit;
-                            GlobalOperationsIdClass.StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
-                            GlobalOperationsIdClass.StationSettings.FlashSize = replyDetails.FlashSize;
-                            GlobalOperationsIdClass.StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
-                            GlobalOperationsIdClass.StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
-                            if (GlobalOperationsIdClass.StationSettings.TeamBlockSize !=
+                                    new RfidContainer(StationSettings.ChipType);
+
+                            StationSettings.AntennaGain = replyDetails.AntennaGain;
+                            StationSettings.Mode = replyDetails.Mode;
+                            StationSettings.BatteryLimit = replyDetails.BatteryLimit;
+                            StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
+                            StationSettings.FlashSize = replyDetails.FlashSize;
+                            StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
+                            StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
+                            if (StationSettings.TeamBlockSize !=
                                 GlobalOperationsIdClass.Flash.TeamDumpSize)
                                 GlobalOperationsIdClass.Flash = new FlashContainer(
                                     GlobalOperationsIdClass.FlashSizeLimit,
-                                    GlobalOperationsIdClass.StationSettings.TeamBlockSize,
+                                    StationSettings.TeamBlockSize,
                                     0);
-                            GlobalOperationsIdClass.StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
+
+                            StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.SET_TIME)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.SetTimeReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.SEND_BT_COMMAND)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.SendBtCommandReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                            StatusPageState.TerminalText.Append(replyDetails);
                         }
                     }
 
@@ -449,12 +452,13 @@ namespace RfidStationControl
                 }
                 else
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                    StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
 
-            terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
-            terminalTextView.Invalidate();
+            _terminalTextView.Text = StatusPageState.TerminalText.ToString();
+            _terminalTextView.Invalidate();
+
             return packageReceived;
         }
     }

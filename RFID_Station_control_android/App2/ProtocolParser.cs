@@ -409,12 +409,12 @@ namespace RfidStationControl
                 public override string ToString()
                 {
                     var result = "FW Version: " + FwVersion + Environment.NewLine;
-                    result += "Mode: " + GlobalOperationsIdClass.StationSettings.StationMode.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
+                    result += "Mode: " + StationSettings.StationMode.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
                     //result += "Chip type: " + ChipTypeId + Environment.NewLine;
                     result += "Chip type: " + RfidContainer.ChipTypes.Types.FirstOrDefault(x => x.Value.ToString().Contains(ChipTypeId.ToString())).Key + Environment.NewLine;
                     result += "Flash size: " + FlashSize + " byte" + Environment.NewLine;
                     result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + Environment.NewLine;
-                    result += "Antenna gain: " + GlobalOperationsIdClass.StationSettings.Gain.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
+                    result += "Antenna gain: " + StationSettings.Gain.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
                     result += "Team block size: " + TeamBlockSize + Environment.NewLine;
                     result += "Erase block size: " + EraseBlockSize + Environment.NewLine;
                     result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + Environment.NewLine;

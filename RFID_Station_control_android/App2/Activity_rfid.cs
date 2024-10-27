@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using static RfidStationControl.GlobalOperationsIdClass.RfidPageState;
+using static RfidStationControl.RfidPageState;
 
 namespace RfidStationControl
 {
@@ -78,7 +78,7 @@ namespace RfidStationControl
             {
                 rfidGridView.Adapter = new RfidGridAdapter(this, Table);
 
-                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " RFID";
+                Title = "Station " + StationSettings.Number + " RFID";
 
                 // just for test
                 teamNumberEditText.Text = InitChipNumber.ToString();
@@ -148,7 +148,7 @@ namespace RfidStationControl
                     var tmp = dumpButton.Text;
                     dumpButton.Text = "Dumping...";
 
-                    var chipSize = RfidContainer.ChipTypes.PageSizes[GlobalOperationsIdClass.StationSettings.ChipType];
+                    var chipSize = RfidContainer.ChipTypes.PageSizes[StationSettings.ChipType];
                     const byte maxFramePages = 45;
                     var pagesFrom = 0;
                     int pagesTo;
@@ -265,7 +265,8 @@ namespace RfidStationControl
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
             }
 
-            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0) return packageReceived;
+            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0)
+                return packageReceived;
 
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
@@ -273,7 +274,7 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
+                    StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
@@ -282,13 +283,13 @@ namespace RfidStationControl
                             case ProtocolParser.Reply.INIT_CHIP:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.InitChipReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    StatusPageState.TerminalText.Append(replyDetails);
                                     break;
                                 }
                             case ProtocolParser.Reply.READ_CARD_PAGE:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    StatusPageState.TerminalText.Append(replyDetails);
 
                                     GlobalOperationsIdClass.Rfid.AddPages(replyDetails.startPage, replyDetails.PagesData);
                                     // refresh RFID table
@@ -324,7 +325,7 @@ namespace RfidStationControl
                 }
                 else
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                    StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
 

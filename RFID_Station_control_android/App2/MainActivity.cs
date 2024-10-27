@@ -1,9 +1,11 @@
-﻿using Android.App;
+﻿using System;
+using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
 using Android.Widget;
 
 using System.Threading.Tasks;
+using Android.Bluetooth;
 
 namespace RfidStationControl
 {
@@ -33,35 +35,29 @@ namespace RfidStationControl
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
-            // Get our UI controls from the loaded layout
-            refreshButton = FindViewById<Button>(Resource.Id.refreshButton);
-            connectButton = FindViewById<Button>(Resource.Id.connectButton);
-            statusButton = FindViewById<Button>(Resource.Id.statusButton);
-            configurationButton = FindViewById<Button>(Resource.Id.configurationButton);
-            teamsButton = FindViewById<Button>(Resource.Id.teamsButton);
-            rfidButton = FindViewById<Button>(Resource.Id.rfidButton);
-            flashButton = FindViewById<Button>(Resource.Id.flashButton);
-
-            stationNumberText = FindViewById<EditText>(Resource.Id.stationNumberEditText);
-
-            terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
-
-            deviceListSpinner = FindViewById<Spinner>(Resource.Id.DeviceListSpinner);
-
-            GlobalOperationsIdClass.GetInstance();
-
             GlobalOperationsIdClass.DumpCancellation = true;
             GlobalOperationsIdClass.TimerActiveTasks = 0;
 
-            await StartBt();
+            // Get our UI controls from the loaded layout
+            deviceListSpinner = FindViewById<Spinner>(Resource.Id.DeviceListSpinner);
+            terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
 
-            stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();
+            stationNumberText = FindViewById<EditText>(Resource.Id.stationNumberEditText);
+            stationNumberText.Text = StationSettings.Number.ToString();
+            stationNumberText.TextChanged += (sender, e) =>
+            {
+                byte.TryParse(stationNumberText.Text, out var n);
+                StationSettings.Number = n;
+                GlobalOperationsIdClass.Parser = new ProtocolParser(StationSettings.Number);
+            };
 
+            refreshButton = FindViewById<Button>(Resource.Id.refreshButton);
             refreshButton.Click += async (sender, e) =>
             {
                 await StartBt();
             };
 
+            connectButton = FindViewById<Button>(Resource.Id.connectButton);
             connectButton.Click += async (sender, e) =>
             {
                 connectButton.Enabled = false;
@@ -71,10 +67,12 @@ namespace RfidStationControl
                 {
                     connectButton.Text = "Connecting...";
                     connectButton.Invalidate();
-                    GlobalOperationsIdClass.Bt.Connecting = true;
                     var deviceName = deviceListSpinner?.SelectedItem?.ToString();
                     GlobalOperationsIdClass.Bt.Connect(deviceName);
-                    while (GlobalOperationsIdClass.Bt.Connecting) await Task.Delay(1);
+
+                    var connectEnd = DateTime.Now.AddMilliseconds(5000);
+                    while (!GlobalOperationsIdClass.Bt.IsBtConnected() && connectEnd > DateTime.Now) ;
+
                     if (GlobalOperationsIdClass.Bt.IsBtConnected())
                     {
                         Toast.MakeText(this, "Connected to: " + deviceName, ToastLength.Long)?.Show();
@@ -96,46 +94,48 @@ namespace RfidStationControl
                     refreshButton.Enabled = true;
                     deviceListSpinner.Enabled = true;
                 }
+
                 connectButton.Enabled = true;
             };
 
-            stationNumberText.TextChanged += (sender, e) =>
-            {
-                byte.TryParse(stationNumberText.Text, out var n);
-                GlobalOperationsIdClass.StationSettings.Number = n;
-                GlobalOperationsIdClass.Parser = new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
-            };
-
+            statusButton = FindViewById<Button>(Resource.Id.statusButton);
             statusButton.Click += (sender, e) =>
             {
                 StartActivity(typeof(ActivityStatus));
             };
 
+            configurationButton = FindViewById<Button>(Resource.Id.configurationButton);
             configurationButton.Click += (sender, e) =>
             {
                 StartActivity(typeof(ActivityConfig));
             };
 
+            teamsButton = FindViewById<Button>(Resource.Id.teamsButton);
             teamsButton.Click += (sender, e) =>
             {
                 StartActivity(typeof(ActivityTeams));
             };
 
+            rfidButton = FindViewById<Button>(Resource.Id.rfidButton);
             rfidButton.Click += (sender, e) =>
             {
                 StartActivity(typeof(ActivityRfid));
             };
 
+            flashButton = FindViewById<Button>(Resource.Id.flashButton);
             flashButton.Click += (sender, e) =>
             {
                 StartActivity(typeof(ActivityFlash));
             };
+
+            await StartBt();
         }
 
         private async Task<bool> StartBt()
         {
             bool result;
-            await GlobalOperationsIdClass.Bt.Enable();
+            GlobalOperationsIdClass.Bt = new BtConnector(this);
+            await GlobalOperationsIdClass.Bt.Enable(true);
             if (GlobalOperationsIdClass.Bt.IsBtEnabled())
             {
                 Toast.MakeText(this, "Bluetooth adapter enabled.", ToastLength.Long)?.Show();
@@ -147,13 +147,15 @@ namespace RfidStationControl
             }
             else
             {
-                if (!await GlobalOperationsIdClass.Bt.Enable())
+                if (!await GlobalOperationsIdClass.Bt.Enable(true))
                 {
                     Toast.MakeText(this, "Bluetooth adapter not enabled.", ToastLength.Long)?.Show();
                     result = false;
                 }
+
                 else result = true;
             }
+
             return result;
         }
 
@@ -163,8 +165,8 @@ namespace RfidStationControl
 
             GlobalOperationsIdClass.DumpCancellation = true;
             GlobalOperationsIdClass.TimerActiveTasks = 0;
-            stationNumberText.Text = GlobalOperationsIdClass.StationSettings.Number.ToString();
-            terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+            stationNumberText.Text = StationSettings.Number.ToString();
+            terminalTextView.Text = StatusPageState.TerminalText.ToString();
 
             if (GlobalOperationsIdClass.Bt.IsBtConnected())
             {

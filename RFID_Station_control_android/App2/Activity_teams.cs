@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using static RfidStationControl.GlobalOperationsIdClass.TeamsPageState;
+using static RfidStationControl.TeamsPageState;
 
 namespace RfidStationControl
 {
@@ -75,7 +75,7 @@ namespace RfidStationControl
             }
 
             //init page
-            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " teams";
+            Title = "Station " + StationSettings.Number + " teams";
             scanTeamNumberEditText.Text = ScanTeamNumber.ToString();
             teamNumberEditText.Text = GetTeamNumber.ToString();
             issuedEditText.Text = Helpers.DateToString(Issued);
@@ -154,7 +154,7 @@ namespace RfidStationControl
                 var tmp = dumpButton.Text;
                 dumpButton.Text = "Dumping...";
                 ushort teamNum = 1;
-                var maxTeamNum = (int)(GlobalOperationsIdClass.StationSettings.FlashSize / GlobalOperationsIdClass.StationSettings.TeamBlockSize);
+                var maxTeamNum = (int)(StationSettings.FlashSize / StationSettings.TeamBlockSize);
                 GlobalOperationsIdClass.DumpCancellation = false;
                 do
                 {
@@ -250,7 +250,7 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
+                    StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
@@ -259,19 +259,19 @@ namespace RfidStationControl
                             case ProtocolParser.Reply.GET_LAST_TEAMS:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.GetLastTeamsReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    StatusPageState.TerminalText.Append(replyDetails);
                                     break;
                                 }
                             case ProtocolParser.Reply.SCAN_TEAMS:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.ScanTeamsReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    StatusPageState.TerminalText.Append(replyDetails);
                                     break;
                                 }
                             case ProtocolParser.Reply.GET_TEAM_RECORD:
                                 {
                                     var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
-                                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                                    StatusPageState.TerminalText.Append(replyDetails);
 
                                     var team = new TeamsContainer.TeamData
                                     {
@@ -317,7 +317,7 @@ namespace RfidStationControl
                 }
                 else
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                    StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
 

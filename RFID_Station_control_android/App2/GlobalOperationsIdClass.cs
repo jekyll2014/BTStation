@@ -1,54 +1,15 @@
-﻿namespace RfidStationControl
+﻿using Android.Content;
+using Android.OS;
+using Android.Widget;
+
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace RfidStationControl
 {
     public class GlobalOperationsIdClass
     {
-        public static GlobalOperationsIdClass GetInstance()
-        {
-            return _instance ?? (_instance = new GlobalOperationsIdClass());
-        }
-
-        private static GlobalOperationsIdClass _instance;
-
-        public class StationSettings
-        {
-            public static byte FwVersion = 0;
-            public static byte Number = 0;
-            public static byte Mode = 0;
-            public static uint PacketLengthSize = 255;
-            public static float VoltageCoefficient = 0.00578F;
-            public static float BatteryLimit = 3.0F;
-            public static byte AntennaGain = 80;
-            public static byte ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
-            public static uint FlashSize = 1 * 1024 * 1024;
-            public static uint TeamBlockSize = 1024;
-            public static uint EraseBlockSize = 4096;
-            public const string BtName = "Sportduino-xx";
-            public const string BtPin = "1111";
-            public const string BtCommand = "AT";
-
-            //режимы станции
-            public static readonly Dictionary<string, byte> StationMode = new Dictionary<string, byte>
-            {
-                {"Init" , 0},
-                {"Start" , 1},
-                {"Finish" , 2}
-            };
-
-            //усиление антенны
-            public static readonly Dictionary<string, byte> Gain = new Dictionary<string, byte>
-            {
-                {"Level 0", 0},
-                {"Level 16", 16},
-                {"Level 32", 32},
-                {"Level 48", 48},
-                {"Level 64", 64},
-                {"Level 80", 80},
-                {"Level 96", 96},
-                {"Level 112", 112}
-            };
-
-        }
-
         public static readonly Dictionary<string, uint> FlashSizeLimitDictionary = new Dictionary<string, uint>
         {
             {"32 kb", 32*1024},
@@ -63,79 +24,7 @@
         };
         public static readonly uint FlashSizeLimit = 32 * 1024;
 
-        public static class StatusPageState
-        {
-            public static ushort CheckedChipsNumber = 0;
-            public static byte NewStationNumber = 0;
-            public static DateTime LastCheck = new DateTime();
-            public static readonly StringBuilder TerminalText = new StringBuilder();
-        }
-
-        public static class ConfigPageState
-        {
-            public static bool UseCurrentTime = true;
-            public static DateTime SetTime = DateTime.Now;
-            public static uint FlashLimitSize = 32 * 1024;
-        }
-
-        public static class FlashPageState
-        {
-            public static uint ReadAddress = 0;
-            public static byte ReadLength = 0;
-            public static uint WriteAddress = 0;
-            public static byte[] WriteData = new byte[0];
-
-            public class FlashTableItem
-            {
-                public string TeamNum { get; set; }
-                public string Decoded { get; set; }
-            }
-
-            public static readonly List<FlashTableItem> Table = new List<FlashTableItem>();
-        }
-
-        public static class RfidPageState
-        {
-            public static ushort InitChipNumber = 0;
-            public static ushort Mask = 0;
-            public static byte ReadFrom = 0;
-            public static byte ReadTo = 0;
-            public static byte WriteFrom = 0;
-            public static byte[] WriteData = new byte[4];
-            public static byte[] Uid = new byte[8];
-
-            public class RfidTableItem
-            {
-                public string PageNum { get; set; }
-                public string PageDesc { get; set; }
-                public string Data { get; set; }
-                public string Decoded { get; set; }
-            }
-
-            public static readonly List<RfidTableItem> Table = new List<RfidTableItem>();
-        }
-
-        public static class TeamsPageState
-        {
-            public static ushort ScanTeamNumber = 1;
-            public static ushort GetTeamNumber = 1;
-            public static DateTime Issued = new DateTime();
-            public static ushort TeamMask = 0;
-            public static ushort EraseTeam = 0;
-
-            public class TeamsTableItem
-            {
-                public string TeamNum { get; set; }
-                public string InitTime { get; set; }
-                public string CheckTime { get; set; }
-                public string Mask { get; set; }
-                public string DumpSize { get; set; }
-            }
-
-            public static readonly List<TeamsTableItem> Table = new List<TeamsTableItem>();
-        }
-
-        public static readonly BtConnector Bt = new BtConnector();
+        public static BtConnector Bt;
 
         public static ProtocolParser Parser = new ProtocolParser(StationSettings.Number);
 
@@ -149,13 +38,13 @@
         private const int BT_READ_PERIOD = 500;
         public static volatile bool DumpCancellation;
 
-
         // Write data to the BtDevice
         public static async Task<bool> SendToBtAsync(byte[] outBuffer, Context currentContext, Func<Task<bool>> callBack)
         {
             if (!await Bt.WriteBtAsync(outBuffer))
             {
                 Toast.MakeText(currentContext, "Can't write to Bluetooth.", ToastLength.Long)?.Show();
+
                 return false;
             }
 
@@ -168,11 +57,19 @@
 
         private static void StartTimer(long gap, Func<Task<bool>> callback)
         {
-            var handler = new Handler(Looper.MainLooper);
+            var ml = Looper.MainLooper;
+            if (ml == null)
+                return;
+
+            var handler = new Handler(ml);
             handler.PostDelayed(() =>
             {
-                if (Bt.BtInputBuffer.Count > 0) callback();
-                if (TimerActiveTasks > 0) StartTimer(gap, callback);
+                if (Bt.BtInputBuffer.Count > 0)
+                    callback();
+
+                if (TimerActiveTasks > 0)
+                    StartTimer(gap, callback);
+
                 handler.Dispose();
                 handler = null;
             }, gap);
@@ -187,7 +84,8 @@
                 packageReceived = Parser.AddData(Bt.BtInputBuffer);
             }
 
-            if (Parser._repliesList.Count <= 0) return packageReceived;
+            if (Parser._repliesList.Count <= 0)
+                return packageReceived;
 
             for (var n = 0; n < Parser._repliesList.Count; n++)
             {
@@ -228,15 +126,15 @@
                                 if (x.Value == replyDetails.ChipTypeId)
                                 {
                                     StationSettings.ChipType = g;
+
                                     break;
                                 }
+
                                 g++;
                             }
 
-                            if (StationSettings.ChipType !=
-                                Rfid.ChipType)
-                                Rfid =
-                                    new RfidContainer(StationSettings.ChipType);
+                            if (StationSettings.ChipType != Rfid.ChipType)
+                                Rfid = new RfidContainer(StationSettings.ChipType);
 
                             StationSettings.AntennaGain = replyDetails.AntennaGain;
 
@@ -251,10 +149,8 @@
                             StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
 
                             StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
-                            if (StationSettings.TeamBlockSize !=
-                                Flash.TeamDumpSize)
-                                Flash = new FlashContainer(
-                                    FlashSizeLimit,
+                            if (StationSettings.TeamBlockSize != Flash.TeamDumpSize)
+                                Flash = new FlashContainer(FlashSizeLimit,
                                     StationSettings.TeamBlockSize,
                                     0);
 
@@ -282,7 +178,6 @@
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.GET_TEAM_RECORD)
                         {
-
                             var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
                             StatusPageState.TerminalText.Append(replyDetails);
 
@@ -296,7 +191,7 @@
                             };
                             Teams.Add(team);
                             var tmp = Teams.GetTablePage(replyDetails.TeamNumber);
-                            var row = new TeamsPageState.TeamsTableItem
+                            var row = new TeamsTableItem
                             {
                                 TeamNum = tmp[0],
                                 InitTime = tmp[1],
@@ -308,15 +203,18 @@
                             var flag = false;
                             for (var i = 0; i < TeamsPageState.Table?.Count; i++)
                             {
-                                if (TeamsPageState.Table[i].TeamNum != row.TeamNum) continue;
+                                if (TeamsPageState.Table[i].TeamNum != row.TeamNum)
+                                    continue;
 
                                 TeamsPageState.Table.RemoveAt(i);
                                 TeamsPageState.Table.Insert(i, row);
                                 flag = true;
+
                                 break;
                             }
 
-                            if (!flag) TeamsPageState.Table?.Add(row);
+                            if (!flag)
+                                TeamsPageState.Table?.Add(row);
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.INIT_CHIP)
                         {
@@ -325,7 +223,6 @@
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.READ_CARD_PAGE)
                         {
-
                             var replyDetails = new ProtocolParser.ReplyData.ReadCardPageReply(reply);
                             StatusPageState.TerminalText.Append(replyDetails);
 
@@ -335,19 +232,24 @@
                             for (var i = replyDetails.startPage; i < endPage; i++)
                             {
                                 var tmp = Rfid.GetTablePage(i);
-                                var row = new RfidPageState.RfidTableItem
+                                var row = new RfidTableItem
                                 { PageNum = tmp[0], Data = tmp[1], PageDesc = tmp[2], Decoded = tmp[3] };
 
                                 var flag = false;
                                 for (var j = 0; j < RfidPageState.Table?.Count; j++)
                                 {
-                                    if (RfidPageState.Table[j].PageNum != row.PageNum) continue;
+                                    if (RfidPageState.Table[j].PageNum != row.PageNum)
+                                        continue;
+
                                     RfidPageState.Table.RemoveAt(j);
                                     RfidPageState.Table.Insert(j, row);
                                     flag = true;
+
                                     break;
                                 }
-                                if (!flag) RfidPageState.Table?.Add(row);
+
+                                if (!flag)
+                                    RfidPageState.Table?.Add(row);
                             }
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.READ_FLASH)
@@ -363,19 +265,22 @@
                             for (var i = startPage; i <= endPage; i++)
                             {
                                 var tmp = Flash.GetTablePage(i);
-                                var row = new FlashPageState.FlashTableItem { TeamNum = tmp[0], Decoded = tmp[2] };
+                                var row = new FlashTableItem { TeamNum = tmp[0], Decoded = tmp[2] };
 
                                 var flag = false;
                                 for (var j = 0; j < FlashPageState.Table?.Count; j++)
                                 {
-                                    if (FlashPageState.Table[j].TeamNum != row.TeamNum) continue;
+                                    if (FlashPageState.Table[j].TeamNum != row.TeamNum)
+                                        continue;
 
                                     FlashPageState.Table.RemoveAt(j);
                                     FlashPageState.Table.Insert(j, row);
                                     flag = true;
+
                                     break;
                                 }
-                                if (!flag) FlashPageState.Table?.Add(row);
+                                if (!flag)
+                                    FlashPageState.Table?.Add(row);
                             }
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.WRITE_FLASH)
@@ -392,6 +297,7 @@
                     StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
+
             return packageReceived;
         }
     }

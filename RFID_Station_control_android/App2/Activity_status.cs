@@ -59,20 +59,20 @@ namespace RfidStationControl
 
             modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
 
-            Title = "Station " + GlobalOperationsIdClass.StationSettings.Number + " status";
+            Title = "Station " + StationSettings.Number + " status";
 
-            newStationNumberText.Text = GlobalOperationsIdClass.StatusPageState.NewStationNumber.ToString();
-            chipsCheckedText.Text = GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber.ToString();
-            lastCheckEditText.Text = Helpers.DateToString(GlobalOperationsIdClass.StatusPageState.LastCheck);
+            newStationNumberText.Text = StatusPageState.NewStationNumber.ToString();
+            chipsCheckedText.Text = StatusPageState.CheckedChipsNumber.ToString();
+            lastCheckEditText.Text = Helpers.DateToString(StatusPageState.LastCheck);
 
-            _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+            _terminalTextView.Text = StatusPageState.TerminalText.ToString();
 
-            var items = GlobalOperationsIdClass.StationSettings.StationMode.Keys.ToArray();
+            var items = StationSettings.StationMode.Keys.ToArray();
             var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
             if (modeListSpinner != null)
             {
                 modeListSpinner.Adapter = adapter;
-                modeListSpinner.SetSelection(GlobalOperationsIdClass.StationSettings.Mode);
+                modeListSpinner.SetSelection(StationSettings.Mode);
 
                 if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
                 {
@@ -97,26 +97,26 @@ namespace RfidStationControl
                 {
                     var outBuffer = GlobalOperationsIdClass.Parser.GetStatus();
                     await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
                 };
 
                 getConfigButton.Click += async (sender, e) =>
                 {
                     var outBuffer = GlobalOperationsIdClass.Parser.GetConfig();
                     await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
                 };
 
                 getErrorsButton.Click += async (sender, e) =>
                 {
                     var outBuffer = GlobalOperationsIdClass.Parser.GetLastErrors();
                     await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
                 };
 
                 setModeButton.Click += async (sender, e) =>
                 {
-                    if (!GlobalOperationsIdClass.StationSettings.StationMode.TryGetValue(
+                    if (!StationSettings.StationMode.TryGetValue(
                         modeListSpinner.SelectedItem.ToString(), out var modeNumber))
                     {
                         Toast.MakeText(this, "Incorrect mode selected", ToastLength.Long)?.Show();
@@ -125,7 +125,7 @@ namespace RfidStationControl
 
                     var outBuffer = GlobalOperationsIdClass.Parser.SetMode(modeNumber);
                     await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
                 };
             }
 
@@ -134,15 +134,18 @@ namespace RfidStationControl
                 chipsCheckedText.ClearFocus();
                 lastCheckEditText.ClearFocus();
                 newStationNumberText.ClearFocus();
-                var outBuffer = GlobalOperationsIdClass.Parser.ResetStation(GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber, GlobalOperationsIdClass.StatusPageState.LastCheck, GlobalOperationsIdClass.StatusPageState.NewStationNumber);
+                var outBuffer = GlobalOperationsIdClass.Parser.ResetStation(StatusPageState.CheckedChipsNumber,
+                    StatusPageState.LastCheck,
+                    StatusPageState.NewStationNumber);
+
                 await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
             clearTerminalButton.Click += (sender, e) =>
             {
-                GlobalOperationsIdClass.StatusPageState.TerminalText.Clear();
-                _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+                StatusPageState.TerminalText.Clear();
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             };
 
             backButton.Click += (sender, e) =>
@@ -163,7 +166,7 @@ namespace RfidStationControl
                 {
                     byte.TryParse(newStationNumberText.Text, out var n);
                     newStationNumberText.Text = n.ToString();
-                    GlobalOperationsIdClass.StatusPageState.NewStationNumber = n;
+                    StatusPageState.NewStationNumber = n;
                 }
             };
 
@@ -174,7 +177,7 @@ namespace RfidStationControl
 
                     byte.TryParse(chipsCheckedText.Text, out var n);
                     chipsCheckedText.Text = n.ToString();
-                    GlobalOperationsIdClass.StatusPageState.CheckedChipsNumber = n;
+                    StatusPageState.CheckedChipsNumber = n;
                 }
             };
 
@@ -182,7 +185,7 @@ namespace RfidStationControl
             {
                 var t = Helpers.DateStringToUnixTime(lastCheckEditText.Text);
                 lastCheckEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
-                GlobalOperationsIdClass.StatusPageState.LastCheck = Helpers.ConvertFromUnixTimestamp(t);
+                StatusPageState.LastCheck = Helpers.ConvertFromUnixTimestamp(t);
             };
         }
 
@@ -194,7 +197,8 @@ namespace RfidStationControl
                 packageReceived = GlobalOperationsIdClass.Parser.AddData(GlobalOperationsIdClass.Bt.BtInputBuffer);
             }
 
-            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0) return packageReceived;
+            if (GlobalOperationsIdClass.Parser._repliesList.Count <= 0)
+                return packageReceived;
 
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
@@ -202,35 +206,35 @@ namespace RfidStationControl
                 GlobalOperationsIdClass.TimerActiveTasks--;
                 if (reply.ReplyCode != 0)
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply);
+                    StatusPageState.TerminalText.Append(reply);
 
                     if (reply.ErrorCode == 0)
                     {
                         if (reply.ReplyCode == ProtocolParser.Reply.GET_STATUS)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.GetStatusReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            if (reply.StationNumber != StationSettings.Number)
                             {
-                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                StationSettings.Number = reply.StationNumber;
                                 GlobalOperationsIdClass.Parser =
-                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
-                                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number +
+                                    new ProtocolParser(StationSettings.Number);
+                                Title = "Station " + StationSettings.Number +
                                         " status";
                             }
                         }
                         else if (reply.ReplyCode == ProtocolParser.Reply.GET_CONFIG)
                         {
                             var replyDetails = new ProtocolParser.ReplyData.GetConfigReply(reply);
-                            GlobalOperationsIdClass.StatusPageState.TerminalText.Append(replyDetails);
+                            StatusPageState.TerminalText.Append(replyDetails);
 
-                            if (reply.StationNumber != GlobalOperationsIdClass.StationSettings.Number)
+                            if (reply.StationNumber != StationSettings.Number)
                             {
-                                GlobalOperationsIdClass.StationSettings.Number = reply.StationNumber;
+                                StationSettings.Number = reply.StationNumber;
                                 GlobalOperationsIdClass.Parser =
-                                    new ProtocolParser(GlobalOperationsIdClass.StationSettings.Number);
-                                Title = "Station " + GlobalOperationsIdClass.StationSettings.Number +
+                                    new ProtocolParser(StationSettings.Number);
+                                Title = "Station " + StationSettings.Number +
                                         " status";
                             }
 
@@ -239,31 +243,31 @@ namespace RfidStationControl
                             {
                                 if (x.Value == replyDetails.ChipTypeId)
                                 {
-                                    GlobalOperationsIdClass.StationSettings.ChipType = g;
+                                    StationSettings.ChipType = g;
                                     break;
                                 }
                                 g++;
                             }
 
-                            if (GlobalOperationsIdClass.StationSettings.ChipType !=
+                            if (StationSettings.ChipType !=
                                 GlobalOperationsIdClass.Rfid.ChipType)
                                 GlobalOperationsIdClass.Rfid =
-                                    new RfidContainer(GlobalOperationsIdClass.StationSettings.ChipType);
-                            GlobalOperationsIdClass.StationSettings.AntennaGain = replyDetails.AntennaGain;
-                            GlobalOperationsIdClass.StationSettings.Mode = replyDetails.Mode;
-                            modeListSpinner.SetSelection(GlobalOperationsIdClass.StationSettings.Mode);
-                            GlobalOperationsIdClass.StationSettings.BatteryLimit = replyDetails.BatteryLimit;
-                            GlobalOperationsIdClass.StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
-                            GlobalOperationsIdClass.StationSettings.FlashSize = replyDetails.FlashSize;
-                            GlobalOperationsIdClass.StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
-                            GlobalOperationsIdClass.StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
-                            if (GlobalOperationsIdClass.StationSettings.TeamBlockSize !=
+                                    new RfidContainer(StationSettings.ChipType);
+                            StationSettings.AntennaGain = replyDetails.AntennaGain;
+                            StationSettings.Mode = replyDetails.Mode;
+                            modeListSpinner.SetSelection(StationSettings.Mode);
+                            StationSettings.BatteryLimit = replyDetails.BatteryLimit;
+                            StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
+                            StationSettings.FlashSize = replyDetails.FlashSize;
+                            StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
+                            StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
+                            if (StationSettings.TeamBlockSize !=
                                 GlobalOperationsIdClass.Flash.TeamDumpSize)
                                 GlobalOperationsIdClass.Flash = new FlashContainer(
                                     GlobalOperationsIdClass.FlashSizeLimit,
-                                    GlobalOperationsIdClass.StationSettings.TeamBlockSize,
+                                    StationSettings.TeamBlockSize,
                                     0);
-                            GlobalOperationsIdClass.StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
+                            StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
                         }
                     }
 
@@ -274,11 +278,11 @@ namespace RfidStationControl
                 }
                 else
                 {
-                    GlobalOperationsIdClass.StatusPageState.TerminalText.Append(reply.Message);
+                    StatusPageState.TerminalText.Append(reply.Message);
                 }
             }
 
-            _terminalTextView.Text = GlobalOperationsIdClass.StatusPageState.TerminalText.ToString();
+            _terminalTextView.Text = StatusPageState.TerminalText.ToString();
             _terminalTextView.Invalidate();
             return packageReceived;
         }
