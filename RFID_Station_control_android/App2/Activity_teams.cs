@@ -1,11 +1,9 @@
 ﻿using Android.App;
 using Android.OS;
 using Android.Support.V7.App;
-using Android.Views;
 using Android.Widget;
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using static RfidStationControl.TeamsPageState;
@@ -181,45 +179,60 @@ namespace RfidStationControl
 
             scanTeamNumberEditText.FocusChange += (sender, e) =>
             {
-                ushort.TryParse(scanTeamNumberEditText.Text, out var n);
-                scanTeamNumberEditText.Text = n.ToString();
-                ScanTeamNumber = n;
+                if (!scanTeamNumberEditText.HasFocus)
+                {
+                    ushort.TryParse(scanTeamNumberEditText.Text, out var n);
+                    scanTeamNumberEditText.Text = n.ToString();
+                    ScanTeamNumber = n;
+                }
             };
 
             teamNumberEditText.FocusChange += (sender, e) =>
             {
-                ushort.TryParse(teamNumberEditText.Text, out var n);
-                teamNumberEditText.Text = n.ToString();
-                GetTeamNumber = n;
+                if (!teamNumberEditText.HasFocus)
+                {
+                    ushort.TryParse(teamNumberEditText.Text, out var n);
+                    teamNumberEditText.Text = n.ToString();
+                    GetTeamNumber = n;
+                }
             };
 
             issuedEditText.FocusChange += (sender, e) =>
             {
-                var t = Helpers.DateStringToUnixTime(issuedEditText.Text);
-                issuedEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
-                Issued = Helpers.ConvertFromUnixTimestamp(t);
+                if (!issuedEditText.HasFocus)
+                {
+                    var t = Helpers.DateStringToUnixTime(issuedEditText.Text);
+                    issuedEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
+                    Issued = Helpers.ConvertFromUnixTimestamp(t);
+                }
             };
 
             maskEditText.FocusChange += (sender, e) =>
             {
-                if (maskEditText.Text?.Length > 16)
-                    maskEditText.Text = maskEditText.Text.Substring(0, 16);
-                else if (maskEditText.Text.Length < 16)
-                    while (maskEditText.Text.Length < 16)
-                        maskEditText.Text = "0" + maskEditText.Text;
+                if (!maskEditText.HasFocus)
+                {
+                    if (maskEditText.Text?.Length > 16)
+                        maskEditText.Text = maskEditText.Text.Substring(0, 16);
+                    else if (maskEditText.Text.Length < 16)
+                        while (maskEditText.Text.Length < 16)
+                            maskEditText.Text = "0" + maskEditText.Text;
 
-                var n = Helpers.ConvertStringToMask(maskEditText.Text);
-                maskEditText.Text = "";
-                for (var i = 15; i >= 0; i--)
-                    maskEditText.Text = Helpers.ConvertMaskToString(n);
-                TeamMask = n;
+                    var n = Helpers.ConvertStringToMask(maskEditText.Text);
+                    maskEditText.Text = "";
+                    for (var i = 15; i >= 0; i--)
+                        maskEditText.Text = Helpers.ConvertMaskToString(n);
+                    TeamMask = n;
+                }
             };
 
             eraseTeamNumberEditText.FocusChange += (sender, e) =>
             {
-                ushort.TryParse(eraseTeamNumberEditText.Text, out var n);
-                eraseTeamNumberEditText.Text = n.ToString();
-                EraseTeam = n;
+                if (!eraseTeamNumberEditText.HasFocus)
+                {
+                    ushort.TryParse(eraseTeamNumberEditText.Text, out var n);
+                    eraseTeamNumberEditText.Text = n.ToString();
+                    EraseTeam = n;
+                }
             };
 
             backButton.Click += (sender, e) =>
@@ -273,7 +286,7 @@ namespace RfidStationControl
                                     var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
                                     StatusPageState.TerminalText.Append(replyDetails);
 
-                                    var team = new TeamsContainer.TeamData
+                                    var team = new TeamData
                                     {
                                         LastCheckTime = replyDetails.LastMarkTime,
                                         DumpSize = replyDetails.DumpSize,
@@ -323,43 +336,5 @@ namespace RfidStationControl
 
             return packageReceived;
         }
-    }
-
-    public class TeamsGridAdapter : BaseAdapter<TeamsTableItem>
-    {
-        private readonly List<TeamsTableItem> _items;
-        private readonly Activity _context;
-
-        public TeamsGridAdapter(Activity context, List<TeamsTableItem> items)
-        {
-            _context = context;
-            _items = items;
-        }
-
-        public override long GetItemId(int position)
-        {
-            return position;
-        }
-
-        public override TeamsTableItem this[int position] => _items[position];
-
-        public override int Count => _items.Count;
-
-        public override View GetView(int position, View convertView, ViewGroup parent)
-        {
-            var item = _items[position];
-
-            View view = convertView;
-            if (view == null) // no view to re-use, create new
-                view = _context.LayoutInflater.Inflate(Resource.Layout.teamsTable_view, null);
-
-            view.FindViewById<TextView>(Resource.Id.TeamNumber).Text = item.TeamNum;
-            view.FindViewById<TextView>(Resource.Id.TeamMask).Text = item.Mask;
-            view.FindViewById<TextView>(Resource.Id.InitTime).Text = item.InitTime;
-            view.FindViewById<TextView>(Resource.Id.LastCheckTime).Text = item.CheckTime;
-
-            return view;
-        }
-
     }
 }

@@ -6,33 +6,6 @@ namespace RfidStationControl
 {
     public class RfidContainer
     {
-        private int[] _dump;
-
-        public int[] Dump => _dump;
-
-        private byte[] _uid = new byte[8];
-        public byte[] Uid => _uid;
-
-        private byte _sysChipId = 0;
-        public byte SystemChipId => _sysChipId;
-
-        private ushort _teamNum = 0;
-        public ushort TeamNumber => _teamNum;
-
-        private byte _chipType = 0;
-        public byte ChipType => _chipType;
-
-        private byte _fwVer = 0;
-        public byte FwVer => _fwVer;
-
-        private DateTime _initTime = new DateTime();
-        public DateTime InitTime => _initTime;
-
-        private ushort _teamMask = 0;
-        public ushort TeamMask => _teamMask;
-
-        public byte ReferenceDateByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
-
         public class ChipTypes
         {
             public static Dictionary<string, byte> Types = new Dictionary<string, byte>
@@ -77,6 +50,33 @@ namespace RfidStationControl
                 { 2, 0x6d }
             };
         }
+
+        private int[] _dump;
+
+        public int[] Dump => _dump;
+
+        private byte[] _uid = new byte[8];
+        public byte[] Uid => _uid;
+
+        private byte _sysChipId = 0;
+        public byte SystemChipId => _sysChipId;
+
+        private ushort _teamNum = 0;
+        public ushort TeamNumber => _teamNum;
+
+        private byte _chipType = 0;
+        public byte ChipType => _chipType;
+
+        private byte _fwVer = 0;
+        public byte FwVer => _fwVer;
+
+        private DateTime _initTime = new DateTime();
+        public DateTime InitTime => _initTime;
+
+        private ushort _teamMask = 0;
+        public ushort TeamMask => _teamMask;
+
+        public byte ReferenceDateByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
 
         public readonly byte CurrentChipType;
 

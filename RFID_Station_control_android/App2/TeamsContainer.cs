@@ -1,20 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 
 namespace RfidStationControl
 {
     public class TeamsContainer
     {
-        public class TeamData
-        {
-            public ushort TeamNumber;
-            public ushort TeamMask;
-            public DateTime InitTime;
-            public DateTime LastCheckTime;
-            public uint DumpSize;
-        }
-
         private List<TeamData> _dump = new List<TeamData>();
 
         public TeamData[] Dump => _dump.ToArray();

@@ -7,16 +7,6 @@ namespace RfidStationControl
     {
         public byte[] Dump { get; private set; }
 
-        public class TeamDumpData
-        {
-            public int TeamNumber;
-            public DateTime InitTime;
-            public int TeamMask;
-            public DateTime LastCheckTime;
-            public int DumpSize;
-            public RfidContainer ChipDump;
-        }
-
         private uint Size { get; }
         public uint TeamDumpSize { get; }
 

@@ -190,64 +190,85 @@ namespace RfidStationControl
 
             teamNumberEditText.FocusChange += (sender, e) =>
             {
-                ushort.TryParse(teamNumberEditText.Text, out var n);
-                teamNumberEditText.Text = n.ToString();
-                InitChipNumber = n;
+                if (!teamNumberEditText.HasFocus)
+                {
+                    ushort.TryParse(teamNumberEditText.Text, out var n);
+                    teamNumberEditText.Text = n.ToString();
+                    InitChipNumber = n;
+                }
             };
 
             maskEditText.FocusChange += (sender, e) =>
             {
-                if (maskEditText.Text?.Length > 16) maskEditText.Text = maskEditText.Text.Substring(0, 16);
-                else if (maskEditText.Text?.Length < 16)
-                    while (maskEditText.Text.Length < 16)
-                        maskEditText.Text = "0" + maskEditText.Text;
+                if (!maskEditText.HasFocus)
+                {
+                    if (maskEditText.Text?.Length > 16) maskEditText.Text = maskEditText.Text.Substring(0, 16);
+                    else if (maskEditText.Text?.Length < 16)
+                        while (maskEditText.Text.Length < 16)
+                            maskEditText.Text = "0" + maskEditText.Text;
 
-                var n = Helpers.ConvertStringToMask(maskEditText.Text);
-                maskEditText.Text = "";
-                for (var i = 15; i >= 0; i--) maskEditText.Text = Helpers.ConvertMaskToString(n);
-                Mask = n;
+                    var n = Helpers.ConvertStringToMask(maskEditText.Text);
+                    maskEditText.Text = "";
+                    for (var i = 15; i >= 0; i--) maskEditText.Text = Helpers.ConvertMaskToString(n);
+                    Mask = n;
+                }
             };
 
             readFromEditText.FocusChange += (sender, e) =>
             {
-                byte.TryParse(readFromEditText.Text, out var n);
-                readFromEditText.Text = n.ToString();
-                ReadFrom = n;
+                if (!readFromEditText.HasFocus)
+                {
+                    byte.TryParse(readFromEditText.Text, out var n);
+                    readFromEditText.Text = n.ToString();
+                    ReadFrom = n;
+                }
             };
 
             readToEditText.FocusChange += (sender, e) =>
             {
-                byte.TryParse(readToEditText.Text, out var n);
-                readToEditText.Text = n.ToString();
-                ReadTo = n;
+                if (!readToEditText.HasFocus)
+                {
+                    byte.TryParse(readToEditText.Text, out var n);
+                    readToEditText.Text = n.ToString();
+                    ReadTo = n;
+                }
             };
 
             pageNumberEditText.FocusChange += (sender, e) =>
             {
-                byte.TryParse(pageNumberEditText.Text, out var n);
-                pageNumberEditText.Text = n.ToString();
-                WriteFrom = n;
+                if (!pageNumberEditText.HasFocus)
+                {
+                    byte.TryParse(pageNumberEditText.Text, out var n);
+                    pageNumberEditText.Text = n.ToString();
+                    WriteFrom = n;
+                }
             };
 
             dataEditText.FocusChange += (sender, e) =>
             {
-                dataEditText.Text = Helpers.CheckHexString(dataEditText.Text);
-                var n = Helpers.ConvertHexToByteArray(dataEditText.Text);
-                dataEditText.Text = Helpers.ConvertByteArrayToHex(n, 4);
-                WriteData = n;
+                if (!dataEditText.HasFocus)
+                {
+                    dataEditText.Text = Helpers.CheckHexString(dataEditText.Text);
+                    var n = Helpers.ConvertHexToByteArray(dataEditText.Text);
+                    dataEditText.Text = Helpers.ConvertByteArrayToHex(n, 4);
+                    WriteData = n;
+                }
             };
 
             uidEditText.FocusChange += (sender, e) =>
             {
-                uidEditText.Text = Helpers.CheckHexString(uidEditText.Text);
-                var n = Helpers.ConvertHexToByteArray(uidEditText.Text);
-                uidEditText.Text = Helpers.ConvertByteArrayToHex(n);
-                if (uidEditText.Text?.Length > 24)
-                    uidEditText.Text = uidEditText.Text.Substring(0, 24);
-                else if (uidEditText.Text?.Length < 24)
-                    while (uidEditText.Text.Length < 24)
-                        uidEditText.Text = "00 " + uidEditText.Text;
-                Uid = n;
+                if (!uidEditText.HasFocus)
+                {
+                    uidEditText.Text = Helpers.CheckHexString(uidEditText.Text);
+                    var n = Helpers.ConvertHexToByteArray(uidEditText.Text);
+                    uidEditText.Text = Helpers.ConvertByteArrayToHex(n);
+                    if (uidEditText.Text?.Length > 24)
+                        uidEditText.Text = uidEditText.Text.Substring(0, 24);
+                    else if (uidEditText.Text?.Length < 24)
+                        while (uidEditText.Text.Length < 24)
+                            uidEditText.Text = "00 " + uidEditText.Text;
+                    Uid = n;
+                }
             };
         }
 

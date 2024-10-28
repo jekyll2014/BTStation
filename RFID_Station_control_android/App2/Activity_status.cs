@@ -1,8 +1,6 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.OS;
 using Android.Support.V7.App;
-using Android.Views.InputMethods;
 using Android.Widget;
 
 using System.Linq;
@@ -33,8 +31,6 @@ namespace RfidStationControl
 
         #endregion
 
-        private volatile bool isFirstRun = true;
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -55,79 +51,78 @@ namespace RfidStationControl
             chipsCheckedText = FindViewById<EditText>(Resource.Id.chipsCheckedEditText);
             lastCheckEditText = FindViewById<EditText>(Resource.Id.lastCheckEditText);
 
-            _terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
-
-            modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
-
             Title = "Station " + StationSettings.Number + " status";
 
             newStationNumberText.Text = StatusPageState.NewStationNumber.ToString();
             chipsCheckedText.Text = StatusPageState.CheckedChipsNumber.ToString();
             lastCheckEditText.Text = Helpers.DateToString(StatusPageState.LastCheck);
 
+            _terminalTextView = FindViewById<TextView>(Resource.Id.terminalTextView);
             _terminalTextView.Text = StatusPageState.TerminalText.ToString();
 
             var items = StationSettings.StationMode.Keys.ToArray();
             var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, items);
+            modeListSpinner = FindViewById<Spinner>(Resource.Id.modeListSpinner);
             if (modeListSpinner != null)
             {
                 modeListSpinner.Adapter = adapter;
                 modeListSpinner.SetSelection(StationSettings.Mode);
-
-                if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
-                {
-                    getStatusButton.Enabled = true;
-                    getConfigButton.Enabled = true;
-                    getErrorsButton.Enabled = true;
-                    setModeButton.Enabled = true;
-                    resetButton.Enabled = true;
-                }
-                else
-                {
-                    getStatusButton.Enabled = false;
-                    getConfigButton.Enabled = false;
-                    getErrorsButton.Enabled = false;
-                    setModeButton.Enabled = false;
-                    resetButton.Enabled = false;
-                }
-
-                GlobalOperationsIdClass.TimerActiveTasks = 0;
-
-                getStatusButton.Click += async (sender, e) =>
-                {
-                    var outBuffer = GlobalOperationsIdClass.Parser.GetStatus();
-                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
-                };
-
-                getConfigButton.Click += async (sender, e) =>
-                {
-                    var outBuffer = GlobalOperationsIdClass.Parser.GetConfig();
-                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
-                };
-
-                getErrorsButton.Click += async (sender, e) =>
-                {
-                    var outBuffer = GlobalOperationsIdClass.Parser.GetLastErrors();
-                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
-                };
-
-                setModeButton.Click += async (sender, e) =>
-                {
-                    if (!StationSettings.StationMode.TryGetValue(
-                        modeListSpinner.SelectedItem.ToString(), out var modeNumber))
-                    {
-                        Toast.MakeText(this, "Incorrect mode selected", ToastLength.Long)?.Show();
-                        return;
-                    }
-
-                    var outBuffer = GlobalOperationsIdClass.Parser.SetMode(modeNumber);
-                    await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
-                    _terminalTextView.Text = StatusPageState.TerminalText.ToString();
-                };
             }
+
+            if (GlobalOperationsIdClass.Bt.IsBtEnabled() && GlobalOperationsIdClass.Bt.IsBtConnected())
+            {
+                getStatusButton.Enabled = true;
+                getConfigButton.Enabled = true;
+                getErrorsButton.Enabled = true;
+                setModeButton.Enabled = true;
+                resetButton.Enabled = true;
+            }
+            else
+            {
+                getStatusButton.Enabled = false;
+                getConfigButton.Enabled = false;
+                getErrorsButton.Enabled = false;
+                setModeButton.Enabled = false;
+                resetButton.Enabled = false;
+            }
+
+            GlobalOperationsIdClass.TimerActiveTasks = 0;
+
+            getStatusButton.Click += async (sender, e) =>
+            {
+                var outBuffer = GlobalOperationsIdClass.Parser.GetStatus();
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
+            };
+
+            getConfigButton.Click += async (sender, e) =>
+            {
+                var outBuffer = GlobalOperationsIdClass.Parser.GetConfig();
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
+            };
+
+            getErrorsButton.Click += async (sender, e) =>
+            {
+                var outBuffer = GlobalOperationsIdClass.Parser.GetLastErrors();
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
+            };
+
+            setModeButton.Click += async (sender, e) =>
+            {
+                if (!StationSettings.StationMode.TryGetValue(
+                    modeListSpinner.SelectedItem.ToString(), out var modeNumber))
+                {
+                    Toast.MakeText(this, "Incorrect mode selected", ToastLength.Long)?.Show();
+
+                    return;
+                }
+
+                var outBuffer = GlobalOperationsIdClass.Parser.SetMode(modeNumber);
+                await GlobalOperationsIdClass.SendToBtAsync(outBuffer, this, ReadBt);
+                _terminalTextView.Text = StatusPageState.TerminalText.ToString();
+            };
 
             resetButton.Click += async (sender, e) =>
             {
@@ -155,14 +150,7 @@ namespace RfidStationControl
 
             newStationNumberText.FocusChange += (sender, e) =>
             {
-                if (isFirstRun && newStationNumberText.HasFocus)
-                {
-                    var inputManager = (InputMethodManager)GetSystemService(Context.InputMethodService);
-                    inputManager?.HideSoftInputFromWindow(newStationNumberText.WindowToken, HideSoftInputFlags.None);
-                    isFirstRun = false;
-                }
-
-                if (newStationNumberText.HasFocus)
+                if (!newStationNumberText.HasFocus)
                 {
                     byte.TryParse(newStationNumberText.Text, out var n);
                     newStationNumberText.Text = n.ToString();
@@ -172,9 +160,8 @@ namespace RfidStationControl
 
             chipsCheckedText.FocusChange += (sender, e) =>
             {
-                if (newStationNumberText.HasFocus)
+                if (!chipsCheckedText.HasFocus)
                 {
-
                     byte.TryParse(chipsCheckedText.Text, out var n);
                     chipsCheckedText.Text = n.ToString();
                     StatusPageState.CheckedChipsNumber = n;
@@ -183,9 +170,12 @@ namespace RfidStationControl
 
             lastCheckEditText.FocusChange += (sender, e) =>
             {
-                var t = Helpers.DateStringToUnixTime(lastCheckEditText.Text);
-                lastCheckEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
-                StatusPageState.LastCheck = Helpers.ConvertFromUnixTimestamp(t);
+                if (!lastCheckEditText.HasFocus)
+                {
+                    var t = Helpers.DateStringToUnixTime(lastCheckEditText.Text);
+                    lastCheckEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
+                    StatusPageState.LastCheck = Helpers.ConvertFromUnixTimestamp(t);
+                }
             };
         }
 

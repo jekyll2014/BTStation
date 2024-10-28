@@ -95,8 +95,8 @@
     <Compile Include="BtConnector.cs" />
     <Compile Include="DTO\ConfigPageState.cs" />
     <Compile Include="FlashContainer.cs" />
-    <Compile Include="FlashPageState.cs" />
-    <Compile Include="FlashTableItem.cs" />
+    <Compile Include="DTO\FlashPageState.cs" />
+    <Compile Include="DTO\FlashTableItem.cs" />
     <Compile Include="GlobalOperationsIdClass.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="MainActivity.cs" />
@@ -104,13 +104,16 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RfidContainer.cs" />
-    <Compile Include="RfidPageState.cs" />
-    <Compile Include="RfidTableItem.cs" />
-    <Compile Include="StationSettings.cs" />
-    <Compile Include="StatusPageState.cs" />
+    <Compile Include="DTO\RfidPageState.cs" />
+    <Compile Include="DTO\RfidTableItem.cs" />
+    <Compile Include="DTO\StationSettings.cs" />
+    <Compile Include="DTO\StatusPageState.cs" />
+    <Compile Include="DTO\TeamData.cs" />
+    <Compile Include="DTO\TeamDumpData.cs" />
     <Compile Include="TeamsContainer.cs" />
-    <Compile Include="TeamsPageState.cs" />
-    <Compile Include="TeamsTableItem.cs" />
+    <Compile Include="DTO\TeamsPageState.cs" />
+    <Compile Include="DTO\TeamsTableItem.cs" />
+    <Compile Include="DTO\TeamsGridAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -214,6 +217,11 @@
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties XamarinHotReloadWrongLinkerErrorInfoBarRfidStationControlHideInfoBar="True" />
+    </VisualStudio>
+  </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
     Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">

@@ -307,47 +307,69 @@ namespace RfidStationControl
 
             _timeEditText.FocusChange += (sender, e) =>
             {
-                var t = Helpers.DateStringToUnixTime(_timeEditText.Text);
-                _timeEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
-                ConfigPageState.SetTime = Helpers.ConvertFromUnixTimestamp(Helpers.DateStringToUnixTime(_timeEditText.Text));
+                if (!_timeEditText.HasFocus)
+                {
+                    var t = Helpers.DateStringToUnixTime(_timeEditText.Text);
+                    _timeEditText.Text = Helpers.DateToString(Helpers.ConvertFromUnixTimestamp(t));
+                    ConfigPageState.SetTime =
+                        Helpers.ConvertFromUnixTimestamp(Helpers.DateStringToUnixTime(_timeEditText.Text));
+                }
             };
 
             _koeffEditText.FocusChange += (sender, e) =>
             {
-                //koeffEditText.Text = koeffEditText.Text.Replace('.', ',');
-                float.TryParse(_koeffEditText.Text, out var batteryCoefficient);
-                _koeffEditText.Text = batteryCoefficient.ToString("F5");
+                if (!_koeffEditText.HasFocus)
+                {
+                    //koeffEditText.Text = koeffEditText.Text.Replace('.', ',');
+                    float.TryParse(_koeffEditText.Text, out var batteryCoefficient);
+                    _koeffEditText.Text = batteryCoefficient.ToString("F5");
+                }
             };
 
             _batLimitEditText.FocusChange += (sender, e) =>
             {
-                //batLimitEditText.Text = batLimitEditText.Text.Replace('.', ',');
-                float.TryParse(_batLimitEditText.Text, out var batteryLimit);
-                _batLimitEditText.Text = batteryLimit.ToString("F2");
+                if (!_batLimitEditText.HasFocus)
+                {
+                    //batLimitEditText.Text = batLimitEditText.Text.Replace('.', ',');
+                    float.TryParse(_batLimitEditText.Text, out var batteryLimit);
+                    _batLimitEditText.Text = batteryLimit.ToString("F2");
+                }
             };
 
             _teamSizeEditText.FocusChange += (sender, e) =>
             {
-                uint.TryParse(_teamSizeEditText.Text, out var n);
-                _teamSizeEditText.Text = n.ToString();
+                if (!_teamSizeEditText.HasFocus)
+                {
+                    uint.TryParse(_teamSizeEditText.Text, out var n);
+                    _teamSizeEditText.Text = n.ToString();
+                }
             };
 
             _flashSizeEditText.FocusChange += (sender, e) =>
             {
-                uint.TryParse(_flashSizeEditText.Text, out var n);
-                _flashSizeEditText.Text = n.ToString();
+                if (!_flashSizeEditText.HasFocus)
+                {
+                    uint.TryParse(_flashSizeEditText.Text, out var n);
+                    _flashSizeEditText.Text = n.ToString();
+                }
             };
 
             _setBtNameEditText.FocusChange += (sender, e) =>
             {
-                if (_setBtNameEditText.Text.Length > 32)
-                    _setBtNameEditText.Text = _setBtNameEditText.Text.Substring(0, 32);
+                if (!_setBtNameEditText.HasFocus)
+                {
+                    if (_setBtNameEditText.Text.Length > 32)
+                        _setBtNameEditText.Text = _setBtNameEditText.Text.Substring(0, 32);
+                }
             };
 
             _setBtPinEditText.FocusChange += (sender, e) =>
             {
-                if (_setBtPinEditText.Text.Length > 32)
-                    _setBtPinEditText.Text = _setBtPinEditText.Text.Substring(0, 16);
+                if (!_setBtPinEditText.HasFocus)
+                {
+                    if (_setBtPinEditText.Text.Length > 32)
+                        _setBtPinEditText.Text = _setBtPinEditText.Text.Substring(0, 16);
+                }
             };
 
             _currentCheckBox.CheckedChange += (sender, e) =>

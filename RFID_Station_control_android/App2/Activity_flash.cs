@@ -175,32 +175,44 @@ namespace RfidStationControl
 
             readFromEditText.FocusChange += (sender, e) =>
             {
-                uint.TryParse(readFromEditText.Text, out var from);
-                readFromEditText.Text = from.ToString();
-                ReadAddress = from;
+                if (!readFromEditText.HasFocus)
+                {
+                    uint.TryParse(readFromEditText.Text, out var from);
+                    readFromEditText.Text = from.ToString();
+                    ReadAddress = from;
+                }
             };
 
             lengthEditText.FocusChange += (sender, e) =>
             {
-                byte.TryParse(lengthEditText.Text, out var n);
-                lengthEditText.Text = n.ToString();
-                ReadLength = n;
+                if (!lengthEditText.HasFocus)
+                {
+                    byte.TryParse(lengthEditText.Text, out var n);
+                    lengthEditText.Text = n.ToString();
+                    ReadLength = n;
+                }
             };
 
             writeFromEditText.FocusChange += (sender, e) =>
             {
-                uint.TryParse(writeFromEditText.Text, out var from);
-                writeFromEditText.Text = from.ToString();
-                WriteAddress = from;
+                if (!writeFromEditText.HasFocus)
+                {
+                    uint.TryParse(writeFromEditText.Text, out var from);
+                    writeFromEditText.Text = from.ToString();
+                    WriteAddress = from;
+                }
             };
 
             dataEditText.FocusChange += (sender, e) =>
             {
-                dataEditText.Text = Helpers.CheckHexString(dataEditText.Text);
-                var n = Helpers.ConvertHexToByteArray(dataEditText.Text);
-                //dataEditText.Text = Helpers.ConvertByteArrayToHex(n, 256 - CommandDataLength.WRITE_FLASH);
-                dataEditText.Text = Helpers.ConvertByteArrayToHex(n, 256 - 11);
-                WriteData = n;
+                if (!dataEditText.HasFocus)
+                {
+                    dataEditText.Text = Helpers.CheckHexString(dataEditText.Text);
+                    var n = Helpers.ConvertHexToByteArray(dataEditText.Text);
+                    //dataEditText.Text = Helpers.ConvertByteArrayToHex(n, 256 - CommandDataLength.WRITE_FLASH);
+                    dataEditText.Text = Helpers.ConvertByteArrayToHex(n, 256 - 11);
+                    WriteData = n;
+                }
             };
         }
 

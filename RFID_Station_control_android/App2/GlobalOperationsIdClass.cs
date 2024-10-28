@@ -181,7 +181,7 @@ namespace RfidStationControl
                             var replyDetails = new ProtocolParser.ReplyData.GetTeamRecordReply(reply);
                             StatusPageState.TerminalText.Append(replyDetails);
 
-                            var team = new TeamsContainer.TeamData
+                            var team = new TeamData
                             {
                                 LastCheckTime = replyDetails.LastMarkTime,
                                 DumpSize = replyDetails.DumpSize,

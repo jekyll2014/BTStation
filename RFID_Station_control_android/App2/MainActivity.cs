@@ -58,7 +58,7 @@ namespace RfidStationControl
             };
 
             connectButton = FindViewById<Button>(Resource.Id.connectButton);
-            connectButton.Click += async (sender, e) =>
+            connectButton.Click += (sender, e) =>
             {
                 connectButton.Enabled = false;
                 refreshButton.Enabled = false;
@@ -85,6 +85,8 @@ namespace RfidStationControl
                                 ToastLength.Long)?
                             .Show();
                         connectButton.Text = "Connect";
+                        refreshButton.Enabled = true;
+                        deviceListSpinner.Enabled = true;
                     }
                 }
                 else if (connectButton.Text == "Disconnect")
