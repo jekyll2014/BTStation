@@ -19,7 +19,7 @@ MFRC522 mfrc522(RFID_SS_PIN, RFID_RST_PIN); // рфид-модуль
 uint32_t rfidReadStartTime = 0;
 
 uint8_t lastTeams[LAST_TEAMS_LENGTH * 2]; // последние отмеченные команды
-uint8_t lastErrors[LAST_TEAMS_LENGTH]; // последние коды ошибок станции
+uint8_t lastErrors[LAST_ERRORS_LENGTH]; // последние коды ошибок станции
 uint8_t ntag_page[16]; // буфер для чтения из чипа через ntagRead4pages()
 uint32_t lastTimeChecked = 0; // время последней отметки чипа
 uint16_t totalChipsChecked = 0; // количество отмеченных чипов
@@ -49,6 +49,10 @@ uint32_t receiveStartTime = 0; // время начала получения п�
 
 uint16_t batteryLevel = 500; // текущий уровень напряжения (замер АЦП)
 uint8_t batteryAlarmCount = 0; // счетчик нарушений границы допустимого напряжения
+
+uint32_t nextClockCheck = 0;
+uint32_t lastSystemClock = 0;
+uint32_t lastExternalClock = 0;
 
 void SpiStart();
 void SpiEnd();
@@ -109,6 +113,8 @@ void addLastError(uint8_t);
 uint8_t crcCalc(uint8_t*, uint16_t, uint16_t);
 void floatToByte(uint8_t*, float);
 bool selectChipType(uint8_t);
+void checkBatteryLevel();
+void checkClockIsRunning();
 void(*resetFunc) () = 0; // перезагрузка контроллера, declare reset function @ address 0
 
 void setup()
@@ -167,7 +173,7 @@ void setup()
 	}
 
 	//читаем коэфф. пересчета напряжения
-	union Convert
+	union convert
 	{
 		float number;
 		uint8_t byte[4];
@@ -327,19 +333,8 @@ void loop()
 		addLastError(UART_TIMEOUT);
 	}
 
-	batteryLevel = (batteryLevel + getBatteryLevel()) / 2;
-	if ((float)((float)batteryLevel * voltageCoeff) <= batteryLimit)
-	{
-		if (batteryAlarmCount > 100)
-		{
-			digitalWrite(RED_LED_PIN, HIGH);
-			tone(BUZZER_PIN, 50, 50);
-			delay(50);
-			digitalWrite(RED_LED_PIN, LOW);
-		}
-		else batteryAlarmCount++;
-	}
-	else batteryAlarmCount = 0;
+	checkBatteryLevel();
+	checkClockIsRunning();
 }
 
 void SpiStart()
@@ -369,7 +364,7 @@ void processRfidCard()
 	SPI.begin();      // Init SPI bus
 	mfrc522.PCD_Init();    // Init MFRC522
 	mfrc522.PCD_SetAntennaGain(gainCoeff);
-        delay(10);
+	delay(10);
 
 	// Look for new cards
 	if (!mfrc522.PICC_IsNewCardPresent())
@@ -513,6 +508,7 @@ void processRfidCard()
 				return;
 			}
 		}
+
 		SpiEnd();
 		clearNewMask();
 		lastTeamFlag = teamNumber;
@@ -520,6 +516,7 @@ void processRfidCard()
 #ifdef DEBUG
 		Serial.print(F("!!!mask updated"));
 #endif
+
 		return;
 	}
 
@@ -533,7 +530,7 @@ void processRfidCard()
 #endif
 		SpiEnd();
 		return;
-	}
+}
 
 	bool already_checked = false;
 	// сравнить с буфером последних команд
@@ -671,7 +668,8 @@ void processRfidCard()
 			{
 				init_package(REPLY_GET_TEAM_RECORD);
 				// 0: код ошибки
-				if (!addData(OK)) return;
+				if (!addData(OK))
+					return;
 
 				// 1-2: номер команды
 				// 3-6 : время инициализации
@@ -680,11 +678,14 @@ void processRfidCard()
 				// 13: счетчик сохраненных страниц
 				for (uint8_t i = 0; i < 13; i++)
 				{
-					if (!addData(ntag_page[i])) return;
+					if (!addData(ntag_page[i]))
+						return;
 				}
+
 				sendData();
 			}
-			else addLastError(PROCESS_SEND_AUTOREPORT); //CARD PROCESSING: error sending autoreport
+			else
+				addLastError(PROCESS_SEND_AUTOREPORT); //CARD PROCESSING: error sending autoreport
 		}
 	}
 }
@@ -704,7 +705,7 @@ bool readUart()
 			uartBufferPosition = 0;
 			receivingData = false;
 			return false;
-		}
+	}
 
 		// 0 byte = FE
 		if (uartBufferPosition == HEADER_BYTE && c == 0xfe)
@@ -719,7 +720,7 @@ bool readUart()
 			uartBufferPosition++;
 			// refresh timeout
 			receiveStartTime = millis();
-		}
+}
 		// 1st byte = ID, Station number, Command, Length and Data
 		else if (receivingData)
 		{
@@ -743,7 +744,7 @@ bool readUart()
 				addLastError(UART_PACKET_LENGTH);
 				sendError(PACKET_LENGTH, uartBuffer[COMMAND_BYTE] + 0x10);
 				return false;
-			}
+		}
 
 			// packet is received
 			if (uartBufferPosition > DATA_LENGTH_LOW_BYTE && uartBufferPosition >= uint32_t(uint32_t(DATA_START_BYTE) + uint32_t(uint32_t(uartBuffer[DATA_LENGTH_HIGH_BYTE]) * uint32_t(256) + uint32_t(uartBuffer[DATA_LENGTH_LOW_BYTE]))))
@@ -767,7 +768,7 @@ bool readUart()
 						addLastError(UART_WRONG_STATION);
 						sendError(WRONG_STATION, uartBuffer[COMMAND_BYTE] + 0x10);
 						return false;
-					}
+				}
 
 
 #ifdef DEBUG
@@ -783,7 +784,7 @@ bool readUart()
 					uartBufferPosition = 0;
 					receivingData = false;
 					return true;
-				}
+			}
 				else // CRC not correct
 				{
 #ifdef DEBUG
@@ -952,6 +953,7 @@ void setMode()
 	if (!eepromwrite(EEPROM_STATION_MODE, stationMode))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_MODE);
+
 		return;
 	}
 
@@ -959,7 +961,9 @@ void setMode()
 	init_package(REPLY_SET_MODE);
 
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 }
 
@@ -989,13 +993,21 @@ void setTime()
 
 	// 0: код ошибки
 	// 1-4: текущее время
-	bool flag = true;
-	flag &= addData(OK);
-	flag &= addData((systemTime.unixtime & 0xFF000000) >> 24);
-	flag &= addData((systemTime.unixtime & 0x00FF0000) >> 16);
-	flag &= addData((systemTime.unixtime & 0x0000FF00) >> 8);
-	flag &= addData(systemTime.unixtime & 0x000000FF);
-	if (!flag) return;
+	if (!addData(OK))
+		return;
+
+	if (!addData((systemTime.unixtime & 0xFF000000) >> 24))
+		return;
+
+	if (!addData((systemTime.unixtime & 0x00FF0000) >> 16))
+		return;
+
+	if (!addData((systemTime.unixtime & 0x0000FF00) >> 8))
+		return;
+
+	if (!addData(systemTime.unixtime & 0x000000FF))
+		return;
+
 	sendData();
 }
 
@@ -1014,6 +1026,7 @@ void resetStation()
 	if (checkCardNumber != totalChipsChecked)
 	{
 		sendError(WRONG_DATA, REPLY_RESET_STATION);
+
 		return;
 	}
 
@@ -1028,18 +1041,22 @@ void resetStation()
 	if (checkLastTime != lastTimeChecked)
 	{
 		sendError(WRONG_DATA, REPLY_RESET_STATION);
+
 		return;
 	}
 
 	if (uartBuffer[DATA_START_BYTE + 6] == 0xff)
 	{
 		sendError(WRONG_STATION, REPLY_RESET_STATION);
+
 		return;
 	}
+
 	stationNumber = uartBuffer[DATA_START_BYTE + 6];
 	if (!eepromwrite(EEPROM_STATION_NUMBER, stationNumber))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_RESET_STATION);
+
 		return;
 	}
 
@@ -1047,6 +1064,7 @@ void resetStation()
 	if (!eepromwrite(EEPROM_STATION_MODE, stationMode))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_RESET_STATION);
+
 		return;
 	}
 
@@ -1056,13 +1074,16 @@ void resetStation()
 	if (!SPIflash.eraseChip())
 	{
 		sendError(FLASH_WRITE_ERROR, REPLY_RESET_STATION);
+
 		return;
 	}
 
 	init_package(REPLY_RESET_STATION);
 
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 	delay(100);
 	resetFunc();
@@ -1077,35 +1098,57 @@ void getStatus()
 	// 0: код ошибки
 	init_package(REPLY_GET_STATUS);
 
-	bool flag = true;
-	flag &= addData(OK);
+	if (!addData(OK))
+		return;
 
 	// 1 - 4: текущее время
-	flag &= addData((systemTime.unixtime & 0xFF000000) >> 24);
-	flag &= addData((systemTime.unixtime & 0x00FF0000) >> 16);
-	flag &= addData((systemTime.unixtime & 0x0000FF00) >> 8);
-	flag &= addData(systemTime.unixtime & 0x000000FF);
+	if (!addData((systemTime.unixtime & 0xFF000000) >> 24))
+		return;
+
+	if (!addData((systemTime.unixtime & 0x00FF0000) >> 16))
+		return;
+
+	if (!addData((systemTime.unixtime & 0x0000FF00) >> 8))
+		return;
+
+	if (!addData(systemTime.unixtime & 0x000000FF))
+		return;
 
 	// 5 - 6 : количество отметок на станции
-	flag &= addData((totalChipsChecked & 0xFF00) >> 8);
-	flag &= addData(totalChipsChecked & 0x00FF);
+	if (!addData((totalChipsChecked & 0xFF00) >> 8))
+		return;
+
+	if (!addData(totalChipsChecked & 0x00FF))
+		return;
 
 	// 7 - 10 : время последней отметки на станции
-	flag &= addData((lastTimeChecked & 0xFF000000) >> 24);
-	flag &= addData((lastTimeChecked & 0x00FF0000) >> 16);
-	flag &= addData((lastTimeChecked & 0x0000FF00) >> 8);
-	flag &= addData(lastTimeChecked & 0x000000FF);
+	if (!addData((lastTimeChecked & 0xFF000000) >> 24))
+		return;
+
+	if (!addData((lastTimeChecked & 0x00FF0000) >> 16))
+		return;
+
+	if (!addData((lastTimeChecked & 0x0000FF00) >> 8))
+		return;
+
+	if (!addData(lastTimeChecked & 0x000000FF))
+		return;
 
 	// 11 - 12 : напряжение батареи в условных единицах[0..1023] ~[0..1.1В]
-	flag &= addData((batteryLevel & 0xFF00) >> 8);
-	flag &= addData(batteryLevel & 0x00FF);
+	if (!addData((batteryLevel & 0xFF00) >> 8))
+		return;
+
+	if (!addData(batteryLevel & 0x00FF))
+		return;
 
 	// 13 - 14 : температура чипа DS3231(чуть выше окружающей среды)
 	int temperature = int(DS3231_get_treg());
-	flag &= addData((temperature & 0xFF00) >> 8);
-	flag &= addData(temperature & 0x00FF);
+	if (!addData((temperature & 0xFF00) >> 8))
+		return;
 
-	if (!flag) return;
+	if (!addData(temperature & 0x00FF))
+		return;
+
 	sendData();
 }
 
@@ -1124,6 +1167,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(NO_CHIP, REPLY_INIT_CHIP);
+
 		return;
 	}
 	// Select one of the cards
@@ -1132,6 +1176,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1141,6 +1186,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1150,6 +1196,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(WRONG_CHIP_TYPE, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1166,6 +1213,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(LOW_INIT_TIME, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1178,6 +1226,7 @@ void initChip()
 			SpiEnd();
 			digitalWrite(GREEN_LED_PIN, LOW);
 			sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
+
 			return;
 		}
 	}
@@ -1196,6 +1245,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1209,6 +1259,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1222,6 +1273,7 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_INIT_CHIP);
+
 		return;
 	}
 
@@ -1231,27 +1283,36 @@ void initChip()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_INIT_CHIP);
+
 		return;
 	}
 	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 
 	init_package(REPLY_INIT_CHIP);
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
-	// добавляем в ответ время инициализации
-	bool flag = true;
-	flag &= addData((systemTime.unixtime & 0xFF000000) >> 24);
-	flag &= addData((systemTime.unixtime & 0x00FF0000) >> 16);
-	flag &= addData((systemTime.unixtime & 0x0000FF00) >> 8);
-	flag &= addData(systemTime.unixtime & 0x000000FF);
-	if (!flag) return;
+	// добавляем в ответ время инициализации	
+	if (!addData((systemTime.unixtime & 0xFF000000) >> 24))
+		return;
+
+	if (!addData((systemTime.unixtime & 0x00FF0000) >> 16))
+		return;
+
+	if (!addData((systemTime.unixtime & 0x0000FF00) >> 8))
+		return;
+
+	if (!addData(systemTime.unixtime & 0x000000FF))
+		return;
 
 	// добавляем в ответ UID
 	for (uint8_t i = 0; i <= 7; i++)
 	{
-		if (!addData(ntag_page[i])) return;
+		if (!addData(ntag_page[i]))
+			return;
 	}
+
 	sendData();
 }
 
@@ -1261,19 +1322,24 @@ void getLastTeams()
 	init_package(REPLY_GET_LAST_TEAMS);
 
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	// номера последних команд
 	for (uint8_t i = 0; i < LAST_TEAMS_LENGTH * 2; i++)
 	{
 		//stop if command is empty
 		// if (lastTeams[i] + lastTeams[i + 1] == 0) break;
-		if (!addData(lastTeams[i])) return;
+		if (!addData(lastTeams[i]))
+			return;
+
 		i++;
-		if (!addData(lastTeams[i])) return;
+		if (!addData(lastTeams[i]))
+			return;
 	}
 	sendData();
-	for (uint8_t i = 0; i < LAST_TEAMS_LENGTH * 2; i++) lastTeams[i] = 0;
+	for (uint8_t i = 0; i < LAST_TEAMS_LENGTH * 2; i++)
+		lastTeams[i] = 0;
 }
 
 // получаем запись о команде из флэша
@@ -1287,17 +1353,20 @@ void getTeamRecord()
 	if (recordNumber < 1 || recordNumber > maxTeamNumber)
 	{
 		sendError(WRONG_TEAM, REPLY_GET_TEAM_RECORD);
+
 		return;
 	}
 
 	init_package(REPLY_GET_TEAM_RECORD);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	// если ячейка лога пуста
 	if (!readTeamFromFlash(recordNumber))
 	{
 		sendError(NO_DATA, REPLY_GET_TEAM_RECORD);
+
 		return;
 	}
 
@@ -1308,8 +1377,10 @@ void getTeamRecord()
 	// 13: счетчик сохраненных страниц
 	for (uint8_t i = 0; i < 13; i++)
 	{
-		if (!addData(ntag_page[i])) return;
+		if (!addData(ntag_page[i]))
+			return;
 	}
+
 	sendData();
 }
 
@@ -1325,6 +1396,7 @@ void readCardPages()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(NO_CHIP, REPLY_READ_CARD_PAGE);
+
 		return;
 	}
 	// Select one of the cards
@@ -1333,6 +1405,7 @@ void readCardPages()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_READ_CARD_PAGE);
+
 		return;
 	}
 
@@ -1348,6 +1421,7 @@ void readCardPages()
 	{
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
+
 		return;
 	}
 
@@ -1357,6 +1431,7 @@ void readCardPages()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_READ_CARD_PAGE);
+
 		return;
 	}
 
@@ -1367,6 +1442,7 @@ void readCardPages()
 		{
 			SpiEnd();
 			digitalWrite(GREEN_LED_PIN, LOW);
+
 			return;
 		}
 	}
@@ -1376,6 +1452,7 @@ void readCardPages()
 	{
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
+
 		return;
 	}
 	while (pageFrom <= pageTo)
@@ -1385,10 +1462,14 @@ void readCardPages()
 			SpiEnd();
 			digitalWrite(GREEN_LED_PIN, LOW);
 			sendError(RFID_READ_ERROR, REPLY_READ_CARD_PAGE);
+
 			return;
 		}
+
 		uint8_t n = (pageTo - pageFrom + 1);
-		if (n > 4) n = 4;
+		if (n > 4)
+			n = 4;
+
 		for (uint8_t i = 0; i < n; i++)
 		{
 			for (uint8_t j = 0; j < 4; j++)
@@ -1397,12 +1478,15 @@ void readCardPages()
 				{
 					SpiEnd();
 					digitalWrite(GREEN_LED_PIN, LOW);
+
 					return;
 				}
 			}
+
 			pageFrom++;
 		}
 	}
+
 	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 
@@ -1422,7 +1506,9 @@ void updateTeamMask()
 
 	init_package(REPLY_UPDATE_TEAM_MASK);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 
 	if (stationMode != MODE_INIT)
@@ -1437,6 +1523,7 @@ void updateTeamMask()
 		SpiEnd();
 		lastTeamFlag = 0;
 		sendError(NO_CHIP, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 #ifdef DEBUG
@@ -1451,6 +1538,7 @@ void updateTeamMask()
 #ifdef DEBUG
 		Serial.println(F("!!!fail to select card"));
 #endif
+
 		return;
 	}
 
@@ -1459,6 +1547,7 @@ void updateTeamMask()
 	{
 		SpiEnd();
 		sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 
@@ -1470,6 +1559,7 @@ void updateTeamMask()
 		Serial.println(F("!!!incorrect chip"));
 #endif
 		sendError(WRONG_CHIP_TYPE, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 
@@ -1487,6 +1577,7 @@ void updateTeamMask()
 	{
 		SpiEnd();
 		sendError(RFID_READ_ERROR, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 
@@ -1498,6 +1589,7 @@ void updateTeamMask()
 			Serial.println(F("!!!incorrect chip"));
 #endif
 			sendError(WRONG_CHIP_TYPE, REPLY_UPDATE_TEAM_MASK);
+
 			return;
 		}*/
 
@@ -1509,6 +1601,7 @@ void updateTeamMask()
 		Serial.println(F("!!!incorrect fw"));
 #endif
 		sendError(WRONG_FW_VERSION, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 
@@ -1527,6 +1620,7 @@ void updateTeamMask()
 		Serial.println(F("!!!outdated chip"));
 #endif
 		sendError(LOW_INIT_TIME, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 
@@ -1541,6 +1635,7 @@ void updateTeamMask()
 		Serial.println(String(chipNum));
 #endif
 		sendError(WRONG_TEAM, REPLY_UPDATE_TEAM_MASK);
+
 		return;
 	}
 
@@ -1568,9 +1663,11 @@ void updateTeamMask()
 				SpiEnd();
 				digitalWrite(GREEN_LED_PIN, LOW);
 				sendError(RFID_WRITE_ERROR, REPLY_UPDATE_TEAM_MASK);
+
 				return;
 			}
-		}
+	}
+
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		clearNewMask();
@@ -1591,6 +1688,7 @@ void writeCardPage()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(NO_CHIP, REPLY_WRITE_CARD_PAGE);
+
 		return;
 	}
 
@@ -1600,6 +1698,7 @@ void writeCardPage()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_WRITE_CARD_PAGE);
+
 		return;
 	}
 
@@ -1613,23 +1712,19 @@ void writeCardPage()
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_READ_ERROR, REPLY_WRITE_CARD_PAGE);
+
 		return;
 	}
-	bool flag = false;
 	for (uint8_t i = 0; i <= 7; i++)
 	{
 		if (uartBuffer[DATA_START_BYTE + i] != 0xff && ntag_page[i] != uartBuffer[DATA_START_BYTE + i])
 		{
-			flag = true;
-			break;
+			SpiEnd();
+			digitalWrite(GREEN_LED_PIN, LOW);
+			sendError(WRONG_UID, REPLY_WRITE_CARD_PAGE);
+
+			return;
 		}
-	}
-	if (flag)
-	{
-		SpiEnd();
-		digitalWrite(GREEN_LED_PIN, LOW);
-		sendError(WRONG_UID, REPLY_WRITE_CARD_PAGE);
-		return;
 	}
 
 	// записать страницу
@@ -1640,20 +1735,25 @@ void writeCardPage()
 		uartBuffer[DATA_START_BYTE + 11],
 		uartBuffer[DATA_START_BYTE + 12]
 	};
+
 	if (!ntagWritePage(dataBlock, uartBuffer[DATA_START_BYTE + 8]))
 	{
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(RFID_WRITE_ERROR, REPLY_WRITE_CARD_PAGE);
+
 		return;
 	}
+
 	SpiEnd();
 	digitalWrite(GREEN_LED_PIN, LOW);
 
 	init_package(REPLY_WRITE_CARD_PAGE);
 
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 }
 
@@ -1661,7 +1761,6 @@ void writeCardPage()
 void readFlash()
 {
 	// 0-3: адрес начала чтения
-	// 4: размер блока
 	uint32_t startAddress = uartBuffer[DATA_START_BYTE];
 	startAddress <<= 8;
 	startAddress += uartBuffer[DATA_START_BYTE + 1];
@@ -1670,10 +1769,14 @@ void readFlash()
 	startAddress <<= 8;
 	startAddress += uartBuffer[DATA_START_BYTE + 3];
 
-	uint32_t length = uint32_t(uint32_t(uint32_t(uartBuffer[DATA_START_BYTE + 4]) * uint32_t(256)) + uint32_t(uartBuffer[DATA_START_BYTE + 5]));
-	if (length > uint32_t(uint32_t(MAX_PAKET_LENGTH) - 7 - 5 - 1))
+	// 4-5: размер блока
+	uint32_t length = uint32_t(uint32_t(uint32_t(uartBuffer[DATA_START_BYTE + 4]) * uint32_t(256))
+		+ uint32_t(uartBuffer[DATA_START_BYTE + 5]));
+
+	if (length > uint32_t(uint32_t(MAX_PAKET_LENGTH) - 7 - uint32_t(DATA_LENGTH_READ_FLASH) - 1))
 	{
 		sendError(FLASH_WRITE_ERROR, REPLY_WRITE_FLASH);
+
 		return;
 	}
 
@@ -1689,18 +1792,26 @@ void readFlash()
 	// 0: код ошибки
 	// 1-4: адрес начала чтения
 	// 5-n: данные из флэша
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 #ifdef DEBUG
 	Serial.print(F("!!!OK "));
 	Serial.println(String(uartBufferPosition));
 #endif
 
-	bool flag = true;
-	flag &= addData((startAddress & 0xFF000000) >> 24);
-	flag &= addData((startAddress & 0x00FF0000) >> 16);
-	flag &= addData((startAddress & 0x0000FF00) >> 8);
-	flag &= addData(startAddress & 0x000000FF);
-	if (!flag) return;
+	if (!addData((startAddress & 0xFF000000) >> 24))
+		return;
+
+	if (!addData((startAddress & 0x00FF0000) >> 16))
+		return;
+
+	if (!addData((startAddress & 0x0000FF00) >> 8))
+		return;
+
+	if (!addData(startAddress & 0x000000FF))
+		return;
+
 #ifdef DEBUG
 	//Serial.print(F("!!!address "));
 	//Serial.println(String(uartBufferPosition));
@@ -1709,7 +1820,8 @@ void readFlash()
 	for (uint32_t i = startAddress; i < uint32_t(startAddress + length); i++)
 	{
 		uint8_t b = SPIflash.readByte(i);
-		if (!addData(b)) return;
+		if (!addData(b))
+			return;
 
 #ifdef DEBUG
 		Serial.print(String(i));
@@ -1742,14 +1854,20 @@ void writeFlash()
 	if (!SPIflash.writeByteArray(startAddress, &uartBuffer[DATA_START_BYTE + 4], length))
 	{
 		sendError(FLASH_WRITE_ERROR, REPLY_WRITE_FLASH);
+
 		return;
 	}
 
 	// 0: код ошибки
 	// 1-2: кол-во записанных байт (для проверки)
-	if (!addData(OK)) return;
-	if (!addData(length >> 8)) return;
-	if (!addData(length & 0x00ff)) return;
+	if (!addData(OK))
+		return;
+
+	if (!addData(length >> 8))
+		return;
+
+	if (!addData(length & 0x00ff))
+		return;
 
 	sendData();
 }
@@ -1768,12 +1886,15 @@ void eraseTeamFlash()
 	if (!eraseTeamFromFlash(teamNumber))
 	{
 		sendError(ERASE_ERROR, REPLY_ERASE_FLASH_SECTOR);
+
 		return;
 	}
 
 	init_package(REPLY_ERASE_FLASH_SECTOR);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 }
 
@@ -1791,45 +1912,81 @@ void getConfig()
 	// 17-18: размер блока хранения команды
 	init_package(REPLY_GET_CONFIG);
 
-	bool flag = true;
-	flag &= addData(OK);
-	flag &= addData(FW_VERSION);
-	flag &= addData(stationMode);
-	flag &= addData(ntagMark);
+	if (!addData(OK))
+		return;
+
+	if (!addData(FW_VERSION))
+		return;
+
+	if (!addData(stationMode))
+		return;
+
+	if (!addData(ntagMark))
+		return;
 
 	uint32_t n = SPIflash.getCapacity();
-	flag &= addData((n & 0xFF000000) >> 24);
-	flag &= addData((n & 0x00FF0000) >> 16);
-	flag &= addData((n & 0x0000FF00) >> 8);
-	flag &= addData(n & 0x000000FF);
+	if (!addData((n & 0xFF000000) >> 24))
+		return;
+
+	if (!addData((n & 0x00FF0000) >> 16))
+		return;
+
+	if (!addData((n & 0x0000FF00) >> 8))
+		return;
+
+	if (!addData(n & 0x000000FF))
+		return;
 
 	uint8_t v[4];
 	floatToByte(v, voltageCoeff);
-	flag &= addData(v[0]);
-	flag &= addData(v[1]);
-	flag &= addData(v[2]);
-	flag &= addData(v[3]);
+	if (!addData(v[0]))
+		return;
 
-	flag &= addData(gainCoeff);
+	if (!addData(v[1]))
+		return;
 
-	flag &= addData(teamFlashSize >> 8);
-	flag &= addData(teamFlashSize & 0x00FF);
+	if (!addData(v[2]))
+		return;
 
-	flag &= addData(flashBlockSize >> 8);
-	flag &= addData(flashBlockSize & 0x00FF);
+	if (!addData(v[3]))
+		return;
+
+	if (!addData(gainCoeff))
+		return;
+
+	if (!addData(teamFlashSize >> 8))
+		return;
+
+	if (!addData(teamFlashSize & 0x00FF))
+		return;
+
+	if (!addData(flashBlockSize >> 8))
+		return;
+
+	if (!addData(flashBlockSize & 0x00FF))
+		return;
 
 	floatToByte(v, batteryLimit);
-	flag &= addData(v[0]);
-	flag &= addData(v[1]);
-	flag &= addData(v[2]);
-	flag &= addData(v[3]);
+	if (!addData(v[0]))
+		return;
 
-	flag &= addData(MAX_PAKET_LENGTH >> 8);
-	flag &= addData(MAX_PAKET_LENGTH & 0x00FF);
+	if (!addData(v[1]))
+		return;
 
-	flag &= addData(scanAutoreport);
+	if (!addData(v[2]))
+		return;
 
-	if (!flag) return;
+	if (!addData(v[3]))
+		return;
+
+	if (!addData(MAX_PAKET_LENGTH >> 8))
+		return;
+
+	if (!addData(MAX_PAKET_LENGTH & 0x00FF))
+		return;
+
+	if (!addData(scanAutoreport))
+		return;
 
 	sendData();
 }
@@ -1838,7 +1995,7 @@ void getConfig()
 void setVCoeff()
 {
 	// 0-3: коэфф.
-	union Convert
+	union convert
 	{
 		float number;
 		uint8_t byte[4];
@@ -1850,6 +2007,7 @@ void setVCoeff()
 		if (!eepromwrite(EEPROM_VOLTAGE_KOEFF + i * 3, uartBuffer[DATA_START_BYTE + i]))
 		{
 			sendError(EEPROM_WRITE_ERROR, REPLY_SET_V_KOEFF);
+
 			return;
 		}
 	}
@@ -1858,7 +2016,8 @@ void setVCoeff()
 	init_package(REPLY_SET_V_KOEFF);
 	// 0: код ошибки
 	// 1...: данные из флэша
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -1871,12 +2030,14 @@ void setGain()
 	if (!eepromwrite(EEPROM_GAIN, gainCoeff))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_GAIN);
+
 		return;
 	}
 
 	init_package(REPLY_SET_GAIN);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -1890,17 +2051,20 @@ void setChipType()
 	if (!selectChipType(chipType))
 	{
 		sendError(WRONG_CHIP_TYPE, REPLY_SET_CHIP_TYPE);
+
 		return;
 	}
 	if (!eepromwrite(EEPROM_CHIP_TYPE, chipType))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_CHIP_TYPE);
+
 		return;
 	}
 
 	init_package(REPLY_SET_CHIP_TYPE);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -1914,6 +2078,7 @@ void setTeamFlashSize()
 	if (n < 16)
 	{
 		sendError(WRONG_SIZE, REPLY_SET_TEAM_FLASH_SIZE);
+
 		return;
 	}
 	teamFlashSize = n;
@@ -1921,17 +2086,20 @@ void setTeamFlashSize()
 	if (!eepromwrite(EEPROM_TEAM_BLOCK_SIZE, uartBuffer[DATA_START_BYTE]))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_TEAM_FLASH_SIZE);
+
 		return;
 	}
 	if (!eepromwrite(EEPROM_TEAM_BLOCK_SIZE + 3, uartBuffer[DATA_START_BYTE + 1]))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_TEAM_FLASH_SIZE);
+
 		return;
 	}
 
 	init_package(REPLY_SET_TEAM_FLASH_SIZE);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -1945,6 +2113,7 @@ void setFlashBlockSize()
 	if (n < 16)
 	{
 		sendError(WRONG_SIZE, REPLY_SET_FLASH_BLOCK_SIZE);
+
 		return;
 	}
 	flashBlockSize = n;
@@ -1952,17 +2121,21 @@ void setFlashBlockSize()
 	if (!eepromwrite(EEPROM_FLASH_BLOCK_SIZE, uartBuffer[DATA_START_BYTE]))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_FLASH_BLOCK_SIZE);
+
 		return;
 	}
+
 	if (!eepromwrite(EEPROM_FLASH_BLOCK_SIZE + 3, uartBuffer[DATA_START_BYTE + 1]))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_FLASH_BLOCK_SIZE);
+
 		return;
 	}
 
 	init_package(REPLY_SET_FLASH_BLOCK_SIZE);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -1977,6 +2150,7 @@ void setBtName()
 	if (data_length < 1 || data_length>32)
 	{
 		sendError(WRONG_DATA, REPLY_SET_BT_NAME);
+
 		return;
 	}
 
@@ -2005,13 +2179,16 @@ void setBtName()
 		if (reply.length() < 6 || reply.length() > 256 - 9 || (reply[0] != '+' || reply[1] != 'N' || reply[2] != 'A' || reply[3] != 'M' || reply[4] != 'E' || reply[5] != '='))
 		{
 			sendError(BT_ERROR, REPLY_SET_BT_NAME);
+
 			return;
 		}
 	}
 
 	init_package(REPLY_SET_BT_NAME);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 }
 
@@ -2026,6 +2203,7 @@ void setBtPinCode()
 	if (data_length < 1 || data_length>16)
 	{
 		sendError(WRONG_DATA, REPLY_SET_BT_PIN);
+
 		return;
 	}
 	String btCommand;
@@ -2064,6 +2242,7 @@ void setBtPinCode()
 			if (reply.length() < 5 || reply.length() > 256 - 9 || (reply[0] != '+' || reply[1] != 'P' || reply[2] != 'I' || reply[3] != 'N' || reply[4] != '='))
 			{
 				sendError(BT_ERROR, REPLY_SET_BT_PIN);
+
 				return;
 			}
 		}
@@ -2071,7 +2250,8 @@ void setBtPinCode()
 
 	init_package(REPLY_SET_BT_PIN);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -2080,7 +2260,7 @@ void setBtPinCode()
 void setBatteryLimit()
 {
 	// 0-3: коэфф.
-	union Convert
+	union convert
 	{
 		float number;
 		uint8_t byte[4];
@@ -2092,6 +2272,7 @@ void setBatteryLimit()
 		if (!eepromwrite(EEPROM_BATTERY_LIMIT + i * 3, uartBuffer[DATA_START_BYTE + i]))
 		{
 			sendError(EEPROM_WRITE_ERROR, REPLY_SET_BATTERY_LIMIT);
+
 			return;
 		}
 	}
@@ -2100,7 +2281,8 @@ void setBatteryLimit()
 	init_package(REPLY_SET_BATTERY_LIMIT);
 	// 0: код ошибки
 	// 1...: данные из флэша
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	sendData();
 }
@@ -2122,12 +2304,14 @@ void scanTeams()
 	if (startNumber < 1 || startNumber > maxTeamNumber)
 	{
 		sendError(WRONG_DATA, REPLY_SCAN_TEAMS);
+
 		return;
 	}
 
 	init_package(REPLY_SCAN_TEAMS);
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	// 1...: список команд
 	uint8_t data[2];
@@ -2143,8 +2327,8 @@ void scanTeams()
 		if (!SPIflash.readByteArray(addr, data, 2))
 		{
 			sendError(FLASH_READ_ERROR, REPLY_SCAN_TEAMS);
-			return;
 
+			return;
 		}
 		if (data[0] != 0xff && data[1] != 0xff)
 		{
@@ -2152,8 +2336,11 @@ void scanTeams()
 			Serial.print(F("!!!Found "));
 			Serial.println(String(startNumber));
 #endif
-			if (!addData(data[0])) return;
-			if (!addData(data[1])) return;
+			if (!addData(data[0]))
+				return;
+
+			if (!addData(data[1]))
+				return;
 		}
 		if (uartBufferPosition > MAX_PAKET_LENGTH - 10) break;
 	}
@@ -2163,8 +2350,11 @@ void scanTeams()
 // отправить команду в BT-модуль
 void sendBtCommand()
 {
+	uint16_t data_length = uint16_t(uint16_t(uartBuffer[DATA_LENGTH_HIGH_BYTE]) * uint16_t(256)
+		+ uint16_t(uartBuffer[DATA_LENGTH_LOW_BYTE]));
+
 	String btCommand;
-	uint16_t data_length = uint16_t(uint16_t(uartBuffer[DATA_LENGTH_HIGH_BYTE]) * uint16_t(256) + uint16_t(uartBuffer[DATA_LENGTH_LOW_BYTE]));
+	btCommand.reserve(data_length + 2);
 
 	btCommand.reserve(data_length);
 	for (uint16_t i = 0; i < data_length; i++)
@@ -2181,11 +2371,13 @@ void sendBtCommand()
 
 	init_package(REPLY_SEND_BT_COMMAND);
 
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	for (uint8_t i = 0; i < reply.length(); i++)
 	{
-		if (!addData(reply[i])) return;
+		if (!addData(reply[i]))
+			return;
 	}
 
 	sendData();
@@ -2197,17 +2389,22 @@ void getLastErrors()
 	init_package(REPLY_GET_LAST_ERRORS);
 
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
 
 	// номера последних ошибок
 	uint8_t i = 0;
-	while (lastErrors[i] != 0 && i < LAST_TEAMS_LENGTH)
+	while (lastErrors[i] != 0 && i < LAST_ERRORS_LENGTH)
 	{
-		if (!addData(lastErrors[i])) return;
+		if (!addData(lastErrors[i]))
+			return;
+
 		i++;
 	}
+
 	sendData();
-	for (i = 0; i < LAST_TEAMS_LENGTH; i++) lastErrors[i] = 0;
+	for (i = 0; i < LAST_ERRORS_LENGTH; i++)
+		lastErrors[i] = 0;
 }
 
 // установка режима автоответа
@@ -2218,6 +2415,7 @@ void setAutoReport()
 	if (!eepromwrite(EEPROM_AUTOREPORT, scanAutoreport))
 	{
 		sendError(EEPROM_WRITE_ERROR, REPLY_SET_AUTOREPORT);
+
 		return;
 	}
 
@@ -2225,7 +2423,9 @@ void setAutoReport()
 	init_package(REPLY_SET_AUTOREPORT);
 
 	// 0: код ошибки
-	if (!addData(OK)) return;
+	if (!addData(OK))
+		return;
+
 	sendData();
 }
 
@@ -2240,11 +2440,11 @@ String sendCommandToBt(String btCommand, uint8_t length)
 	String result = "";
 	result.reserve(250);
 	while (Serial.available())
-	{
 		result += (char)Serial.read();
-	}
+
 	digitalWrite(BT_COMMAND_ENABLE, LOW);
 	delay(200);
+
 	return result;
 }
 
@@ -2265,15 +2465,14 @@ void saveNewMask()
 #ifdef DEBUG
 	Serial.println();
 #endif
-}
+	}
 
 // очистить буфер смены маски
 void clearNewMask()
 {
 	for (uint8_t i = 0; i < 8; i++)
-	{
 		newTeamMask[i] = 0;
-	}
+
 #ifdef DEBUG
 	Serial.print(F("!!!Mask cleared: "));
 #endif
@@ -2290,6 +2489,7 @@ uint16_t getBatteryLevel()
 		AverageValue = (AverageValue + val) / 2;
 		delay(5);
 	}
+
 	return AverageValue;
 }
 
@@ -2299,8 +2499,10 @@ bool eepromwrite(uint16_t adr, uint8_t val)
 	for (uint8_t i = 0; i < 3; i++)
 	{
 		EEPROM.write(adr + i, val);
-		if (EEPROM.read(adr + i) != val) return false;
+		if (EEPROM.read(adr + i) != val)
+			return false;
 	}
+
 	return true;
 }
 
@@ -2313,21 +2515,14 @@ int eepromread(uint16_t adr)
 
 	// возвращаем при совпадении два из трех
 	if (byte1 == byte2 && byte1 == byte3)
-	{
 		return byte1;
-	}
 	if (byte1 == byte2)
-	{
 		return byte1;
-	}
 	if (byte1 == byte3)
-	{
 		return byte1;
-	}
 	if (byte2 == byte3)
-	{
 		return byte2;
-	}
+
 	return -1;
 }
 
@@ -2341,9 +2536,7 @@ void beep(uint8_t n, uint16_t ms)
 		delay(ms);
 		digitalWrite(GREEN_LED_PIN, LOW);
 		if (n - i != 0)
-		{
 			delay(ms);
-		}
 	}
 }
 
@@ -2357,9 +2550,7 @@ void errorBeepMs(uint8_t n, uint16_t ms)
 		delay(ms);
 		digitalWrite(RED_LED_PIN, LOW);
 		if (n - i > 0)
-		{
 			delay(ms);
-		}
 	}
 }
 
@@ -2374,9 +2565,7 @@ void errorBeep(uint8_t n)
 		delay(ms);
 		digitalWrite(RED_LED_PIN, LOW);
 		if (n - i > 0)
-		{
 			delay(ms);
-		}
 	}
 }
 
@@ -2406,8 +2595,10 @@ bool addData(uint8_t data)
 		sendError(BUFFER_OVERFLOW);
 		return false;
 	}
+
 	uartBuffer[uartBufferPosition] = data;
 	uartBufferPosition++;
+
 	return true;
 }
 
@@ -2459,7 +2650,7 @@ bool ntagWritePage(uint8_t* dataBlock, uint8_t pageAdr)
 #endif
 
 		return false;
-	}
+}
 
 	uint8_t buffer[18];
 	uint8_t size = sizeof(buffer);
@@ -2488,7 +2679,7 @@ bool ntagWritePage(uint8_t* dataBlock, uint8_t pageAdr)
 			Serial.println(F("!!!chip verify failed"));
 #endif
 			return false;
-		}
+	}
 	}
 
 	return true;
@@ -2521,12 +2712,13 @@ bool ntagRead4pages(uint8_t pageAdr)
 		Serial.println(F("!!!card read failed"));
 #endif
 		return false;
-	}
+}
 
 	for (uint8_t i = 0; i < 16; i++)
 	{
 		ntag_page[i] = buffer[i];
 	}
+
 	return true;
 }
 
@@ -2540,9 +2732,8 @@ bool writeCheckPointToCard(uint8_t newPage, uint32_t checkTime)
 	dataBlock[3] = (checkTime & 0x000000FF);
 
 	if (!ntagWritePage(dataBlock, newPage))
-	{
 		return false;
-	}
+
 	return true;
 }
 
@@ -2560,7 +2751,7 @@ int findNewPage()
 #endif
 			// chip read error
 			return 0;
-		}
+	}
 		for (uint8_t n = 0; n < 4; n++)
 		{
 			if (stationMode == MODE_START_KP && ntag_page[n * 4] == stationNumber)
@@ -2570,7 +2761,7 @@ int findNewPage()
 #endif
 				// chip was checked by another station with the same number
 				return -1;
-			}
+		}
 			if (ntag_page[n * 4] == 0 ||
 				(stationMode == MODE_FINISH_KP && ntag_page[n * 4] == stationNumber))
 			{
@@ -2578,8 +2769,9 @@ int findNewPage()
 				return page;
 			}
 			page++;
-		}
+}
 	}
+
 	// чип заполнен
 	return tagMaxPage;
 }
@@ -2609,8 +2801,8 @@ bool writeDumpToFlash(uint16_t teamNumber, uint32_t checkTime, uint32_t initTime
 				Serial.println(F("!!!fail to erase"));
 #endif
 				return false;
-			}
-		}
+	}
+}
 		else
 		{
 #ifdef DEBUG
@@ -2681,7 +2873,7 @@ bool writeDumpToFlash(uint16_t teamNumber, uint32_t checkTime, uint32_t initTime
 #endif
 				flag &= SPIflash.writeByteArray(uint32_t(teamFlashAddress + uint32_t(16) + uint32_t(block) * uint32_t(4) + uint32_t(i) * uint32_t(4) + uint32_t(0)), &ntag_page[0 + i * 4], 4);
 				checkCount++;
-			}
+		}
 			else
 			{
 #ifdef DEBUG
@@ -2739,8 +2931,8 @@ bool eraseTeamFromFlash(uint16_t teamNumber)
 #endif
 
 			copyTeam(teamNumber - teamInBlock + i, maxTeamNumber + 1 + i);
-		}
 	}
+}
 
 	// erase sector
 	flag &= SPIflash.eraseSector(eraseBlockFlashAddress);
@@ -2750,9 +2942,7 @@ bool eraseTeamFromFlash(uint16_t teamNumber)
 	{
 		// не копировать перезаписываемую запись
 		if (i != teamInBlock)
-		{
 			copyTeam(uint16_t(maxTeamNumber + uint16_t(1) + uint16_t(i)), uint16_t(teamNumber - uint16_t(teamInBlock) + uint16_t(i)));
-		}
 	}
 
 	return flag;
@@ -2790,10 +2980,14 @@ bool copyTeam(uint16_t teamNumberFrom, uint16_t teamNumberTo)
 				flag &= SPIflash.readByteArray(uint32_t(teamFlashAddressFrom + uint32_t(i)), b, bufSize);
 				flag &= SPIflash.writeByteArray(uint32_t(teamFlashAddressTo + uint32_t(i)), b, bufSize);
 			}
-			if (b[bufSize - 4] == 0xff && b[bufSize - 3] == 0xff && b[bufSize - 2] == 0xff && b[bufSize - 1] == 0xff) break;
-			else i += bufSize;
+
+			if (b[bufSize - 4] == 0xff && b[bufSize - 3] == 0xff && b[bufSize - 2] == 0xff && b[bufSize - 1] == 0xff)
+				break;
+			else
+				i += bufSize;
 		}
 	}
+
 	return flag;
 }
 
@@ -2802,7 +2996,8 @@ bool readTeamFromFlash(uint16_t recordNum)
 {
 	const uint32_t addr = uint32_t(uint32_t(recordNum) * uint32_t(teamFlashSize));
 
-	if (SPIflash.readWord(addr) == 0xffff) return false;
+	if (SPIflash.readWord(addr) == 0xffff)
+		return false;
 
 	// #команды
 	// время инициализации
@@ -2810,6 +3005,7 @@ bool readTeamFromFlash(uint16_t recordNum)
 	// время отметки
 	// счетчик страниц на чипе
 	SPIflash.readByteArray(addr, ntag_page, 13);
+
 	return true;
 }
 
@@ -2830,8 +3026,10 @@ uint16_t refreshChipCounter()
 		if (!SPIflash.readByteArray(addr, data, 2))
 		{
 			sendError(FLASH_READ_ERROR, REPLY_SCAN_TEAMS);
+
 			return chips;
 		}
+
 		if (data[0] != 0xff && data[1] != 0xff)
 		{
 			chips++;
@@ -2852,15 +3050,16 @@ uint16_t refreshChipCounter()
 			Serial.print(String(i));
 			Serial.print(F(", "));
 #endif
-		}
+			}
 	}
 #ifdef DEBUG
 	Serial.println();
 	Serial.print(F("!!!checked chip counter="));
 	Serial.println(String(chips));
 #endif
+
 	return chips;
-}
+		}
 
 // обработка ошибок. формирование пакета с сообщением о ошибке
 void sendError(uint8_t errorCode, uint8_t commandCode)
@@ -2883,25 +3082,28 @@ void sendError(uint8_t errorCode)
 void addLastTeam(uint16_t teamNumber, bool already_checked)
 {
 	// фильтровать дубли
-	if (lastTeams[0] == uint8_t(teamNumber >> 8) && lastTeams[1] == uint8_t(teamNumber)) return;
+	if (lastTeams[0] == uint8_t(teamNumber >> 8) && lastTeams[1] == uint8_t(teamNumber))
+		return;
 
 	for (uint8_t i = LAST_TEAMS_LENGTH * 2 - 1; i > 1; i = i - 2)
 	{
 		lastTeams[i] = lastTeams[i - 2];
 		lastTeams[i - 1] = lastTeams[i - 3];
 	}
+
 	lastTeams[0] = uint8_t(teamNumber >> 8);
 	lastTeams[1] = uint8_t(teamNumber);
-	if (!already_checked) totalChipsChecked++;
+
+	if (!already_checked)
+		totalChipsChecked++;
 }
 
 // добавляем код ошибки в буфер последних ошибок
 void addLastError(uint8_t errorCode)
 {
-	for (uint8_t i = LAST_TEAMS_LENGTH - 1; i > 0; i--)
-	{
+	for (uint8_t i = LAST_ERRORS_LENGTH - 1; i > 0; i--)
 		lastErrors[i] = lastErrors[i - 1];
-	}
+
 	lastErrors[0] = errorCode;
 }
 
@@ -2919,21 +3121,21 @@ uint8_t crcCalc(uint8_t* dataArray, uint16_t dataStart, uint16_t dataEnd)
 			{
 				crc ^= 0x8C;
 			}
+
 			tmpByte >>= 1;
 		}
+
 		dataStart++;
 	}
+
 	return crc;
 }
 
 void floatToByte(uint8_t* bytes, float f)
 {
 	uint16_t length = sizeof(float);
-
 	for (uint16_t i = 0; i < length; i++)
-	{
 		bytes[i] = ((uint8_t*)&f)[i];
-	}
 }
 
 // check chip type consistence
@@ -2957,6 +3159,51 @@ bool selectChipType(uint8_t type)
 		ntagMark = NTAG215_MARK;
 		tagMaxPage = NTAG215_MAX_PAGE;
 	}
-	else return false;
+	else
+		return false;
+
 	return true;
+}
+
+void checkBatteryLevel()
+{
+	batteryLevel = (batteryLevel + getBatteryLevel()) / 2;
+	if ((float)((float)batteryLevel * voltageCoeff) <= batteryLimit)
+	{
+		if (batteryAlarmCount > 100)
+		{
+			addLastError(POWER_UNDERVOLTAGE);
+			digitalWrite(RED_LED_PIN, HIGH);
+			tone(BUZZER_PIN, 50, 50);
+			delay(50);
+			digitalWrite(RED_LED_PIN, LOW);
+		}
+		else
+			batteryAlarmCount++;
+	}
+	else
+		batteryAlarmCount = 0;
+}
+
+void checkClockIsRunning()
+{
+	if (millis() > nextClockCheck)
+	{
+		uint32_t diffSystemClock = (millis() - lastSystemClock) / 1000;
+
+		struct ts systemTime;
+		DS3231_get(&systemTime);
+		uint32_t diffExternalClock = systemTime.unixtime - lastExternalClock;
+
+		if (abs(diffSystemClock - diffExternalClock) > 2)
+		{
+			addLastError(CLOCK_ERROR);
+			digitalWrite(RED_LED_PIN, HIGH);
+			tone(BUZZER_PIN, 50, 50);
+			delay(50);
+			digitalWrite(RED_LED_PIN, LOW);
+		}
+
+		nextClockCheck = millis() + 10000;
+	}
 }

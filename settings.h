@@ -1,6 +1,6 @@
 #pragma once
 // версия прошивки, номер пишется в чипы
-#define FW_VERSION        109
+#define FW_VERSION        110
 
 #define UART_SPEED        38400
 
@@ -31,3 +31,6 @@
 
 // размер буфера последних команд
 #define LAST_TEAMS_LENGTH 10
+
+// размер буфера последних команд
+#define LAST_ERRORS_LENGTH 10

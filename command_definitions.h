@@ -118,3 +118,4 @@
 #define EEPROM_WRITE_ERROR               22
 #define BT_ERROR                         23
 #define PACKET_LENGTH                    24
+#define EEPROM_SET_TIME_ERROR            25
