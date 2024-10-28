@@ -530,7 +530,7 @@ void processRfidCard()
 #endif
 		SpiEnd();
 		return;
-}
+	}
 
 	bool already_checked = false;
 	// сравнить с буфером последних команд
@@ -705,7 +705,7 @@ bool readUart()
 			uartBufferPosition = 0;
 			receivingData = false;
 			return false;
-	}
+		}
 
 		// 0 byte = FE
 		if (uartBufferPosition == HEADER_BYTE && c == 0xfe)
@@ -720,7 +720,7 @@ bool readUart()
 			uartBufferPosition++;
 			// refresh timeout
 			receiveStartTime = millis();
-}
+		}
 		// 1st byte = ID, Station number, Command, Length and Data
 		else if (receivingData)
 		{
@@ -744,7 +744,7 @@ bool readUart()
 				addLastError(UART_PACKET_LENGTH);
 				sendError(PACKET_LENGTH, uartBuffer[COMMAND_BYTE] + 0x10);
 				return false;
-		}
+			}
 
 			// packet is received
 			if (uartBufferPosition > DATA_LENGTH_LOW_BYTE && uartBufferPosition >= uint32_t(uint32_t(DATA_START_BYTE) + uint32_t(uint32_t(uartBuffer[DATA_LENGTH_HIGH_BYTE]) * uint32_t(256) + uint32_t(uartBuffer[DATA_LENGTH_LOW_BYTE]))))
@@ -768,7 +768,7 @@ bool readUart()
 						addLastError(UART_WRONG_STATION);
 						sendError(WRONG_STATION, uartBuffer[COMMAND_BYTE] + 0x10);
 						return false;
-				}
+					}
 
 
 #ifdef DEBUG
@@ -784,7 +784,7 @@ bool readUart()
 					uartBufferPosition = 0;
 					receivingData = false;
 					return true;
-			}
+				}
 				else // CRC not correct
 				{
 #ifdef DEBUG
@@ -1666,7 +1666,7 @@ void updateTeamMask()
 
 				return;
 			}
-	}
+		}
 
 		SpiEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
@@ -2465,7 +2465,7 @@ void saveNewMask()
 #ifdef DEBUG
 	Serial.println();
 #endif
-	}
+}
 
 // очистить буфер смены маски
 void clearNewMask()
@@ -2529,13 +2529,13 @@ int eepromread(uint16_t adr)
 // сигнал станции, длительность сигнала и задержки в мс и число повторений
 void beep(uint8_t n, uint16_t ms)
 {
-	for (uint8_t i = 0; i < n; i++)
+	for (; n > 0; n--)
 	{
 		digitalWrite(GREEN_LED_PIN, HIGH);
 		tone(BUZZER_PIN, 4000, ms);
 		delay(ms);
 		digitalWrite(GREEN_LED_PIN, LOW);
-		if (n - i != 0)
+		if (n - 1 > 0)
 			delay(ms);
 	}
 }
@@ -2543,13 +2543,13 @@ void beep(uint8_t n, uint16_t ms)
 // сигнал ошибки станции
 void errorBeepMs(uint8_t n, uint16_t ms)
 {
-	for (uint8_t i = 0; i < n; i++)
+	for (; n > 0; n--)
 	{
 		digitalWrite(RED_LED_PIN, HIGH);
 		tone(BUZZER_PIN, 500, ms);
 		delay(ms);
 		digitalWrite(RED_LED_PIN, LOW);
-		if (n - i > 0)
+		if (n - 1 > 0)
 			delay(ms);
 	}
 }
@@ -2558,13 +2558,13 @@ void errorBeepMs(uint8_t n, uint16_t ms)
 void errorBeep(uint8_t n)
 {
 	uint16_t ms = 200;
-	for (uint8_t i = 0; i < n; i++)
+	for (; n > 0; n--)
 	{
 		digitalWrite(RED_LED_PIN, HIGH);
 		tone(BUZZER_PIN, 500, ms);
 		delay(ms);
 		digitalWrite(RED_LED_PIN, LOW);
-		if (n - i > 0)
+		if (n - 1 > 0)
 			delay(ms);
 	}
 }
@@ -2650,7 +2650,7 @@ bool ntagWritePage(uint8_t* dataBlock, uint8_t pageAdr)
 #endif
 
 		return false;
-}
+	}
 
 	uint8_t buffer[18];
 	uint8_t size = sizeof(buffer);
@@ -2679,7 +2679,7 @@ bool ntagWritePage(uint8_t* dataBlock, uint8_t pageAdr)
 			Serial.println(F("!!!chip verify failed"));
 #endif
 			return false;
-	}
+		}
 	}
 
 	return true;
@@ -2712,7 +2712,7 @@ bool ntagRead4pages(uint8_t pageAdr)
 		Serial.println(F("!!!card read failed"));
 #endif
 		return false;
-}
+	}
 
 	for (uint8_t i = 0; i < 16; i++)
 	{
@@ -2751,7 +2751,7 @@ int findNewPage()
 #endif
 			// chip read error
 			return 0;
-	}
+		}
 		for (uint8_t n = 0; n < 4; n++)
 		{
 			if (stationMode == MODE_START_KP && ntag_page[n * 4] == stationNumber)
@@ -2761,7 +2761,7 @@ int findNewPage()
 #endif
 				// chip was checked by another station with the same number
 				return -1;
-		}
+			}
 			if (ntag_page[n * 4] == 0 ||
 				(stationMode == MODE_FINISH_KP && ntag_page[n * 4] == stationNumber))
 			{
@@ -2769,7 +2769,7 @@ int findNewPage()
 				return page;
 			}
 			page++;
-}
+		}
 	}
 
 	// чип заполнен
@@ -2801,8 +2801,8 @@ bool writeDumpToFlash(uint16_t teamNumber, uint32_t checkTime, uint32_t initTime
 				Serial.println(F("!!!fail to erase"));
 #endif
 				return false;
-	}
-}
+			}
+		}
 		else
 		{
 #ifdef DEBUG
@@ -2873,7 +2873,7 @@ bool writeDumpToFlash(uint16_t teamNumber, uint32_t checkTime, uint32_t initTime
 #endif
 				flag &= SPIflash.writeByteArray(uint32_t(teamFlashAddress + uint32_t(16) + uint32_t(block) * uint32_t(4) + uint32_t(i) * uint32_t(4) + uint32_t(0)), &ntag_page[0 + i * 4], 4);
 				checkCount++;
-		}
+			}
 			else
 			{
 #ifdef DEBUG
@@ -2931,8 +2931,8 @@ bool eraseTeamFromFlash(uint16_t teamNumber)
 #endif
 
 			copyTeam(teamNumber - teamInBlock + i, maxTeamNumber + 1 + i);
+		}
 	}
-}
 
 	// erase sector
 	flag &= SPIflash.eraseSector(eraseBlockFlashAddress);
@@ -3050,7 +3050,7 @@ uint16_t refreshChipCounter()
 			Serial.print(String(i));
 			Serial.print(F(", "));
 #endif
-			}
+		}
 	}
 #ifdef DEBUG
 	Serial.println();
@@ -3059,7 +3059,7 @@ uint16_t refreshChipCounter()
 #endif
 
 	return chips;
-		}
+}
 
 // обработка ошибок. формирование пакета с сообщением о ошибке
 void sendError(uint8_t errorCode, uint8_t commandCode)
@@ -3189,21 +3189,24 @@ void checkClockIsRunning()
 {
 	if (millis() > nextClockCheck)
 	{
-		uint32_t diffSystemClock = (millis() - lastSystemClock) / 1000;
+		uint32_t currentMillis = millis();
+		uint32_t diffSystemClock = (currentMillis - lastSystemClock) / 1000;
 
 		struct ts systemTime;
 		DS3231_get(&systemTime);
 		uint32_t diffExternalClock = systemTime.unixtime - lastExternalClock;
 
-		if (abs(diffSystemClock - diffExternalClock) > 2)
+		if (abs(long(diffSystemClock - diffExternalClock)) > 2)
 		{
 			addLastError(CLOCK_ERROR);
 			digitalWrite(RED_LED_PIN, HIGH);
-			tone(BUZZER_PIN, 50, 50);
+			errorBeep(1);
 			delay(50);
 			digitalWrite(RED_LED_PIN, LOW);
 		}
 
-		nextClockCheck = millis() + 10000;
+		lastSystemClock = currentMillis;
+		lastExternalClock = systemTime.unixtime;
+		nextClockCheck = currentMillis + 10000;
 	}
 }
