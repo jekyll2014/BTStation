@@ -54,9 +54,9 @@ namespace RfidStationControl
 
             public static readonly Dictionary<byte, byte> PageSizes = new Dictionary<byte, byte>
             {
-                { 0, 44 },
-                { 1, 134 },
-                { 2, 230 }
+                { 0, 45 },
+                { 1, 135 },
+                { 2, 231 }
             };
             public static readonly Dictionary<byte, ushort> ByteSizes = new Dictionary<byte, ushort>
             {
@@ -105,11 +105,11 @@ namespace RfidStationControl
                 var row = Table.NewRow();
                 row[0] = i.ToString();
                 if (i == 0)
-                    row[1] = "UID0[4]";
+                    row[1] = "UID0[3],CRC0";
                 else if (i == 1)
                     row[1] = "UID1[4]";
                 else if (i == 2)
-                    row[1] = "SN,Int,Lock bytes[2]";
+                    row[1] = "CRC1,Int,Lock bytes[2]";
                 else if (i == 3)
                     row[1] = "CC0,CC1,Size,CC3";
                 else if (i == 4)
@@ -120,6 +120,8 @@ namespace RfidStationControl
                     row[1] = "TeamMask[2],Reserved[2]";
                 else if (i == 7)
                     row[1] = "Reserved[4]";
+                else if (i == chipPagesNumber - 5)
+                    row[1] = "Dyn.lock[3],RFUI";
                 else if (i == chipPagesNumber - 4)
                     row[1] = "MIRROR,RFUI,MIRROR PAGE,AUTH0";
                 else if (i == chipPagesNumber - 3)
