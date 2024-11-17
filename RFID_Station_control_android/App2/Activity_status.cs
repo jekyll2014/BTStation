@@ -162,7 +162,7 @@ namespace RfidStationControl
             {
                 if (!chipsCheckedText.HasFocus)
                 {
-                    byte.TryParse(chipsCheckedText.Text, out var n);
+                    ushort.TryParse(chipsCheckedText.Text, out var n);
                     chipsCheckedText.Text = n.ToString();
                     StatusPageState.CheckedChipsNumber = n;
                 }
