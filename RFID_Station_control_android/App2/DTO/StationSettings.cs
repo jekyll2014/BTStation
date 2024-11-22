@@ -7,14 +7,15 @@ namespace RfidStationControl
         public static byte FwVersion = 0;
         public static byte Number = 0;
         public static byte Mode = 0;
-        public static uint PacketLengthSize = 255;
+        public static ushort MaxPacketLength = 255;
         public static float VoltageCoefficient = 0.00578F;
         public static float BatteryLimit = 3.0F;
         public static byte AntennaGain = 80;
         public static byte ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
         public static uint FlashSize = 1 * 1024 * 1024;
-        public static uint TeamBlockSize = 1024;
-        public static uint EraseBlockSize = 4096;
+        public static ushort TeamBlockSize = 1024;
+        public static ushort EraseBlockSize = 4096;
+        public static bool AutoReport = false;
         public const string BtName = "Sportduino-xx";
         public const string BtPin = "1111";
         public const string BtCommand = "AT";
@@ -22,9 +23,9 @@ namespace RfidStationControl
         //режимы станции
         public static readonly Dictionary<string, byte> StationMode = new Dictionary<string, byte>
         {
-            {"Init" , 0},
-            {"Start" , 1},
-            {"Finish" , 2}
+            {"Init", 0},
+            {"Start", 1},
+            {"Finish", 2}
         };
 
         //усиление антенны

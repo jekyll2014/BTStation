@@ -1,4 +1,5 @@
 ﻿using Android.Bluetooth;
+using Android.Content;
 
 using Java.IO;
 using Java.Util;
@@ -9,7 +10,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Android.Content;
 
 namespace RfidStationControl
 {

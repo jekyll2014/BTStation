@@ -120,18 +120,12 @@ namespace RfidStationControl
                                 Parser = new ProtocolParser(StationSettings.Number);
                             }
 
-                            byte g = 0;
-                            foreach (var x in RfidContainer.ChipTypes.Ids)
-                            {
-                                if (x.Value == replyDetails.ChipTypeId)
-                                {
-                                    StationSettings.ChipType = g;
-
-                                    break;
-                                }
-
-                                g++;
-                            }
+                            if (replyDetails.ChipTypeId == 213)
+                                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
+                            else if (replyDetails.ChipTypeId == 215)
+                                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
+                            else if (replyDetails.ChipTypeId == 216)
+                                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
 
                             if (StationSettings.ChipType != Rfid.ChipType)
                                 Rfid = new RfidContainer(StationSettings.ChipType);
@@ -146,7 +140,7 @@ namespace RfidStationControl
 
                             StationSettings.FlashSize = replyDetails.FlashSize;
 
-                            StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
+                            StationSettings.MaxPacketLength = replyDetails.MaxPacketLength;
 
                             StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
                             if (StationSettings.TeamBlockSize != Flash.TeamDumpSize)

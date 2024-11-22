@@ -7,7 +7,9 @@ namespace RfidStationControl
     {
         public static byte CrcCalc(byte[] data, uint startPos, uint endPos)
         {
-            if (data == null) return 0;
+            if (data == null)
+                return 0;
+
             byte crc = 0x00;
             while (startPos <= endPos)
             {
@@ -21,8 +23,10 @@ namespace RfidStationControl
                     if (sum != 0) crc ^= 0x8C;
                     tmp >>= 1;
                 }
+
                 startPos++;
             }
+
             return crc;
         }
 
@@ -31,7 +35,7 @@ namespace RfidStationControl
             return (b & (1 << bitNumber)) != 0;
         }
 
-        private static long SetBit(long b, byte bitNumber)
+        public static long SetBit(long b, byte bitNumber)
         {
             long v1 = 1 << bitNumber;
             return b | v1;
@@ -41,25 +45,33 @@ namespace RfidStationControl
         {
             if (byteArr == null)
                 return "";
+
             if (length == 0)
                 length = (uint)byteArr.Length;
+
             if (length > byteArr.Length)
                 length = (uint)byteArr.Length;
+
             var hexStr = new StringBuilder();
             for (var i = 0; i < length; i++)
             {
                 hexStr.Append(byteArr[i].ToString("X2"));
                 hexStr.Append(" ");
             }
+
             return hexStr.ToString();
         }
 
         public static string ConvertByteArrayToHex(byte[] byteArr, uint startByte, uint length)
         {
-            if (byteArr == null) return "";
-            if (length == 0 || length > byteArr.Length) length = (uint)byteArr.Length;
+            if (byteArr == null)
+                return "";
+
+            if (length == 0 || length > byteArr.Length)
+                length = (uint)byteArr.Length;
+
             var hexStr = new StringBuilder();
-            var endByte = startByte + length - 1;
+            var endByte = startByte + length;
             for (; startByte < endByte; startByte++)
             {
                 hexStr.Append(byteArr[startByte].ToString("X2"));
@@ -70,24 +82,33 @@ namespace RfidStationControl
 
         public static byte[] ConvertHexToByteArray(string hexString)
         {
+            if (string.IsNullOrEmpty(hexString))
+                return new byte[] { };
+
             hexString = hexString.Replace(" ", "");
-            if (hexString.Length % 2 == 1) hexString += "0";
+            if (hexString.Length % 2 == 1)
+                hexString += "0";
+
             var byteValue = new byte[hexString.Length / 2];
             var i = 0;
             while (hexString.Length > 1)
             {
                 byteValue[i] = Convert.ToByte(Convert.ToUInt32(hexString.Substring(0, 2), 16));
-                if (hexString.Length > 2) hexString = hexString.Substring(2, hexString.Length - 2);
+                if (hexString.Length >= 2)
+                    hexString = hexString.Substring(2, hexString.Length - 2);
+
                 i++;
             }
+
             return byteValue;
         }
 
         public static string CheckHexString(string inStr)
         {
-            var outStr = new StringBuilder();
-            if (inStr == "") return "";
+            if (string.IsNullOrEmpty(inStr))
+                return "";
 
+            var outStr = new StringBuilder();
             var str = inStr.ToCharArray(0, inStr.Length);
             var tmpStr = new StringBuilder();
             for (var i = 0; i < inStr.Length; i++)
@@ -98,28 +119,30 @@ namespace RfidStationControl
                 }
                 else if (str[i] == ' ' && tmpStr.Length > 0)
                 {
-                    for (var i1 = 0; i1 < 2 - tmpStr.Length; i1++) outStr.Append("0");
+                    for (var i1 = 0; i1 < 2 - tmpStr.Length; i1++)
+                        outStr.Append("0");
+
                     outStr.Append(tmpStr);
                     outStr.Append(" ");
                     tmpStr.Length = 0;
                 }
 
-                if (tmpStr.Length != 2) continue;
-
-                outStr.Append(tmpStr);
-                outStr.Append(" ");
-                tmpStr.Length = 0;
+                if (tmpStr.Length == 2)
+                {
+                    outStr.Append(tmpStr);
+                    outStr.Append(" ");
+                    tmpStr.Length = 0;
+                }
             }
 
-            if (tmpStr.Length <= 0) return outStr.ToString().ToUpperInvariant();
-
-
-            for (var i = 0; i < 2 - tmpStr.Length; i++) outStr.Append("0");
-            outStr.Append(tmpStr);
-            outStr.Append(" ");
+            if (tmpStr.Length > 0)
+            {
+                for (var i = 0; i < 2 - tmpStr.Length; i++) outStr.Append("0");
+                outStr.Append(tmpStr);
+                outStr.Append(" ");
+            }
 
             return outStr.ToString().ToUpperInvariant();
-
         }
 
         public static string ConvertByteArrayToString(byte[] byteArr, int codePage = 866)
@@ -129,9 +152,13 @@ namespace RfidStationControl
 
         public static bool PrintableByteArray(byte[] str)
         {
-            if (str == null) return true;
+            if (str == null)
+                return true;
+
             foreach (var t in str)
-                if (t < 32 && t != '\r' && t != '\n' && t != '\t') return false;
+                if (t < 32 && t != '\r' && t != '\n' && t != '\t')
+                    return false;
+
             return true;
         }
 
@@ -143,6 +170,7 @@ namespace RfidStationControl
                                 + " " + date.Hour.ToString("D2")
                                 + ":" + date.Minute.ToString("D2")
                                 + ":" + date.Second.ToString("D2");
+
             return dateString;
         }
 
@@ -162,22 +190,27 @@ namespace RfidStationControl
                     dateArray[0] = 0;
                 else if (dateArray[0] < 1)
                     dateArray[0] = 1;
+
                 byte.TryParse(dateString.Substring(5, 2), out dateArray[1]);
                 if (dateArray[1] > 12)
                     dateArray[1] = 1;
                 else if (dateArray[1] < 1)
                     dateArray[1] = 1;
+
                 byte.TryParse(dateString.Substring(8, 2), out dateArray[2]);
                 if (dateArray[2] > 31)
                     dateArray[2] = 1;
                 else if (dateArray[2] < 1)
                     dateArray[2] = 1;
+
                 byte.TryParse(dateString.Substring(11, 2), out dateArray[3]);
                 if (dateArray[3] > 23)
                     dateArray[3] = 0;
+
                 byte.TryParse(dateString.Substring(14, 2), out dateArray[4]);
                 if (dateArray[4] > 59)
                     dateArray[4] = 0;
+
                 byte.TryParse(dateString.Substring(17, 2), out dateArray[5]);
                 if (dateArray[5] > 59)
                     dateArray[5] = 0;
@@ -228,6 +261,7 @@ namespace RfidStationControl
         public static DateTime ConvertFromUnixTimestamp(long timestamp)
         {
             var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+
             return origin.AddSeconds(timestamp);
         }
 
@@ -235,12 +269,14 @@ namespace RfidStationControl
         {
             var origin = new DateTime(1970, 1, 1, 0, 0, 0, 0);
             var diff = date - origin;
+
             return (long)diff.TotalSeconds;
         }
 
         public static float FloatConversion(byte[] bytes)
         {
             var myFloat = BitConverter.ToSingle(bytes, 0);
+
             return myFloat;
         }
 
@@ -249,15 +285,19 @@ namespace RfidStationControl
             var tmp = "";
             for (var i = 7; i >= 0; i--)
                 tmp += GetBit(mask[0], (byte)i) ? "1" : "0";
+
             for (var i = 7; i >= 0; i--)
                 tmp += GetBit(mask[1], (byte)i) ? "1" : "0";
+
             return tmp;
         }
 
         public static string ConvertMaskToString(ushort mask)
         {
             var tmpMask = "";
-            for (var i = 15; i >= 0; i--) tmpMask += GetBit(mask, (byte)i) ? "1" : "0";
+            for (var i = 15; i >= 0; i--)
+                tmpMask += GetBit(mask, (byte)i) ? "1" : "0";
+
             return tmpMask;
         }
 
@@ -271,6 +311,7 @@ namespace RfidStationControl
                     n = (ushort)SetBit(n, j);
                 j--;
             }
+
             return n;
         }
     }

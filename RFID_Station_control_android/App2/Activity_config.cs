@@ -104,7 +104,7 @@ namespace RfidStationControl
             _teamSizeEditText.Text = StationSettings.TeamBlockSize.ToString();
             _flashSizeEditText.Text = StationSettings.EraseBlockSize.ToString();
             _flashSizeText.Text = (StationSettings.FlashSize / 1024 / 1024).ToString("F2") + "Mb";
-            _packetLengthTextView.Text = (StationSettings.PacketLengthSize).ToString();
+            _packetLengthTextView.Text = (StationSettings.MaxPacketLength).ToString();
             _setBtNameEditText.Text = StationSettings.BtName;
             _setBtPinEditText.Text = StationSettings.BtPin;
             _sendBtCommandEditText.Text = StationSettings.BtCommand;
@@ -423,16 +423,12 @@ namespace RfidStationControl
                                         " status";
                             }
 
-                            byte g = 0;
-                            foreach (var x in RfidContainer.ChipTypes.Ids)
-                            {
-                                if (x.Value == replyDetails.ChipTypeId)
-                                {
-                                    StationSettings.ChipType = g;
-                                    break;
-                                }
-                                g++;
-                            }
+                            if (replyDetails.ChipTypeId == 213)
+                                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
+                            else if (replyDetails.ChipTypeId == 215)
+                                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
+                            else if (replyDetails.ChipTypeId == 216)
+                                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
 
                             if (StationSettings.ChipType !=
                                 GlobalOperationsIdClass.Rfid.ChipType)
@@ -444,7 +440,7 @@ namespace RfidStationControl
                             StationSettings.BatteryLimit = replyDetails.BatteryLimit;
                             StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
                             StationSettings.FlashSize = replyDetails.FlashSize;
-                            StationSettings.PacketLengthSize = replyDetails.MaxPacketLength;
+                            StationSettings.MaxPacketLength = replyDetails.MaxPacketLength;
                             StationSettings.TeamBlockSize = replyDetails.TeamBlockSize;
                             if (StationSettings.TeamBlockSize !=
                                 GlobalOperationsIdClass.Flash.TeamDumpSize)

@@ -7,30 +7,28 @@ namespace RfidStationControl
     {
         public byte[] Dump { get; private set; }
 
-        private uint Size { get; }
+        public uint Size { get; }
         public uint TeamDumpSize { get; }
 
-        private readonly DataTable Table;
+        public DataTable Table;
         private uint BytesPerRow { get; }
 
-        private const ushort DUMP_HEADER_SIZE = 16;
+        private const ushort _dumpHeaderSize = 16;
 
-        private static class TableColumns
+        public static class TableColumns
         {
             public const string TeamNumber = "Team#";
             public const string ByteNumber = "Byte#";
+            public const string ChipInfo = "Chip info#";
             public const string DecodedData = "Decoded data";
             public const string RawData = "Raw data";
         }
 
-        public FlashContainer(uint size, uint teamDumpSize = 0, uint bytesPerRow = 0)
+        public FlashContainer(uint size, uint teamDumpSize = 1024, uint bytesPerRow = 0)
         {
             Size = size;
-
-            TeamDumpSize = teamDumpSize == 0 ? 1024 : teamDumpSize;
-
+            TeamDumpSize = teamDumpSize;
             BytesPerRow = bytesPerRow == 0 ? TeamDumpSize : bytesPerRow;
-
             Dump = new byte[Size];
             Table = new DataTable("FLASH")
             {
@@ -38,11 +36,12 @@ namespace RfidStationControl
                 {
                     TableColumns.TeamNumber,
                     TableColumns.ByteNumber,
+                    TableColumns.ChipInfo,
                     TableColumns.DecodedData,
                     TableColumns.RawData
                 }
             };
-            Table.Columns[3].MaxLength = (int)bytesPerRow * 3;
+            Table.Columns[TableColumns.RawData].MaxLength = (int)BytesPerRow * 3;
             InitTable(Size);
         }
 
@@ -58,6 +57,7 @@ namespace RfidStationControl
                 var row = Table.NewRow();
                 row[TableColumns.TeamNumber] = ((int)(i * k)).ToString();
                 row[TableColumns.ByteNumber] = (i * BytesPerRow).ToString();
+                row[TableColumns.ChipInfo] = "";
                 row[TableColumns.DecodedData] = "";
                 row[TableColumns.RawData] = "";
                 Table.Rows.Add(row);
@@ -102,7 +102,7 @@ namespace RfidStationControl
 
             byte chipType = 0;
             for (byte i = 0; i < RfidContainer.ChipTypes.SystemIds.Count; i++)
-                if (RfidContainer.ChipTypes.SystemIds[i] == Dump[DUMP_HEADER_SIZE + 14])
+                if (RfidContainer.ChipTypes.SystemIds[i] == Dump[_dumpHeaderSize + 14])
                 {
                     chipType = i;
                     break;
@@ -110,7 +110,7 @@ namespace RfidStationControl
 
             teamBlock.ChipDump = new RfidContainer(chipType);
             var chip = new byte[RfidContainer.ChipTypes.PageSizes[chipType] * RfidContainer.ChipTypes.PageSize];
-            for (var i = 0; i < chip.Length; i++) chip[i] = Dump[DUMP_HEADER_SIZE + i];
+            for (var i = 0; i < chip.Length; i++) chip[i] = Dump[_dumpHeaderSize + i];
             teamBlock.ChipDump.AddPages(0, chip);
 
             return teamBlock;
@@ -155,97 +155,86 @@ namespace RfidStationControl
                     if (dumpSize * 4 + 16 >= BytesPerRow)
                         dumpSize = 0;
 
-                    var result = "Team #" + teamNum +
+                    var chipInfo = "Team #" + teamNum +
                        ", InitTime: " + Helpers.DateToString(initTime) +
                        ", Mask: " + Helpers.ConvertMaskToString(maskNumber) +
                        ", Last check: " + Helpers.DateToString(lastCheck) +
-                       ", Dump size: " + dumpSize + ", ";
+                       ", Dump size: " + dumpSize;
 
                     //1st byte of time
                     var todayByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
 
-                    result += "Dump data: ";
+                    var checkPointsList = "";
                     var page = 4;
                     while (page < dumpSize + 4)
                     {
-                        switch (page)
+                        // page (0..1): UID
+                        if (page == 4)
                         {
-                            // page 4+(0..1): UID
-                            // page 4+3: chip type
-                            case 4:
-                                {
-                                    byte[] uid = { tmpData[page * 4 + 0],
-                                    tmpData[page * 4 + 1],
-                                    tmpData[page * 4 + 2],
-                                    tmpData[page * 4 + 3],
-                                    tmpData[page * 4 + 4],
-                                    tmpData[page * 4 + 5],
-                                    tmpData[page * 4 + 6],
-                                    tmpData[page * 4 + 7] };
-                                    result += "UID " + Helpers.ConvertByteArrayToHex(uid) + ", ";
-                                    break;
-                                }
-                            // page 4+4: team#, chip type, fw ver.
-                            case 7:
-                                {
-                                    var tagSize = "Ntag";
-                                    if (tmpData[page * 4 + 2] == 0x12)
-                                        tagSize += "213(144 bytes)";
-                                    else if (tmpData[page * 4 + 2] == 0x3e)
-                                        tagSize += "215(496 bytes)";
-                                    else if (tmpData[page * 4 + 2] == 0x6d)
-                                        tagSize += "216(872 bytes)";
-                                    result += tagSize + ", ";
-                                    break;
-                                }
-                            // page 4+5: init time
-                            case 8:
-                                {
-                                    var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
-                                    result += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + ", ";
-                                    break;
-                                }
-                            // page 4+6: team mask
-                            case 9:
-                                {
-                                    todayByte = tmpData[page * 4 + 0];
-                                    long m = tmpData[page * 4 + 0] * 16777216 + tmpData[page * 4 + 1] * 65536 + tmpData[page * 4 + 2] * 256 +
-                                             tmpData[page * 4 + 3];
-                                    var t = Helpers.ConvertFromUnixTimestamp(m);
-                                    result += "InitTime: " + Helpers.DateToString(t) + ", ";
-                                    break;
-                                }
-                            // page4+7: reserved
-                            case 10:
-                                {
-                                    byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
-                                    result += "Mask: " + Helpers.ConvertMaskToString(mask) + ", ";
-                                    break;
-                                }
-                            // page4+8...: marks
-                            case 11:
-                                ;
-                                break;
-                            default:
-                                {
-                                    if (page > 11)
-                                    {
-                                        long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
-                                                 tmpData[page * 4 + 2] * 256 + tmpData[page * 4 + 3];
-                                        var t = Helpers.ConvertFromUnixTimestamp(m);
-                                        result += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + ", ";
-                                    }
-
-                                    break;
-                                }
+                            byte[] uid = { tmpData[page * 4 + 0],
+                                tmpData[page * 4 + 1],
+                                tmpData[page * 4 + 2],
+                                tmpData[page * 4 + 3],
+                                tmpData[page * 4 + 4],
+                                tmpData[page * 4 + 5],
+                                tmpData[page * 4 + 6],
+                                tmpData[page * 4 + 7] };
+                            checkPointsList += "UID " + Helpers.ConvertByteArrayToHex(uid) + Environment.NewLine;
                         }
-
+                        // page 3: chip type
+                        else if (page == 7)
+                        {
+                            var tagSize = "Ntag";
+                            if (tmpData[page * 4 + 2] == 0x12)
+                                tagSize += "213(144 bytes)";
+                            else if (tmpData[page * 4 + 2] == 0x3e)
+                                tagSize += "215(496 bytes)";
+                            else if (tmpData[page * 4 + 2] == 0x6d)
+                                tagSize += "216(872 bytes)";
+                            checkPointsList += tagSize + Environment.NewLine;
+                        }
+                        // page 4: team#, chip type, fw ver.
+                        else if (page == 8)
+                        {
+                            var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
+                            checkPointsList += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + Environment.NewLine;
+                        }
+                        // page 5: init time
+                        else if (page == 9)
+                        {
+                            todayByte = tmpData[page * 4 + 0];
+                            long m = tmpData[page * 4 + 0] * 16777216 + tmpData[page * 4 + 1] * 65536 + tmpData[page * 4 + 2] * 256 +
+                                     tmpData[page * 4 + 3];
+                            var t = Helpers.ConvertFromUnixTimestamp(m);
+                            checkPointsList += "InitTime: " + Helpers.DateToString(t) + Environment.NewLine;
+                        }
+                        // page 6: team mask
+                        else if (page == 10)
+                        {
+                            byte[] mask = { tmpData[page * 4 + 0], tmpData[page * 4 + 1] };
+                            checkPointsList += "Mask: " + Helpers.ConvertMaskToString(mask) + Environment.NewLine;
+                        }
+                        // page 7: reserved
+                        else if (page == 11)
+                        {
+                            ;
+                        }
+                        // page 8...: marks
+                        else if (page > 11)
+                        {
+                            long m = todayByte * 16777216 + tmpData[page * 4 + 1] * 65536 +
+                                     tmpData[page * 4 + 2] * 256 + tmpData[page * 4 + 3];
+                            var t = Helpers.ConvertFromUnixTimestamp(m);
+                            checkPointsList += "KP#" + tmpData[page * 4 + 0] + ", " + Helpers.DateToString(t) + Environment.NewLine;
+                        }
                         page++;
                     }
-                    Table.Rows[rowFrom][TableColumns.DecodedData] = result;
+                    Table.Rows[rowFrom][TableColumns.ChipInfo] = chipInfo;
+                    Table.Rows[rowFrom][TableColumns.DecodedData] = checkPointsList;
                 }
                 else
                 {
+                    Table.Rows[rowFrom][TableColumns.ChipInfo] = "-";
                     Table.Rows[rowFrom][TableColumns.DecodedData] = "-";
                 }
                 rowFrom++;

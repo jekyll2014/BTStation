@@ -19,7 +19,7 @@ namespace RfidStationControl
         public bool Add(TeamData newTeam)
         {
             var flag = false;
-            for (var i = 0; i < _dump?.Count; i++)
+            for (var i = 0; i < _dump.Count; i++)
                 if (_dump[i].TeamNumber == newTeam.TeamNumber)
                 {
                     _dump.RemoveAt(i);
@@ -63,7 +63,7 @@ namespace RfidStationControl
 
                 flag = false;
 
-                for (var i = 0; i < Table?.Rows.Count; i++)
+                for (var i = 0; i < Table.Rows.Count; i++)
                     if (Table.Rows[i][0].ToString() == tmpTeam.TeamNumber.ToString())
                     {
                         Table.Rows[i][1] = Helpers.DateToString(tmpTeam.InitTime);
