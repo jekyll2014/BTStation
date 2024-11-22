@@ -97,11 +97,14 @@ namespace RFID_Station_control
 
         public RfidContainer(byte chipTypeId)
         {
-            if (!ChipTypes.Names.TryGetValue(chipTypeId, out _)) throw new Exception("Chip type not exists: " + chipTypeId.ToString());
+            if (!ChipTypes.Names.TryGetValue(chipTypeId, out _))
+                throw new Exception("Chip type not exists: " + chipTypeId.ToString());
+
             CurrentChipType = chipTypeId;
 
             _dump = new int[ChipTypes.PageSizes[chipTypeId] * 4];
-            for (var i = 0; i < _dump.Length; i++) _dump[i] = -1;
+            for (var i = 0; i < _dump.Length; i++)
+                _dump[i] = -1;
 
             Table = new DataTable("RFID") { Columns = { "Page#", "Description", "Raw data", "Decoded data" } };
             Table.Columns[2].MaxLength = ChipTypes.PageSize * 3;
