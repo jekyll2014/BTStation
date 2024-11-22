@@ -82,7 +82,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccessoryFunctions.cs" />
+    <Compile Include="DTO\StationSettings.cs" />
+    <Compile Include="DTO\TeamData.cs" />
+    <Compile Include="DTO\TeamDumpData.cs" />
     <Compile Include="FlashContainer.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -143,6 +145,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

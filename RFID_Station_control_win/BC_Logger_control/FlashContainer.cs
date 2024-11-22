@@ -1,53 +1,34 @@
 ﻿using System;
 using System.Data;
 
-namespace RfidStationControl
+namespace RFID_Station_control
 {
     public class FlashContainer
     {
         public byte[] Dump { get; private set; }
 
-        public class TeamDumpData
-        {
-            public int TeamNumber;
-            public DateTime InitTime;
-            public int TeamMask;
-            public DateTime LastCheckTime;
-            public int DumpSize;
-            public RfidContainer ChipDump;
-        }
-
         public uint Size { get; }
         public uint TeamDumpSize { get; }
 
         public DataTable Table;
-        public uint _bytesPerRow { get; }
+        private uint BytesPerRow { get; }
 
-        public readonly ushort _dumpHeaderSize = 16;
+        private const ushort _dumpHeaderSize = 16;
 
         public static class TableColumns
         {
-            public static string TeamNumber = "Team#";
-            public static string ByteNumber = "Byte#";
-            public static string ChipInfo = "Chip info#";
-            public static string DecodedData = "Decoded data";
-            public static string RawData = "Raw data";
+            public const string TeamNumber = "Team#";
+            public const string ByteNumber = "Byte#";
+            public const string ChipInfo = "Chip info#";
+            public const string DecodedData = "Decoded data";
+            public const string RawData = "Raw data";
         }
 
-        public FlashContainer(uint size, uint teamDumpSize = 0, uint bytesPerRow = 0)
+        public FlashContainer(uint size, uint teamDumpSize = 1024, uint bytesPerRow = 0)
         {
             Size = size;
-
-            if (teamDumpSize == 0)
-                TeamDumpSize = 1024;
-            else
-                TeamDumpSize = teamDumpSize;
-
-            if (bytesPerRow == 0)
-                _bytesPerRow = TeamDumpSize;
-            else
-                _bytesPerRow = bytesPerRow;
-
+            TeamDumpSize = teamDumpSize;
+            BytesPerRow = bytesPerRow == 0 ? TeamDumpSize : bytesPerRow;
             Dump = new byte[Size];
             Table = new DataTable("FLASH")
             {
@@ -60,7 +41,7 @@ namespace RfidStationControl
                     TableColumns.RawData
                 }
             };
-            Table.Columns[TableColumns.RawData].MaxLength = (int)bytesPerRow * 3;
+            Table.Columns[TableColumns.RawData].MaxLength = (int)BytesPerRow * 3;
             InitTable(Size);
         }
 
@@ -68,14 +49,14 @@ namespace RfidStationControl
         {
             Dump = new byte[Size];
 
-            var pageNum = (int)(flashSize / _bytesPerRow);
+            var pageNum = (int)(flashSize / BytesPerRow);
             Table.Rows.Clear();
-            var k = TeamDumpSize / _bytesPerRow;
+            var k = TeamDumpSize / BytesPerRow;
             for (long i = 0; i < pageNum; i++)
             {
                 var row = Table.NewRow();
                 row[TableColumns.TeamNumber] = ((int)(i * k)).ToString();
-                row[TableColumns.ByteNumber] = (i * _bytesPerRow).ToString();
+                row[TableColumns.ByteNumber] = (i * BytesPerRow).ToString();
                 row[TableColumns.ChipInfo] = "";
                 row[TableColumns.DecodedData] = "";
                 row[TableColumns.RawData] = "";
@@ -90,8 +71,8 @@ namespace RfidStationControl
             if (size == 0)
                 size = data.Length;
             for (long i = 0; i < size; i++) Dump[index + i] = data[i];
-            var rowFrom = (int)(index / _bytesPerRow);
-            var rowTo = (int)((index + size - 1) / _bytesPerRow);
+            var rowFrom = (int)(index / BytesPerRow);
+            var rowTo = (int)((index + size - 1) / BytesPerRow);
 
             ParseToTable(rowFrom, rowTo);
             return true;
@@ -101,11 +82,13 @@ namespace RfidStationControl
         {
             var startAddress = teamNumber * TeamDumpSize;
             if (Dump[startAddress] == 0xff || Dump[startAddress] + Dump[startAddress + 1] != 0x00) return null;
-            var tmpData = new byte[_bytesPerRow];
-            for (uint i = 0; i < _bytesPerRow; i++) tmpData[i] = Dump[teamNumber * TeamDumpSize + i];
+            var tmpData = new byte[BytesPerRow];
+            for (uint i = 0; i < BytesPerRow; i++) tmpData[i] = Dump[teamNumber * TeamDumpSize + i];
 
-            var teamBlock = new TeamDumpData();
-            teamBlock.TeamNumber = tmpData[0] * 256 + tmpData[1];
+            var teamBlock = new TeamDumpData
+            {
+                TeamNumber = tmpData[0] * 256 + tmpData[1]
+            };
 
             long timeNumber = tmpData[2] * 16777216 + tmpData[3] * 65536 + tmpData[4] * 256 + tmpData[5];
             teamBlock.InitTime = Helpers.ConvertFromUnixTimestamp(timeNumber);
@@ -144,8 +127,8 @@ namespace RfidStationControl
         {
             while (rowFrom <= rowTo)
             {
-                var tmpData = new byte[_bytesPerRow];
-                for (uint i = 0; i < _bytesPerRow; i++) tmpData[i] = Dump[rowFrom * _bytesPerRow + i];
+                var tmpData = new byte[BytesPerRow];
+                for (uint i = 0; i < BytesPerRow; i++) tmpData[i] = Dump[rowFrom * BytesPerRow + i];
 
                 Table.Rows[rowFrom][TableColumns.RawData] = Helpers.ConvertByteArrayToHex(tmpData);
 
@@ -169,7 +152,7 @@ namespace RfidStationControl
                     //13: размер дампа
                     int dumpSize = tmpData[12];
                     //int dumpSize = tmpData[12] * 256 + tmpData[13];
-                    if (dumpSize * 4 + 16 >= _bytesPerRow)
+                    if (dumpSize * 4 + 16 >= BytesPerRow)
                         dumpSize = 0;
 
                     var chipInfo = "Team #" + teamNum +
@@ -232,7 +215,7 @@ namespace RfidStationControl
                             checkPointsList += "Mask: " + Helpers.ConvertMaskToString(mask) + Environment.NewLine;
                         }
                         // page 7: reserved
-                        else if (page == 10)
+                        else if (page == 11)
                         {
                             ;
                         }

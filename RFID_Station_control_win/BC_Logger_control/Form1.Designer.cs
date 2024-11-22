@@ -33,11 +33,11 @@ namespace RFID_Station_control
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle31 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle32 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle33 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle34 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle35 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage_Station = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -82,6 +82,7 @@ namespace RFID_Station_control
             this.textBox_writeChipPage = new System.Windows.Forms.TextBox();
             this.button_readChipPage = new System.Windows.Forms.Button();
             this.button_eraseChip = new System.Windows.Forms.Button();
+            this.button_unlockChip = new System.Windows.Forms.Button();
             this.button_writeChipPage = new System.Windows.Forms.Button();
             this.button_initChip = new System.Windows.Forms.Button();
             this.tabPage_Flash = new System.Windows.Forms.TabPage();
@@ -128,6 +129,13 @@ namespace RFID_Station_control
             this.textBox_setBatteryLimit = new System.Windows.Forms.TextBox();
             this.button_setKoeff = new System.Windows.Forms.Button();
             this.textBox_koeff = new System.Windows.Forms.TextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBox_setPack = new System.Windows.Forms.TextBox();
+            this.button_setPack = new System.Windows.Forms.Button();
+            this.textBox_setPwd = new System.Windows.Forms.TextBox();
+            this.button_setPwd = new System.Windows.Forms.Button();
+            this.button_setAuth = new System.Windows.Forms.Button();
+            this.checkBox_setAuth = new System.Windows.Forms.CheckBox();
             this.button_dumpFlash = new System.Windows.Forms.Button();
             this.button_dumpChip = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
@@ -181,6 +189,7 @@ namespace RFID_Station_control
             this.tabPage_Flash.SuspendLayout();
             this.tabPage_Config.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_teams)).BeginInit();
             this.tabControl_teamData.SuspendLayout();
             this.tabPage_terminal.SuspendLayout();
@@ -218,7 +227,7 @@ namespace RFID_Station_control
             this.tabControl.Margin = new System.Windows.Forms.Padding(6);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(532, 309);
+            this.tabControl.Size = new System.Drawing.Size(532, 366);
             this.tabControl.TabIndex = 0;
             // 
             // tabPage_Station
@@ -235,7 +244,7 @@ namespace RFID_Station_control
             this.tabPage_Station.Margin = new System.Windows.Forms.Padding(6);
             this.tabPage_Station.Name = "tabPage_Station";
             this.tabPage_Station.Padding = new System.Windows.Forms.Padding(6);
-            this.tabPage_Station.Size = new System.Drawing.Size(524, 272);
+            this.tabPage_Station.Size = new System.Drawing.Size(524, 329);
             this.tabPage_Station.TabIndex = 0;
             this.tabPage_Station.Text = "Station";
             this.tabPage_Station.UseVisualStyleBackColor = true;
@@ -423,7 +432,7 @@ namespace RFID_Station_control
             this.tabPage_Team.Controls.Add(this.textBox_issueTime);
             this.tabPage_Team.Location = new System.Drawing.Point(4, 33);
             this.tabPage_Team.Name = "tabPage_Team";
-            this.tabPage_Team.Size = new System.Drawing.Size(453, 272);
+            this.tabPage_Team.Size = new System.Drawing.Size(524, 329);
             this.tabPage_Team.TabIndex = 4;
             this.tabPage_Team.Text = "Teams";
             this.tabPage_Team.UseVisualStyleBackColor = true;
@@ -445,7 +454,7 @@ namespace RFID_Station_control
             this.textBox_TeamNumber.Location = new System.Drawing.Point(268, 22);
             this.textBox_TeamNumber.MaxLength = 4;
             this.textBox_TeamNumber.Name = "textBox_TeamNumber";
-            this.textBox_TeamNumber.Size = new System.Drawing.Size(180, 80);
+            this.textBox_TeamNumber.Size = new System.Drawing.Size(251, 80);
             this.textBox_TeamNumber.TabIndex = 28;
             this.textBox_TeamNumber.Text = "1";
             this.textBox_TeamNumber.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
@@ -522,7 +531,7 @@ namespace RFID_Station_control
             this.textBox_teamMask.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_teamMask.MaxLength = 16;
             this.textBox_teamMask.Name = "textBox_teamMask";
-            this.textBox_teamMask.Size = new System.Drawing.Size(180, 29);
+            this.textBox_teamMask.Size = new System.Drawing.Size(251, 29);
             this.textBox_teamMask.TabIndex = 2;
             this.textBox_teamMask.Tag = "0";
             this.textBox_teamMask.Text = "0000000000000000";
@@ -559,7 +568,7 @@ namespace RFID_Station_control
             this.textBox_issueTime.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_issueTime.MaxLength = 20;
             this.textBox_issueTime.Name = "textBox_issueTime";
-            this.textBox_issueTime.Size = new System.Drawing.Size(180, 29);
+            this.textBox_issueTime.Size = new System.Drawing.Size(251, 29);
             this.textBox_issueTime.TabIndex = 3;
             this.textBox_issueTime.Text = "2000.01.01 00:00:00";
             this.textBox_issueTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -582,13 +591,14 @@ namespace RFID_Station_control
             this.tabPage_Rfid.Controls.Add(this.textBox_writeChipPage);
             this.tabPage_Rfid.Controls.Add(this.button_readChipPage);
             this.tabPage_Rfid.Controls.Add(this.button_eraseChip);
+            this.tabPage_Rfid.Controls.Add(this.button_unlockChip);
             this.tabPage_Rfid.Controls.Add(this.button_writeChipPage);
             this.tabPage_Rfid.Controls.Add(this.button_initChip);
             this.tabPage_Rfid.Location = new System.Drawing.Point(4, 33);
             this.tabPage_Rfid.Margin = new System.Windows.Forms.Padding(6);
             this.tabPage_Rfid.Name = "tabPage_Rfid";
             this.tabPage_Rfid.Padding = new System.Windows.Forms.Padding(6);
-            this.tabPage_Rfid.Size = new System.Drawing.Size(453, 272);
+            this.tabPage_Rfid.Size = new System.Drawing.Size(524, 329);
             this.tabPage_Rfid.TabIndex = 1;
             this.tabPage_Rfid.Text = "RFID";
             this.tabPage_Rfid.UseVisualStyleBackColor = true;
@@ -610,7 +620,7 @@ namespace RFID_Station_control
             this.textBox_initMask.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_initMask.MaxLength = 16;
             this.textBox_initMask.Name = "textBox_initMask";
-            this.textBox_initMask.Size = new System.Drawing.Size(232, 29);
+            this.textBox_initMask.Size = new System.Drawing.Size(269, 29);
             this.textBox_initMask.TabIndex = 30;
             this.textBox_initMask.Tag = "0";
             this.textBox_initMask.Text = "0000000000000000";
@@ -633,7 +643,7 @@ namespace RFID_Station_control
             this.textBox_initTeamNum.Location = new System.Drawing.Point(216, 18);
             this.textBox_initTeamNum.MaxLength = 4;
             this.textBox_initTeamNum.Name = "textBox_initTeamNum";
-            this.textBox_initTeamNum.Size = new System.Drawing.Size(232, 29);
+            this.textBox_initTeamNum.Size = new System.Drawing.Size(269, 29);
             this.textBox_initTeamNum.TabIndex = 28;
             this.textBox_initTeamNum.Text = "0";
             this.textBox_initTeamNum.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -683,7 +693,7 @@ namespace RFID_Station_control
             this.textBox_uid.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_uid.MaxLength = 24;
             this.textBox_uid.Name = "textBox_uid";
-            this.textBox_uid.Size = new System.Drawing.Size(232, 29);
+            this.textBox_uid.Size = new System.Drawing.Size(269, 29);
             this.textBox_uid.TabIndex = 23;
             this.textBox_uid.Tag = "0";
             this.textBox_uid.Text = "00 00 00 00 00 00 00 00 ";
@@ -698,7 +708,7 @@ namespace RFID_Station_control
             this.textBox_data.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_data.MaxLength = 12;
             this.textBox_data.Name = "textBox_data";
-            this.textBox_data.Size = new System.Drawing.Size(128, 29);
+            this.textBox_data.Size = new System.Drawing.Size(165, 29);
             this.textBox_data.TabIndex = 22;
             this.textBox_data.Tag = "0";
             this.textBox_data.Text = "00 00 00 00";
@@ -713,7 +723,7 @@ namespace RFID_Station_control
             this.textBox_readChipPage.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_readChipPage.MaxLength = 7;
             this.textBox_readChipPage.Name = "textBox_readChipPage";
-            this.textBox_readChipPage.Size = new System.Drawing.Size(232, 29);
+            this.textBox_readChipPage.Size = new System.Drawing.Size(269, 29);
             this.textBox_readChipPage.TabIndex = 20;
             this.textBox_readChipPage.Tag = "0";
             this.textBox_readChipPage.Text = "0-40";
@@ -758,6 +768,18 @@ namespace RFID_Station_control
             this.button_eraseChip.UseVisualStyleBackColor = false;
             this.button_eraseChip.Click += new System.EventHandler(this.Button_eraseChip_Click);
             // 
+            // button_unlockChip
+            // 
+            this.button_unlockChip.Enabled = false;
+            this.button_unlockChip.Location = new System.Drawing.Point(6, 259);
+            this.button_unlockChip.Margin = new System.Windows.Forms.Padding(6);
+            this.button_unlockChip.Name = "button_unlockChip";
+            this.button_unlockChip.Size = new System.Drawing.Size(120, 42);
+            this.button_unlockChip.TabIndex = 19;
+            this.button_unlockChip.Text = "Unlock chip";
+            this.button_unlockChip.UseVisualStyleBackColor = true;
+            this.button_unlockChip.Click += new System.EventHandler(this.Button_unlockChip_Click);
+            // 
             // button_writeChipPage
             // 
             this.button_writeChipPage.Enabled = false;
@@ -798,7 +820,7 @@ namespace RFID_Station_control
             this.tabPage_Flash.Controls.Add(this.button_readFlash);
             this.tabPage_Flash.Location = new System.Drawing.Point(4, 33);
             this.tabPage_Flash.Name = "tabPage_Flash";
-            this.tabPage_Flash.Size = new System.Drawing.Size(453, 272);
+            this.tabPage_Flash.Size = new System.Drawing.Size(524, 329);
             this.tabPage_Flash.TabIndex = 2;
             this.tabPage_Flash.Text = "Flash";
             this.tabPage_Flash.UseVisualStyleBackColor = true;
@@ -849,7 +871,7 @@ namespace RFID_Station_control
             this.textBox_flashData.MaxLength = 8096;
             this.textBox_flashData.Multiline = true;
             this.textBox_flashData.Name = "textBox_flashData";
-            this.textBox_flashData.Size = new System.Drawing.Size(229, 163);
+            this.textBox_flashData.Size = new System.Drawing.Size(300, 220);
             this.textBox_flashData.TabIndex = 21;
             this.textBox_flashData.Tag = "0";
             this.textBox_flashData.Text = "00 00 00 00";
@@ -864,7 +886,7 @@ namespace RFID_Station_control
             this.textBox_readFlashLength.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_readFlashLength.MaxLength = 5;
             this.textBox_readFlashLength.Name = "textBox_readFlashLength";
-            this.textBox_readFlashLength.Size = new System.Drawing.Size(61, 29);
+            this.textBox_readFlashLength.Size = new System.Drawing.Size(132, 29);
             this.textBox_readFlashLength.TabIndex = 19;
             this.textBox_readFlashLength.Tag = "0";
             this.textBox_readFlashLength.Text = "230";
@@ -879,7 +901,7 @@ namespace RFID_Station_control
             this.textBox_writeAddr.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_writeAddr.MaxLength = 10;
             this.textBox_writeAddr.Name = "textBox_writeAddr";
-            this.textBox_writeAddr.Size = new System.Drawing.Size(229, 29);
+            this.textBox_writeAddr.Size = new System.Drawing.Size(300, 29);
             this.textBox_writeAddr.TabIndex = 20;
             this.textBox_writeAddr.Tag = "0";
             this.textBox_writeAddr.Text = "0";
@@ -915,7 +937,7 @@ namespace RFID_Station_control
             // 
             this.button_quickDump.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_quickDump.Enabled = false;
-            this.button_quickDump.Location = new System.Drawing.Point(5, 224);
+            this.button_quickDump.Location = new System.Drawing.Point(5, 281);
             this.button_quickDump.Margin = new System.Windows.Forms.Padding(6);
             this.button_quickDump.Name = "button_quickDump";
             this.button_quickDump.Size = new System.Drawing.Size(171, 42);
@@ -964,9 +986,10 @@ namespace RFID_Station_control
             this.tabPage_Config.Controls.Add(this.textBox_setBatteryLimit);
             this.tabPage_Config.Controls.Add(this.button_setKoeff);
             this.tabPage_Config.Controls.Add(this.textBox_koeff);
+            this.tabPage_Config.Controls.Add(this.groupBox3);
             this.tabPage_Config.Location = new System.Drawing.Point(4, 33);
             this.tabPage_Config.Name = "tabPage_Config";
-            this.tabPage_Config.Size = new System.Drawing.Size(453, 272);
+            this.tabPage_Config.Size = new System.Drawing.Size(524, 329);
             this.tabPage_Config.TabIndex = 3;
             this.tabPage_Config.Text = "Config";
             this.tabPage_Config.UseVisualStyleBackColor = true;
@@ -1000,11 +1023,11 @@ namespace RFID_Station_control
             // 
             // textBox_sendBtCommand
             // 
-            this.textBox_sendBtCommand.Location = new System.Drawing.Point(268, 145);
+            this.textBox_sendBtCommand.Location = new System.Drawing.Point(266, 145);
             this.textBox_sendBtCommand.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_sendBtCommand.MaxLength = 16;
             this.textBox_sendBtCommand.Name = "textBox_sendBtCommand";
-            this.textBox_sendBtCommand.Size = new System.Drawing.Size(148, 29);
+            this.textBox_sendBtCommand.Size = new System.Drawing.Size(150, 29);
             this.textBox_sendBtCommand.TabIndex = 26;
             this.textBox_sendBtCommand.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -1034,11 +1057,11 @@ namespace RFID_Station_control
             // 
             // textBox_BtPin
             // 
-            this.textBox_BtPin.Location = new System.Drawing.Point(268, 91);
+            this.textBox_BtPin.Location = new System.Drawing.Point(266, 91);
             this.textBox_BtPin.Margin = new System.Windows.Forms.Padding(6);
-            this.textBox_BtPin.MaxLength = 16;
+            this.textBox_BtPin.MaxLength = 4;
             this.textBox_BtPin.Name = "textBox_BtPin";
-            this.textBox_BtPin.Size = new System.Drawing.Size(148, 29);
+            this.textBox_BtPin.Size = new System.Drawing.Size(150, 29);
             this.textBox_BtPin.TabIndex = 24;
             this.textBox_BtPin.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_BtPin.Leave += new System.EventHandler(this.TextBox_BtPin_Leave);
@@ -1057,11 +1080,11 @@ namespace RFID_Station_control
             // 
             // textBox_BtName
             // 
-            this.textBox_BtName.Location = new System.Drawing.Point(268, 37);
+            this.textBox_BtName.Location = new System.Drawing.Point(266, 37);
             this.textBox_BtName.Margin = new System.Windows.Forms.Padding(6);
             this.textBox_BtName.MaxLength = 32;
             this.textBox_BtName.Name = "textBox_BtName";
-            this.textBox_BtName.Size = new System.Drawing.Size(148, 29);
+            this.textBox_BtName.Size = new System.Drawing.Size(150, 29);
             this.textBox_BtName.TabIndex = 24;
             this.textBox_BtName.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_BtName.Leave += new System.EventHandler(this.TextBox_BtName_Leave);
@@ -1070,7 +1093,7 @@ namespace RFID_Station_control
             // 
             this.textBox_eraseBlock.Location = new System.Drawing.Point(272, 431);
             this.textBox_eraseBlock.Margin = new System.Windows.Forms.Padding(6);
-            this.textBox_eraseBlock.MaxLength = 10;
+            this.textBox_eraseBlock.MaxLength = 4;
             this.textBox_eraseBlock.Name = "textBox_eraseBlock";
             this.textBox_eraseBlock.Size = new System.Drawing.Size(158, 29);
             this.textBox_eraseBlock.TabIndex = 24;
@@ -1082,7 +1105,7 @@ namespace RFID_Station_control
             // 
             this.textBox_teamFlashSize.Location = new System.Drawing.Point(272, 377);
             this.textBox_teamFlashSize.Margin = new System.Windows.Forms.Padding(6);
-            this.textBox_teamFlashSize.MaxLength = 10;
+            this.textBox_teamFlashSize.MaxLength = 4;
             this.textBox_teamFlashSize.Name = "textBox_teamFlashSize";
             this.textBox_teamFlashSize.Size = new System.Drawing.Size(158, 29);
             this.textBox_teamFlashSize.TabIndex = 24;
@@ -1336,6 +1359,93 @@ namespace RFID_Station_control
             this.textBox_koeff.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.textBox_koeff.Leave += new System.EventHandler(this.TextBox_koeff_Leave);
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.textBox_setPack);
+            this.groupBox3.Controls.Add(this.button_setPack);
+            this.groupBox3.Controls.Add(this.textBox_setPwd);
+            this.groupBox3.Controls.Add(this.button_setPwd);
+            this.groupBox3.Controls.Add(this.button_setAuth);
+            this.groupBox3.Controls.Add(this.checkBox_setAuth);
+            this.groupBox3.Location = new System.Drawing.Point(5, 772);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(425, 193);
+            this.groupBox3.TabIndex = 27;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Authentication settings";
+            // 
+            // textBox_setPack
+            // 
+            this.textBox_setPack.Location = new System.Drawing.Point(267, 145);
+            this.textBox_setPack.Margin = new System.Windows.Forms.Padding(6);
+            this.textBox_setPack.MaxLength = 6;
+            this.textBox_setPack.Name = "textBox_setPack";
+            this.textBox_setPack.Size = new System.Drawing.Size(149, 29);
+            this.textBox_setPack.TabIndex = 26;
+            this.textBox_setPack.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_setPack.Leave += new System.EventHandler(this.textBox_setPack_Leave);
+            // 
+            // button_setPack
+            // 
+            this.button_setPack.Enabled = false;
+            this.button_setPack.Location = new System.Drawing.Point(9, 139);
+            this.button_setPack.Margin = new System.Windows.Forms.Padding(6);
+            this.button_setPack.Name = "button_setPack";
+            this.button_setPack.Size = new System.Drawing.Size(183, 42);
+            this.button_setPack.TabIndex = 25;
+            this.button_setPack.Text = "Set PACK";
+            this.button_setPack.UseVisualStyleBackColor = true;
+            this.button_setPack.Click += new System.EventHandler(this.Button_setPack_Click);
+            // 
+            // textBox_setPwd
+            // 
+            this.textBox_setPwd.Location = new System.Drawing.Point(267, 91);
+            this.textBox_setPwd.Margin = new System.Windows.Forms.Padding(6);
+            this.textBox_setPwd.MaxLength = 12;
+            this.textBox_setPwd.Name = "textBox_setPwd";
+            this.textBox_setPwd.Size = new System.Drawing.Size(149, 29);
+            this.textBox_setPwd.TabIndex = 24;
+            this.textBox_setPwd.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBox_setPwd.Leave += new System.EventHandler(this.textBox_setPwd_Leave);
+            // 
+            // button_setPwd
+            // 
+            this.button_setPwd.Enabled = false;
+            this.button_setPwd.Location = new System.Drawing.Point(9, 85);
+            this.button_setPwd.Margin = new System.Windows.Forms.Padding(6);
+            this.button_setPwd.Name = "button_setPwd";
+            this.button_setPwd.Size = new System.Drawing.Size(183, 42);
+            this.button_setPwd.TabIndex = 23;
+            this.button_setPwd.Text = "Set PWD";
+            this.button_setPwd.UseVisualStyleBackColor = true;
+            this.button_setPwd.Click += new System.EventHandler(this.Button_setPwd_Click);
+            // 
+            // button_setAuth
+            // 
+            this.button_setAuth.Enabled = false;
+            this.button_setAuth.Location = new System.Drawing.Point(10, 31);
+            this.button_setAuth.Margin = new System.Windows.Forms.Padding(6);
+            this.button_setAuth.Name = "button_setAuth";
+            this.button_setAuth.Size = new System.Drawing.Size(183, 42);
+            this.button_setAuth.TabIndex = 0;
+            this.button_setAuth.Text = "Enable auth";
+            this.button_setAuth.UseVisualStyleBackColor = true;
+            this.button_setAuth.Click += new System.EventHandler(this.Button_setAuth_Click);
+            // 
+            // checkBox_setAuth
+            // 
+            this.checkBox_setAuth.AutoSize = true;
+            this.checkBox_setAuth.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.checkBox_setAuth.Checked = true;
+            this.checkBox_setAuth.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_setAuth.Location = new System.Drawing.Point(267, 46);
+            this.checkBox_setAuth.Margin = new System.Windows.Forms.Padding(6);
+            this.checkBox_setAuth.Name = "checkBox_setAuth";
+            this.checkBox_setAuth.Size = new System.Drawing.Size(15, 14);
+            this.checkBox_setAuth.TabIndex = 7;
+            this.checkBox_setAuth.UseVisualStyleBackColor = true;
+            this.checkBox_setAuth.CheckedChanged += new System.EventHandler(this.CheckBox_AutoReport_CheckedChanged);
+            // 
             // button_dumpFlash
             // 
             this.button_dumpFlash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -1396,7 +1506,7 @@ namespace RFID_Station_control
             this.textBox_terminal.Name = "textBox_terminal";
             this.textBox_terminal.ReadOnly = true;
             this.textBox_terminal.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_terminal.Size = new System.Drawing.Size(527, 259);
+            this.textBox_terminal.Size = new System.Drawing.Size(527, 316);
             this.textBox_terminal.TabIndex = 1;
             // 
             // serialPort1
@@ -1416,7 +1526,7 @@ namespace RFID_Station_control
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboBox_portName.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_portName.FormattingEnabled = true;
-            this.comboBox_portName.Location = new System.Drawing.Point(464, 363);
+            this.comboBox_portName.Location = new System.Drawing.Point(464, 420);
             this.comboBox_portName.Margin = new System.Windows.Forms.Padding(6);
             this.comboBox_portName.Name = "comboBox_portName";
             this.comboBox_portName.Size = new System.Drawing.Size(172, 32);
@@ -1426,7 +1536,7 @@ namespace RFID_Station_control
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(394, 366);
+            this.label1.Location = new System.Drawing.Point(394, 423);
             this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 24);
@@ -1436,7 +1546,7 @@ namespace RFID_Station_control
             // button_openPort
             // 
             this.button_openPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_openPort.Location = new System.Drawing.Point(648, 357);
+            this.button_openPort.Location = new System.Drawing.Point(648, 414);
             this.button_openPort.Margin = new System.Windows.Forms.Padding(6);
             this.button_openPort.Name = "button_openPort";
             this.button_openPort.Size = new System.Drawing.Size(133, 42);
@@ -1448,7 +1558,7 @@ namespace RFID_Station_control
             // button_clearLog
             // 
             this.button_clearLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_clearLog.Location = new System.Drawing.Point(6, 271);
+            this.button_clearLog.Location = new System.Drawing.Point(6, 328);
             this.button_clearLog.Margin = new System.Windows.Forms.Padding(6);
             this.button_clearLog.Name = "button_clearLog";
             this.button_clearLog.Size = new System.Drawing.Size(100, 32);
@@ -1461,7 +1571,7 @@ namespace RFID_Station_control
             // 
             this.button_closePort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.button_closePort.Enabled = false;
-            this.button_closePort.Location = new System.Drawing.Point(931, 357);
+            this.button_closePort.Location = new System.Drawing.Point(931, 414);
             this.button_closePort.Margin = new System.Windows.Forms.Padding(6);
             this.button_closePort.Name = "button_closePort";
             this.button_closePort.Size = new System.Drawing.Size(133, 42);
@@ -1473,7 +1583,7 @@ namespace RFID_Station_control
             // button_saveLog
             // 
             this.button_saveLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveLog.Location = new System.Drawing.Point(424, 271);
+            this.button_saveLog.Location = new System.Drawing.Point(424, 328);
             this.button_saveLog.Margin = new System.Windows.Forms.Padding(6);
             this.button_saveLog.Name = "button_saveLog";
             this.button_saveLog.Size = new System.Drawing.Size(100, 32);
@@ -1488,7 +1598,7 @@ namespace RFID_Station_control
             this.checkBox_autoScroll.AutoSize = true;
             this.checkBox_autoScroll.Checked = true;
             this.checkBox_autoScroll.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_autoScroll.Location = new System.Drawing.Point(118, 285);
+            this.checkBox_autoScroll.Location = new System.Drawing.Point(118, 342);
             this.checkBox_autoScroll.Margin = new System.Windows.Forms.Padding(6);
             this.checkBox_autoScroll.Name = "checkBox_autoScroll";
             this.checkBox_autoScroll.Size = new System.Drawing.Size(112, 28);
@@ -1500,7 +1610,7 @@ namespace RFID_Station_control
             // button_refresh
             // 
             this.button_refresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_refresh.Location = new System.Drawing.Point(790, 357);
+            this.button_refresh.Location = new System.Drawing.Point(790, 414);
             this.button_refresh.Name = "button_refresh";
             this.button_refresh.Size = new System.Drawing.Size(132, 42);
             this.button_refresh.TabIndex = 10;
@@ -1514,7 +1624,7 @@ namespace RFID_Station_control
             this.checkBox_portMon.AutoSize = true;
             this.checkBox_portMon.Checked = true;
             this.checkBox_portMon.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_portMon.Location = new System.Drawing.Point(118, 262);
+            this.checkBox_portMon.Location = new System.Drawing.Point(118, 319);
             this.checkBox_portMon.Margin = new System.Windows.Forms.Padding(6);
             this.checkBox_portMon.Name = "checkBox_portMon";
             this.checkBox_portMon.Size = new System.Drawing.Size(130, 28);
@@ -1541,8 +1651,8 @@ namespace RFID_Station_control
             this.dataGridView_teams.Name = "dataGridView_teams";
             this.dataGridView_teams.ReadOnly = true;
             this.dataGridView_teams.RowHeadersVisible = false;
-            dataGridViewCellStyle31.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.dataGridView_teams.RowsDefaultCellStyle = dataGridViewCellStyle31;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.dataGridView_teams.RowsDefaultCellStyle = dataGridViewCellStyle6;
             this.dataGridView_teams.Size = new System.Drawing.Size(456, 262);
             this.dataGridView_teams.TabIndex = 12;
             this.dataGridView_teams.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_teams_CellDoubleClick);
@@ -1557,7 +1667,7 @@ namespace RFID_Station_control
             this.tabControl_teamData.Location = new System.Drawing.Point(0, 0);
             this.tabControl_teamData.Name = "tabControl_teamData";
             this.tabControl_teamData.SelectedIndex = 0;
-            this.tabControl_teamData.Size = new System.Drawing.Size(538, 346);
+            this.tabControl_teamData.Size = new System.Drawing.Size(538, 403);
             this.tabControl_teamData.TabIndex = 13;
             this.tabControl_teamData.SelectedIndexChanged += new System.EventHandler(this.TabControl_teamData_SelectedIndexChanged);
             // 
@@ -1571,7 +1681,7 @@ namespace RFID_Station_control
             this.tabPage_terminal.Location = new System.Drawing.Point(4, 33);
             this.tabPage_terminal.Name = "tabPage_terminal";
             this.tabPage_terminal.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_terminal.Size = new System.Drawing.Size(530, 309);
+            this.tabPage_terminal.Size = new System.Drawing.Size(530, 366);
             this.tabPage_terminal.TabIndex = 0;
             this.tabPage_terminal.Text = "Terminal";
             this.tabPage_terminal.UseVisualStyleBackColor = true;
@@ -1586,7 +1696,7 @@ namespace RFID_Station_control
             this.tabPage_teams.Location = new System.Drawing.Point(4, 22);
             this.tabPage_teams.Name = "tabPage_teams";
             this.tabPage_teams.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_teams.Size = new System.Drawing.Size(456, 320);
+            this.tabPage_teams.Size = new System.Drawing.Size(530, 377);
             this.tabPage_teams.TabIndex = 1;
             this.tabPage_teams.Text = "Teams";
             this.tabPage_teams.UseVisualStyleBackColor = true;
@@ -1638,7 +1748,7 @@ namespace RFID_Station_control
             this.tabPage_cardContent.Controls.Add(this.button_dumpChip);
             this.tabPage_cardContent.Location = new System.Drawing.Point(4, 22);
             this.tabPage_cardContent.Name = "tabPage_cardContent";
-            this.tabPage_cardContent.Size = new System.Drawing.Size(456, 320);
+            this.tabPage_cardContent.Size = new System.Drawing.Size(530, 377);
             this.tabPage_cardContent.TabIndex = 2;
             this.tabPage_cardContent.Text = "RFID";
             this.tabPage_cardContent.UseVisualStyleBackColor = true;
@@ -1697,8 +1807,8 @@ namespace RFID_Station_control
             this.dataGridView_chipRawData.Name = "dataGridView_chipRawData";
             this.dataGridView_chipRawData.ReadOnly = true;
             this.dataGridView_chipRawData.RowHeadersVisible = false;
-            dataGridViewCellStyle32.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.dataGridView_chipRawData.RowsDefaultCellStyle = dataGridViewCellStyle32;
+            dataGridViewCellStyle7.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.dataGridView_chipRawData.RowsDefaultCellStyle = dataGridViewCellStyle7;
             this.dataGridView_chipRawData.Size = new System.Drawing.Size(456, 262);
             this.dataGridView_chipRawData.TabIndex = 0;
             this.dataGridView_chipRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_chipRawData_CellDoubleClick);
@@ -1713,7 +1823,7 @@ namespace RFID_Station_control
             this.tabPage_flashContent.Controls.Add(this.button_dumpFlash);
             this.tabPage_flashContent.Location = new System.Drawing.Point(4, 22);
             this.tabPage_flashContent.Name = "tabPage_flashContent";
-            this.tabPage_flashContent.Size = new System.Drawing.Size(456, 320);
+            this.tabPage_flashContent.Size = new System.Drawing.Size(530, 377);
             this.tabPage_flashContent.TabIndex = 3;
             this.tabPage_flashContent.Text = "Flash";
             this.tabPage_flashContent.UseVisualStyleBackColor = true;
@@ -1745,14 +1855,14 @@ namespace RFID_Station_control
             this.dataGridView_flashRawData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dataGridView_flashRawData.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView_flashRawData.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
-            dataGridViewCellStyle33.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle33.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle33.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle33.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle33.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle33.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle33.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle33;
+            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle8;
             this.dataGridView_flashRawData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView_flashRawData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView_flashRawData.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
@@ -1760,19 +1870,19 @@ namespace RFID_Station_control
             this.dataGridView_flashRawData.MultiSelect = false;
             this.dataGridView_flashRawData.Name = "dataGridView_flashRawData";
             this.dataGridView_flashRawData.ReadOnly = true;
-            dataGridViewCellStyle34.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle34.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle34.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle34.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle34.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle34.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle34.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowHeadersDefaultCellStyle = dataGridViewCellStyle34;
+            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
             this.dataGridView_flashRawData.RowHeadersVisible = false;
-            dataGridViewCellStyle35.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle35.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle35.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowsDefaultCellStyle = dataGridViewCellStyle35;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowsDefaultCellStyle = dataGridViewCellStyle10;
             this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
@@ -1882,7 +1992,7 @@ namespace RFID_Station_control
             this.splitContainer1.Panel2.AutoScroll = true;
             this.splitContainer1.Panel2.Controls.Add(this.tabControl_teamData);
             this.splitContainer1.Panel2MinSize = 360;
-            this.splitContainer1.Size = new System.Drawing.Size(1077, 350);
+            this.splitContainer1.Size = new System.Drawing.Size(1077, 407);
             this.splitContainer1.SplitterDistance = 531;
             this.splitContainer1.TabIndex = 14;
             // 
@@ -1917,7 +2027,7 @@ namespace RFID_Station_control
             this.comboBox_portSpeed.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.comboBox_portSpeed.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_portSpeed.FormattingEnabled = true;
-            this.comboBox_portSpeed.Location = new System.Drawing.Point(93, 363);
+            this.comboBox_portSpeed.Location = new System.Drawing.Point(93, 420);
             this.comboBox_portSpeed.Margin = new System.Windows.Forms.Padding(6);
             this.comboBox_portSpeed.Name = "comboBox_portSpeed";
             this.comboBox_portSpeed.Size = new System.Drawing.Size(133, 32);
@@ -1928,7 +2038,7 @@ namespace RFID_Station_control
             // 
             this.label25.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(15, 366);
+            this.label25.Location = new System.Drawing.Point(15, 423);
             this.label25.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(66, 24);
@@ -1939,7 +2049,7 @@ namespace RFID_Station_control
             // 
             this.checkBox_dtr.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_dtr.AutoSize = true;
-            this.checkBox_dtr.Location = new System.Drawing.Point(238, 365);
+            this.checkBox_dtr.Location = new System.Drawing.Point(238, 422);
             this.checkBox_dtr.Margin = new System.Windows.Forms.Padding(6);
             this.checkBox_dtr.Name = "checkBox_dtr";
             this.checkBox_dtr.Size = new System.Drawing.Size(67, 28);
@@ -1952,7 +2062,7 @@ namespace RFID_Station_control
             // 
             this.checkBox_rts.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.checkBox_rts.AutoSize = true;
-            this.checkBox_rts.Location = new System.Drawing.Point(316, 365);
+            this.checkBox_rts.Location = new System.Drawing.Point(316, 422);
             this.checkBox_rts.Margin = new System.Windows.Forms.Padding(6);
             this.checkBox_rts.Name = "checkBox_rts";
             this.checkBox_rts.Size = new System.Drawing.Size(66, 28);
@@ -1965,7 +2075,7 @@ namespace RFID_Station_control
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1079, 412);
+            this.ClientSize = new System.Drawing.Size(1079, 469);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.button_refresh);
             this.Controls.Add(this.checkBox_rts);
@@ -1997,6 +2107,8 @@ namespace RFID_Station_control
             this.tabPage_Config.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_teams)).EndInit();
             this.tabControl_teamData.ResumeLayout(false);
             this.tabPage_terminal.ResumeLayout(false);
@@ -2163,6 +2275,14 @@ namespace RFID_Station_control
         private Label label25;
         private CheckBox checkBox_dtr;
         private CheckBox checkBox_rts;
+        private Button button_unlockChip;
+        private GroupBox groupBox3;
+        private TextBox textBox_setPack;
+        private Button button_setPack;
+        private TextBox textBox_setPwd;
+        private Button button_setPwd;
+        private Button button_setAuth;
+        private CheckBox checkBox_setAuth;
     }
 }
 
