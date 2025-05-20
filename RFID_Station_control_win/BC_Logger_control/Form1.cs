@@ -827,11 +827,11 @@ namespace RFID_Station_control
             StationSettings.FwVersion = replyDetails.FwVersion;
             StationSettings.Mode = replyDetails.Mode;
 
-            if (replyDetails.ChipTypeId == 213)
+            if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[0])
                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
-            else if (replyDetails.ChipTypeId == 215)
+            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[1])
                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
-            else if (replyDetails.ChipTypeId == 216)
+            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[2])
                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
 
             StationSettings.FlashSize = replyDetails.FlashSize;
