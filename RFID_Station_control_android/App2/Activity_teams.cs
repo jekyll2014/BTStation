@@ -4,6 +4,7 @@ using Android.Support.V7.App;
 using Android.Widget;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 using static RfidStationControl.TeamsPageState;
@@ -260,7 +261,7 @@ namespace RfidStationControl
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
                 var reply = GlobalOperationsIdClass.Parser._repliesList[n];
-                GlobalOperationsIdClass.TimerActiveTasks--;
+                Interlocked.Decrement(ref GlobalOperationsIdClass.TimerActiveTasks);
                 if (reply.ReplyCode != 0)
                 {
                     StatusPageState.TerminalText.Append(reply);

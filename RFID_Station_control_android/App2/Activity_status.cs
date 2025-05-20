@@ -4,6 +4,7 @@ using Android.Support.V7.App;
 using Android.Widget;
 
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RfidStationControl
@@ -193,7 +194,7 @@ namespace RfidStationControl
             for (var n = 0; n < GlobalOperationsIdClass.Parser._repliesList.Count; n++)
             {
                 var reply = GlobalOperationsIdClass.Parser._repliesList[n];
-                GlobalOperationsIdClass.TimerActiveTasks--;
+                Interlocked.Decrement(ref GlobalOperationsIdClass.TimerActiveTasks);
                 if (reply.ReplyCode != 0)
                 {
                     StatusPageState.TerminalText.Append(reply);
@@ -228,11 +229,11 @@ namespace RfidStationControl
                                         " status";
                             }
 
-                            if (replyDetails.ChipTypeId == 213)
+                            if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[0])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
-                            else if (replyDetails.ChipTypeId == 215)
+                            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[1])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
-                            else if (replyDetails.ChipTypeId == 216)
+                            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[2])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
 
                             if (StationSettings.ChipType !=

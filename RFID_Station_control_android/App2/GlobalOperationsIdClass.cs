@@ -4,6 +4,7 @@ using Android.Widget;
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RfidStationControl
@@ -34,7 +35,7 @@ namespace RfidStationControl
 
         public static readonly TeamsContainer Teams = new TeamsContainer();
 
-        public static volatile byte TimerActiveTasks;
+        public static int TimerActiveTasks;
         private const int BT_READ_PERIOD = 500;
         public static volatile bool DumpCancellation;
 
@@ -48,7 +49,7 @@ namespace RfidStationControl
                 return false;
             }
 
-            TimerActiveTasks++;
+            Interlocked.Increment(ref TimerActiveTasks);
             StartTimer(BT_READ_PERIOD, callBack);
             StatusPageState.TerminalText.Append(">> " + Helpers.ConvertByteArrayToHex(outBuffer) + System.Environment.NewLine);
 
@@ -90,7 +91,7 @@ namespace RfidStationControl
             for (var n = 0; n < Parser._repliesList.Count; n++)
             {
                 var reply = Parser._repliesList[n];
-                TimerActiveTasks--;
+                Interlocked.Decrement(ref TimerActiveTasks);
                 if (reply.ReplyCode != 0)
                 {
                     StatusPageState.TerminalText.Append(reply);
@@ -120,11 +121,11 @@ namespace RfidStationControl
                                 Parser = new ProtocolParser(StationSettings.Number);
                             }
 
-                            if (replyDetails.ChipTypeId == 213)
+                            if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[0])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
-                            else if (replyDetails.ChipTypeId == 215)
+                            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[1])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
-                            else if (replyDetails.ChipTypeId == 216)
+                            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[2])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
 
                             if (StationSettings.ChipType != Rfid.ChipType)

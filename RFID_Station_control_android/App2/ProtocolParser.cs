@@ -426,10 +426,10 @@ namespace RfidStationControl
                 {
                     var result = "FW Version: " + FwVersion + Environment.NewLine;
                     result += "Mode: " + StationSettings.StationMode.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
-                    result += "Chip type: " + RfidContainer.ChipTypes.Types.FirstOrDefault(x => x.Key.Contains(ChipTypeId.ToString())).Key + Environment.NewLine;
+                    result += "Chip type: " + RfidContainer.ChipTypes.SystemIds.FirstOrDefault(x => x.Value == ChipTypeId).Key + Environment.NewLine;
                     result += "Flash size: " + FlashSize + " byte" + Environment.NewLine;
                     result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + Environment.NewLine;
-                    result += "Antenna gain: " + StationSettings.Gain.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
+                    result += "Antenna gain: " + StationSettings.Gain.FirstOrDefault(x => x.Value == AntennaGain).Key + Environment.NewLine;
                     result += "Team block size: " + TeamBlockSize + Environment.NewLine;
                     result += "Erase block size: " + EraseBlockSize + Environment.NewLine;
                     result += "Min. battery voltage: " + BatteryLimit.ToString("F3") + Environment.NewLine;
