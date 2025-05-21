@@ -24,3 +24,11 @@
 #define EEPROM_BATTERY_LIMIT    80 // 4 byte
 // включить автоотчет о новых сканах
 #define EEPROM_AUTOREPORT       100 // 1 byte
+// включить авторизацию записи на карту
+#define EEPROM_AUTH             110 // bool
+
+// Ключ авторизации
+#define EEPROM_AUTH_PWD         120 // 4 byte
+
+// Ключ авторизации
+#define EEPROM_AUTH_PACK        140 // 2 byte

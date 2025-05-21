@@ -1,5 +1,5 @@
 #pragma once
-// команды
+// РєРѕРјР°РЅРґС‹
 #define COMMAND_SET_MODE                 0x80
 #define COMMAND_SET_TIME                 0x81
 #define COMMAND_RESET_STATION            0x82
@@ -26,8 +26,13 @@
 #define COMMAND_SEND_BT_COMMAND          0x97
 #define COMMAND_GET_LAST_ERRORS          0x98
 #define COMMAND_SET_AUTOREPORT           0x99
+#define COMMAND_SET_AUTH                 0x9a
+#define COMMAND_SET_PWD                  0x9b
+#define COMMAND_SET_PACK                 0x9c
+#define COMMAND_UNLOCK_CHIP              0x9d
+//#define COMMAND_SET_MAX_INIT_DAYS        0x9e
 
-// размеры данных для команд
+// СЂР°Р·РјРµСЂС‹ РґР°РЅРЅС‹С… РґР»СЏ РєРѕРјР°РЅРґ
 #define DATA_LENGTH_SET_MODE             1
 #define DATA_LENGTH_SET_TIME             6
 #define DATA_LENGTH_RESET_STATION        7
@@ -54,8 +59,13 @@
 #define DATA_LENGTH_SEND_BT_COMMAND      1
 #define DATA_LENGTH_GET_LAST_ERRORS      0
 #define DATA_LENGTH_SET_AUTOREPORT       1
+#define DATA_LENGTH_SET_AUTH             1
+#define DATA_LENGTH_SET_PWD              4
+#define DATA_LENGTH_SET_PACK             2
+#define DATA_LENGTH_UNLOCK_CHIP          0
+//#define DATA_LENGTH_SET_MAX_INIT_DAYS    1
 
-// ответы станции
+// РѕС‚РІРµС‚С‹ СЃС‚Р°РЅС†РёРё
 #define REPLY_SET_MODE                   0x90
 #define REPLY_SET_TIME                   0x91
 #define REPLY_RESET_STATION              0x92
@@ -82,17 +92,22 @@
 #define REPLY_SEND_BT_COMMAND            0xa7
 #define REPLY_GET_LAST_ERRORS            0xa8
 #define REPLY_SET_AUTOREPORT             0xa9
+#define REPLY_SET_AUTH                   0xaa
+#define REPLY_SET_PWD                    0xab
+#define REPLY_SET_PACK                   0xac
+#define REPLY_UNLOCK_CHIP                0xad
+//#define REPLY_SET_MAX_INIT_DAYS          0xae
 
-// режимы станции
+// СЂРµР¶РёРјС‹ СЃС‚Р°РЅС†РёРё
 #define MODE_INIT                        0
 #define MODE_START_KP                    1
 #define MODE_FINISH_KP                   2
 
-// режимы отправки отчета о новом скане в BT
+// СЂРµР¶РёРјС‹ РѕС‚РїСЂР°РІРєРё РѕС‚С‡РµС‚Р° Рѕ РЅРѕРІРѕРј СЃРєР°РЅРµ РІ BT
 #define AUTOREPORT_OFF                   0
 #define AUTOREPORT_ON                    1
 
-// коды ошибок ответов станции
+// РєРѕРґС‹ РѕС€РёР±РѕРє РѕС‚РІРµС‚РѕРІ СЃС‚Р°РЅС†РёРё
 #define OK                               0
 #define WRONG_STATION                    1
 #define RFID_READ_ERROR                  2
@@ -117,5 +132,6 @@
 #define EEPROM_READ_ERROR                21
 #define EEPROM_WRITE_ERROR               22
 #define BT_ERROR                         23
-#define PACKET_LENGTH                    24
-#define EEPROM_SET_TIME_ERROR            25
+#define PARSE_PACKET_LENGTH_ERROR        24
+#define CHIP_AUTH_ERROR                  25
+#define CHIP_SETPASS_ERROR               26
