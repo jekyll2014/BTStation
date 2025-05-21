@@ -48,9 +48,9 @@ namespace RfidStationControl
             PAGE_UID2 = 1, //UID 4..8
             PAGE_CHIP_SYS1 = 2, //serial number, internal, lock bytes, lock bytes
             PAGE_CHIP_SYS2 = 3, // system[2] + тип_чипа[1] + system[1]
-            PAGE_CHIP_NUM = 4, // номер_чипа[2] + тип_чипа[1] + версия_прошивки[1]
+            PAGE_CHIP_NUM = 4, // номер_чипа[2] + reserved[1] + версия_прошивки[1]
             PAGE_INIT_TIME = 5, // время инициализации[4]
-            PAGE_TEAM_MASK = 6, // маска команды[2] + resserved[2]
+            PAGE_TEAM_MASK = 6, // маска команды[2] + reserved[2]
             PAGE_RESERVED = 7, // reserved for future use[4]
             PAGE_DATA_START = 8, // 1st data page: номер КП[1] + время посещения КП[3]
         }
@@ -76,9 +76,6 @@ namespace RfidStationControl
 
         private ushort _teamNum = 0;
         public ushort TeamNumber => _teamNum;
-
-        private byte _chipType = 0;
-        public byte ChipType => _chipType;
 
         private byte _fwVer = 0;
         public byte FwVer => _fwVer;
@@ -129,7 +126,7 @@ namespace RfidStationControl
                 else if (i == (int)RfidPageType.PAGE_CHIP_SYS2)
                     row[1] = "CC0,CC1,Size,CC3";
                 else if (i == (int)RfidPageType.PAGE_CHIP_NUM)
-                    row[1] = "Team#[2],ChipTypes,FwVer";
+                    row[1] = "Team#[2],Reserved,FwVer";
                 else if (i == (int)RfidPageType.PAGE_INIT_TIME)
                     row[1] = "InitDate[4]";
                 else if (i == (int)RfidPageType.PAGE_TEAM_MASK)
@@ -274,9 +271,8 @@ namespace RfidStationControl
                 else if (pageFrom == (int)RfidPageType.PAGE_CHIP_NUM)
                 {
                     _teamNum = (ushort)(tmp[0] * 256 + tmp[1]);
-                    _chipType = tmp[2];
                     _fwVer = tmp[3];
-                    result = "Team #" + _teamNum + ", " + "Ntag" + _chipType + ", fw v." + _fwVer;
+                    result = "Team #" + _teamNum + ", " + ", fw v." + _fwVer;
                 }
                 else if (pageFrom == (int)RfidPageType.PAGE_INIT_TIME)
                 {

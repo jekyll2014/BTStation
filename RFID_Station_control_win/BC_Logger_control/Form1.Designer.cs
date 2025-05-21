@@ -33,11 +33,11 @@ namespace RFID_Station_control
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPage_Station = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -1450,7 +1450,7 @@ namespace RFID_Station_control
             // 
             this.button_dumpFlash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_dumpFlash.Enabled = false;
-            this.button_dumpFlash.Location = new System.Drawing.Point(118, 260);
+            this.button_dumpFlash.Location = new System.Drawing.Point(118, 328);
             this.button_dumpFlash.Margin = new System.Windows.Forms.Padding(6);
             this.button_dumpFlash.Name = "button_dumpFlash";
             this.button_dumpFlash.Size = new System.Drawing.Size(121, 32);
@@ -1463,7 +1463,7 @@ namespace RFID_Station_control
             // 
             this.button_dumpChip.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_dumpChip.Enabled = false;
-            this.button_dumpChip.Location = new System.Drawing.Point(118, 271);
+            this.button_dumpChip.Location = new System.Drawing.Point(118, 328);
             this.button_dumpChip.Margin = new System.Windows.Forms.Padding(6);
             this.button_dumpChip.Name = "button_dumpChip";
             this.button_dumpChip.Size = new System.Drawing.Size(121, 32);
@@ -1651,9 +1651,9 @@ namespace RFID_Station_control
             this.dataGridView_teams.Name = "dataGridView_teams";
             this.dataGridView_teams.ReadOnly = true;
             this.dataGridView_teams.RowHeadersVisible = false;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.dataGridView_teams.RowsDefaultCellStyle = dataGridViewCellStyle6;
-            this.dataGridView_teams.Size = new System.Drawing.Size(456, 262);
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Courier New", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.dataGridView_teams.RowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.dataGridView_teams.Size = new System.Drawing.Size(525, 319);
             this.dataGridView_teams.TabIndex = 12;
             this.dataGridView_teams.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_teams_CellDoubleClick);
             // 
@@ -1693,10 +1693,10 @@ namespace RFID_Station_control
             this.tabPage_teams.Controls.Add(this.button_clearTeams);
             this.tabPage_teams.Controls.Add(this.button_saveTeams);
             this.tabPage_teams.Controls.Add(this.dataGridView_teams);
-            this.tabPage_teams.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_teams.Location = new System.Drawing.Point(4, 33);
             this.tabPage_teams.Name = "tabPage_teams";
             this.tabPage_teams.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_teams.Size = new System.Drawing.Size(530, 377);
+            this.tabPage_teams.Size = new System.Drawing.Size(530, 366);
             this.tabPage_teams.TabIndex = 1;
             this.tabPage_teams.Text = "Teams";
             this.tabPage_teams.UseVisualStyleBackColor = true;
@@ -1705,7 +1705,7 @@ namespace RFID_Station_control
             // 
             this.button_dumpTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.button_dumpTeams.Enabled = false;
-            this.button_dumpTeams.Location = new System.Drawing.Point(118, 271);
+            this.button_dumpTeams.Location = new System.Drawing.Point(118, 328);
             this.button_dumpTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_dumpTeams.Name = "button_dumpTeams";
             this.button_dumpTeams.Size = new System.Drawing.Size(128, 32);
@@ -1717,7 +1717,7 @@ namespace RFID_Station_control
             // button_clearTeams
             // 
             this.button_clearTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_clearTeams.Location = new System.Drawing.Point(6, 271);
+            this.button_clearTeams.Location = new System.Drawing.Point(6, 328);
             this.button_clearTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_clearTeams.Name = "button_clearTeams";
             this.button_clearTeams.Size = new System.Drawing.Size(100, 32);
@@ -1729,7 +1729,7 @@ namespace RFID_Station_control
             // button_saveTeams
             // 
             this.button_saveTeams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveTeams.Location = new System.Drawing.Point(350, 271);
+            this.button_saveTeams.Location = new System.Drawing.Point(424, 328);
             this.button_saveTeams.Margin = new System.Windows.Forms.Padding(6);
             this.button_saveTeams.Name = "button_saveTeams";
             this.button_saveTeams.Size = new System.Drawing.Size(100, 32);
@@ -1746,9 +1746,9 @@ namespace RFID_Station_control
             this.tabPage_cardContent.Controls.Add(this.button_saveRfid);
             this.tabPage_cardContent.Controls.Add(this.dataGridView_chipRawData);
             this.tabPage_cardContent.Controls.Add(this.button_dumpChip);
-            this.tabPage_cardContent.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_cardContent.Location = new System.Drawing.Point(4, 33);
             this.tabPage_cardContent.Name = "tabPage_cardContent";
-            this.tabPage_cardContent.Size = new System.Drawing.Size(530, 377);
+            this.tabPage_cardContent.Size = new System.Drawing.Size(530, 366);
             this.tabPage_cardContent.TabIndex = 2;
             this.tabPage_cardContent.Text = "RFID";
             this.tabPage_cardContent.UseVisualStyleBackColor = true;
@@ -1756,7 +1756,7 @@ namespace RFID_Station_control
             // button_clearRfid
             // 
             this.button_clearRfid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_clearRfid.Location = new System.Drawing.Point(6, 271);
+            this.button_clearRfid.Location = new System.Drawing.Point(6, 328);
             this.button_clearRfid.Margin = new System.Windows.Forms.Padding(6);
             this.button_clearRfid.Name = "button_clearRfid";
             this.button_clearRfid.Size = new System.Drawing.Size(100, 32);
@@ -1768,7 +1768,7 @@ namespace RFID_Station_control
             // button_loadRfid
             // 
             this.button_loadRfid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_loadRfid.Location = new System.Drawing.Point(251, 271);
+            this.button_loadRfid.Location = new System.Drawing.Point(325, 328);
             this.button_loadRfid.Margin = new System.Windows.Forms.Padding(6);
             this.button_loadRfid.Name = "button_loadRfid";
             this.button_loadRfid.Size = new System.Drawing.Size(87, 32);
@@ -1780,7 +1780,7 @@ namespace RFID_Station_control
             // button_saveRfid
             // 
             this.button_saveRfid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveRfid.Location = new System.Drawing.Point(350, 271);
+            this.button_saveRfid.Location = new System.Drawing.Point(424, 328);
             this.button_saveRfid.Margin = new System.Windows.Forms.Padding(6);
             this.button_saveRfid.Name = "button_saveRfid";
             this.button_saveRfid.Size = new System.Drawing.Size(100, 32);
@@ -1807,9 +1807,9 @@ namespace RFID_Station_control
             this.dataGridView_chipRawData.Name = "dataGridView_chipRawData";
             this.dataGridView_chipRawData.ReadOnly = true;
             this.dataGridView_chipRawData.RowHeadersVisible = false;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.dataGridView_chipRawData.RowsDefaultCellStyle = dataGridViewCellStyle7;
-            this.dataGridView_chipRawData.Size = new System.Drawing.Size(456, 262);
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.dataGridView_chipRawData.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            this.dataGridView_chipRawData.Size = new System.Drawing.Size(525, 319);
             this.dataGridView_chipRawData.TabIndex = 0;
             this.dataGridView_chipRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_chipRawData_CellDoubleClick);
             // 
@@ -1821,9 +1821,9 @@ namespace RFID_Station_control
             this.tabPage_flashContent.Controls.Add(this.button_loadFlash);
             this.tabPage_flashContent.Controls.Add(this.button_saveFlash);
             this.tabPage_flashContent.Controls.Add(this.button_dumpFlash);
-            this.tabPage_flashContent.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_flashContent.Location = new System.Drawing.Point(4, 33);
             this.tabPage_flashContent.Name = "tabPage_flashContent";
-            this.tabPage_flashContent.Size = new System.Drawing.Size(530, 377);
+            this.tabPage_flashContent.Size = new System.Drawing.Size(530, 366);
             this.tabPage_flashContent.TabIndex = 3;
             this.tabPage_flashContent.Text = "Flash";
             this.tabPage_flashContent.UseVisualStyleBackColor = true;
@@ -1843,8 +1843,8 @@ namespace RFID_Station_control
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.splitContainer3);
-            this.splitContainer2.Size = new System.Drawing.Size(453, 251);
-            this.splitContainer2.SplitterDistance = 265;
+            this.splitContainer2.Size = new System.Drawing.Size(525, 319);
+            this.splitContainer2.SplitterDistance = 307;
             this.splitContainer2.TabIndex = 22;
             // 
             // dataGridView_flashRawData
@@ -1855,14 +1855,14 @@ namespace RFID_Station_control
             this.dataGridView_flashRawData.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dataGridView_flashRawData.AutoSizeRowsMode = System.Windows.Forms.DataGridViewAutoSizeRowsMode.AllCells;
             this.dataGridView_flashRawData.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dataGridView_flashRawData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView_flashRawData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView_flashRawData.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
@@ -1870,26 +1870,26 @@ namespace RFID_Station_control
             this.dataGridView_flashRawData.MultiSelect = false;
             this.dataGridView_flashRawData.Name = "dataGridView_flashRawData";
             this.dataGridView_flashRawData.ReadOnly = true;
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle9.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dataGridView_flashRawData.RowHeadersVisible = false;
-            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle10.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dataGridView_flashRawData.RowsDefaultCellStyle = dataGridViewCellStyle10;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dataGridView_flashRawData.RowsDefaultCellStyle = dataGridViewCellStyle5;
             this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.dataGridView_flashRawData.RowTemplate.DefaultCellStyle.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
             this.dataGridView_flashRawData.RowTemplate.ReadOnly = true;
             this.dataGridView_flashRawData.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             this.dataGridView_flashRawData.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGridView_flashRawData.Size = new System.Drawing.Size(265, 251);
+            this.dataGridView_flashRawData.Size = new System.Drawing.Size(307, 319);
             this.dataGridView_flashRawData.TabIndex = 1;
             this.dataGridView_flashRawData.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_flashRawData_CellDoubleClick);
             this.dataGridView_flashRawData.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridView_flashRawData_RowEnter);
@@ -1908,8 +1908,8 @@ namespace RFID_Station_control
             // splitContainer3.Panel2
             // 
             this.splitContainer3.Panel2.Controls.Add(this.textBox_rawData);
-            this.splitContainer3.Size = new System.Drawing.Size(184, 251);
-            this.splitContainer3.SplitterDistance = 119;
+            this.splitContainer3.Size = new System.Drawing.Size(214, 319);
+            this.splitContainer3.SplitterDistance = 151;
             this.splitContainer3.TabIndex = 0;
             // 
             // textBox_checkPoints
@@ -1919,7 +1919,7 @@ namespace RFID_Station_control
             this.textBox_checkPoints.Multiline = true;
             this.textBox_checkPoints.Name = "textBox_checkPoints";
             this.textBox_checkPoints.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_checkPoints.Size = new System.Drawing.Size(184, 119);
+            this.textBox_checkPoints.Size = new System.Drawing.Size(214, 151);
             this.textBox_checkPoints.TabIndex = 0;
             // 
             // textBox_rawData
@@ -1929,13 +1929,13 @@ namespace RFID_Station_control
             this.textBox_rawData.Multiline = true;
             this.textBox_rawData.Name = "textBox_rawData";
             this.textBox_rawData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_rawData.Size = new System.Drawing.Size(184, 128);
+            this.textBox_rawData.Size = new System.Drawing.Size(214, 164);
             this.textBox_rawData.TabIndex = 0;
             // 
             // button_clearFlash
             // 
             this.button_clearFlash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button_clearFlash.Location = new System.Drawing.Point(6, 260);
+            this.button_clearFlash.Location = new System.Drawing.Point(6, 328);
             this.button_clearFlash.Margin = new System.Windows.Forms.Padding(6);
             this.button_clearFlash.Name = "button_clearFlash";
             this.button_clearFlash.Size = new System.Drawing.Size(100, 32);
@@ -1947,7 +1947,7 @@ namespace RFID_Station_control
             // button_loadFlash
             // 
             this.button_loadFlash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_loadFlash.Location = new System.Drawing.Point(251, 260);
+            this.button_loadFlash.Location = new System.Drawing.Point(325, 328);
             this.button_loadFlash.Margin = new System.Windows.Forms.Padding(6);
             this.button_loadFlash.Name = "button_loadFlash";
             this.button_loadFlash.Size = new System.Drawing.Size(87, 32);
@@ -1959,7 +1959,7 @@ namespace RFID_Station_control
             // button_saveFlash
             // 
             this.button_saveFlash.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_saveFlash.Location = new System.Drawing.Point(350, 260);
+            this.button_saveFlash.Location = new System.Drawing.Point(424, 328);
             this.button_saveFlash.Margin = new System.Windows.Forms.Padding(6);
             this.button_saveFlash.Name = "button_saveFlash";
             this.button_saveFlash.Size = new System.Drawing.Size(100, 32);
