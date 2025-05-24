@@ -16,9 +16,13 @@ namespace RFID_Station_control
         public static ushort TeamBlockSize = 1024;
         public static ushort EraseBlockSize = 4096;
         public static bool AutoReport = false;
-        public const string BtName = "Sportduino-xx";
-        public const string BtPin = "1111";
-        public const string BtCommand = "AT";
+        public static string BtName = "Sportduino-xx";
+        public static string BtPin = "1111";
+        public static string BtCommand = "AT";
+
+        public static byte[] AuthPwd = new byte[4];
+        public static byte[] AuthPack = new byte[2];
+        public static bool AuthEnabled = false;
 
         //режимы станции
         public static readonly Dictionary<string, byte> StationMode = new Dictionary<string, byte>

@@ -69,6 +69,8 @@ namespace RFID_Station_control
             public const byte SET_PWD = 0x9b;
             public const byte SET_PACK = 0x9c;
             public const byte UNLOCK_CHIP = 0x9d;
+            public const byte GET_AUTH = 0x9e;
+            public const byte GET_BTNAME = 0x9f;
         }
 
         //минимальные размеры данных для команд header[6]+crc[1]+params[?]
@@ -104,6 +106,8 @@ namespace RFID_Station_control
             public const byte SET_PWD = 7 + 4;
             public const byte SET_PACK = 7 + 2;
             public const byte UNLOCK_CHIP = 7 + 0;
+            public const byte GET_AUTH = 7 + 0;
+            public const byte GET_BTNAME = 7 + 0;
         }
 
         //коды ответов станции
@@ -139,6 +143,8 @@ namespace RFID_Station_control
             public const byte SET_PWD = 0xab;
             public const byte SET_PACK = 0xac;
             public const byte UNLOCK_CHIP = 0xad;
+            public const byte GET_AUTH = 0xae;
+            public const byte GET_BTNAME = 0xaf;
         }
 
         //размеры данных для ответов
@@ -174,6 +180,8 @@ namespace RFID_Station_control
             public const byte SET_PWD = 1;
             public const byte SET_PACK = 1;
             public const byte UNLOCK_CHIP = 1;
+            public const byte GET_AUTH = 8;
+            public const byte GET_BTNAME = 1;
         }
 
         public class ReplyData
@@ -493,6 +501,46 @@ namespace RFID_Station_control
                     return result;
                 }
             }
+
+            public class GetAuthReply
+            {
+                public bool Enabled;
+                public byte[] PWD;
+                public byte[] PACK;
+
+                public GetAuthReply(ReplyData data)
+                {
+                    Enabled = data.Byte1 > 0;
+                    PWD = data.ByteArray1;
+                    PACK = data.ByteArray2;
+                }
+
+                public override string ToString()
+                {
+                    var result = "AUTH enabled: " + Enabled + Environment.NewLine;
+                    result += "PWD:" + Helpers.ConvertByteArrayToHex(PWD, 0, 4) + Environment.NewLine;
+                    result += "PACK:" + Helpers.ConvertByteArrayToHex(PACK, 0, 2) + Environment.NewLine;
+
+                    return result;
+                }
+            }
+
+            public class GetBtNameReply
+            {
+                public readonly string BluetoothName;
+
+                public GetBtNameReply(ReplyData data)
+                {
+                    BluetoothName = Encoding.ASCII.GetString(data.ByteArray1);
+                }
+
+                public override string ToString()
+                {
+                    var result = "Bluetooth name: " + BluetoothName + Environment.NewLine;
+
+                    return result;
+                }
+            }
         }
 
         //текстовые обозначения кодов команд
@@ -528,6 +576,8 @@ namespace RFID_Station_control
             { 0x9b, "SET_PWD"},
             { 0x9c, "SET_PACK"},
             { 0x9d, "UNLOCK_CHIP"},
+            { 0x9e, "GET_AUTH"},
+            { 0x9f, "GET_BTNAME"},
         };
 
         //текстовые обозначения кодов ответов
@@ -563,6 +613,8 @@ namespace RFID_Station_control
             { 0xab, "SET_PWD"},
             { 0xac, "SET_PACK"},
             { 0xad, "UNLOCK_CHIP"},
+            { 0xae, "GET_AUTH"},
+            { 0xaf, "GET_BTNAME"},
         };
 
         // текстовые обозначения кодов ошибок станции
@@ -633,6 +685,8 @@ namespace RFID_Station_control
             {80, "CARD PROCESSING: error sending autoreport"},
 
             {90, "STARTUP: incorrect auth mode in EEPROM"},
+            {91, "STARTUP: can't init FFAT"},
+            {92, "STARTUP: can't init settings"},
         };
 
         //header = 0xFE[0] + packetID[1] + station#[2] + cmd#[3] + lenHigh[4] + lenLow[5] + data[6-...] + crc
@@ -647,7 +701,7 @@ namespace RFID_Station_control
             public const byte DATA_START_BYTE = 6;
         }
 
-        public List<ReplyData> _repliesList = new List<ReplyData>();
+        public readonly List<ReplyData> RepliesList = new List<ReplyData>();
 
         public bool AddData(List<byte> data)
         {
@@ -723,7 +777,7 @@ namespace RFID_Station_control
                             {
                                 completed = true;
                                 parsedReply.ReplyTimeStamp = _receiveStartTime;
-                                _repliesList.Add(parsedReply);
+                                RepliesList.Add(parsedReply);
                             }
 
                             _receivingData = true;
@@ -772,7 +826,7 @@ namespace RFID_Station_control
             }
 
             if (result.Length > 0)
-                _repliesList.Add(new ReplyData()
+                RepliesList.Add(new ReplyData()
                 {
                     Message = result.ToString()
                 });
@@ -1196,6 +1250,22 @@ namespace RFID_Station_control
 
             return GenerateCommand(unlockChip);
         }
+
+        public byte[] GetAuth()
+        {
+            var unlockChip = new byte[CommandDataLength.GET_AUTH];
+            unlockChip[PacketBytes.COMMAND_BYTE] = Command.GET_AUTH;
+
+            return GenerateCommand(unlockChip);
+        }
+
+        public byte[] GetBtName()
+        {
+            var unlockChip = new byte[CommandDataLength.GET_BTNAME];
+            unlockChip[PacketBytes.COMMAND_BYTE] = Command.GET_BTNAME;
+
+            return GenerateCommand(unlockChip);
+        }
         #endregion
 
         #region Parse replies
@@ -1311,6 +1381,12 @@ namespace RFID_Station_control
                     break;
                 case Reply.UNLOCK_CHIP:
                     if (result.DataLength == ReplyDataLength.UNLOCK_CHIP) result = Reply_unlockChip(data);
+                    break;
+                case Reply.GET_AUTH:
+                    if (result.DataLength == ReplyDataLength.GET_AUTH) result = Reply_getAuth(data);
+                    break;
+                case Reply.GET_BTNAME:
+                    if (result.DataLength >= ReplyDataLength.GET_BTNAME) result = Reply_getBtName(data);
                     break;
 
                 default:
@@ -2059,6 +2135,73 @@ namespace RFID_Station_control
             return reply;
         }
 
+        private ReplyData Reply_getAuth(byte[] data)
+        {
+            //0: код ошибки
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                      data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
+            reply.Packet = new byte[packetLength];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+
+            //1: авторизация вкл/выкл
+            //2-5: пароль авторизации
+            //6-7: ответ авторизации
+            var a = new List<byte>();
+            reply.Byte1 = data[PacketBytes.DATA_START_BYTE + 1];
+            for (var i = 2; i <= reply.DataLength - 1 && i <= 5; i++)
+            {
+                var n = data[PacketBytes.DATA_START_BYTE + i];
+                a.Add(n);
+            }
+            reply.ByteArray1 = a.ToArray();
+
+            a.Clear();
+            for (var i = 6; i <= reply.DataLength - 1 && i <= 7; i++)
+            {
+                var n = data[PacketBytes.DATA_START_BYTE + i];
+                a.Add(n);
+            }
+            reply.ByteArray2 = a.ToArray();
+
+            return reply;
+        }
+
+        private ReplyData Reply_getBtName(byte[] data)
+        {
+            //0: код ошибки
+            var reply = new ReplyData
+            {
+                ReplyId = data[PacketBytes.PACKET_ID_BYTE],
+                StationNumber = data[PacketBytes.STATION_NUMBER_BYTE],
+                ReplyCode = data[PacketBytes.COMMAND_BYTE],
+                ErrorCode = data[PacketBytes.DATA_START_BYTE],
+                DataLength = (ushort)(data[PacketBytes.DATA_LENGTH_HIGH_BYTE] * 256 +
+                                      data[PacketBytes.DATA_LENGTH_LOW_BYTE])
+            };
+            var packetLength = reply.DataLength + PacketBytes.DATA_START_BYTE + 1;
+            reply.Packet = new byte[packetLength];
+            for (var i = 0; i < packetLength; i++) reply.Packet[i] = data[i];
+
+            //1-n: имя Bluetooth модуля
+            var a = new List<byte>();
+            reply.Byte1 = data[PacketBytes.DATA_START_BYTE + 1];
+            for (var i = 1; i <= reply.DataLength - 1; i++)
+            {
+                var n = data[PacketBytes.DATA_START_BYTE + i];
+                a.Add(n);
+            }
+            reply.ByteArray1 = a.ToArray();
+
+            return reply;
+        }
         #endregion
     }
 }

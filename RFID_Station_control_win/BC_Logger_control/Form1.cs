@@ -77,7 +77,7 @@ namespace RFID_Station_control
 
         private TeamsContainer _teams;
 
-        public static ProtocolParser Parser;
+        private static ProtocolParser _parser;
 
         #region COM_port_handling
 
@@ -172,9 +172,11 @@ namespace RFID_Station_control
                 button_getLastErrors.Enabled = true;
                 button_getConfig2.Enabled = true;
                 button_setAutoReport.Enabled = true;
+                button_getAuth.Enabled = true;
                 button_setAuth.Enabled = true;
                 button_setPwd.Enabled = true;
                 button_setPack.Enabled = true;
+                button_getBtName.Enabled = true;
 
                 button_closePort.Enabled = true;
                 button_openPort.Enabled = false;
@@ -266,10 +268,10 @@ namespace RFID_Station_control
                             (byte)DataDirection.Error, DateTime.Now);
                     }
 
-                Parser.AddData(input);
-                if (Parser._repliesList.Count > 0)
+                _parser.AddData(input);
+                if (_parser.RepliesList.Count > 0)
                 {
-                    foreach (var reply in Parser._repliesList)
+                    foreach (var reply in _parser.RepliesList)
                     {
                         // command reply from station
                         if (reply.ReplyCode != 0)
@@ -303,6 +305,10 @@ namespace RFID_Station_control
                                     Reply_sendBtCommand(reply);
                                 else if (reply.ReplyCode == ProtocolParser.Reply.GET_LAST_ERRORS)
                                     Reply_getLastErrors(reply);
+                                else if (reply.ReplyCode == ProtocolParser.Reply.GET_AUTH)
+                                    Reply_getAuth(reply);
+                                else if (reply.ReplyCode == ProtocolParser.Reply.GET_BTNAME)
+                                    Reply_getBtName(reply);
                             }
                         }
                         // text message from station
@@ -315,7 +321,7 @@ namespace RFID_Station_control
                         _asyncFlag--;
                     }
 
-                    Parser._repliesList.Clear();
+                    _parser.RepliesList.Clear();
                 }
             }
         }
@@ -371,7 +377,7 @@ namespace RFID_Station_control
             if (!StationSettings.StationMode.TryGetValue(comboBox_mode.SelectedItem.ToString(), out var mode))
                 return;
 
-            var setMode = Parser.SetMode(mode);
+            var setMode = _parser.SetMode(mode);
             SendCommand(setMode);
         }
 
@@ -387,7 +393,7 @@ namespace RFID_Station_control
                 textBox_setTime.Text = Helpers.DateToString(timeToSet);
             }
 
-            var setTime = Parser.SetTime(timeToSet);
+            var setTime = _parser.SetTime(timeToSet);
             SendCommand(setTime);
         }
 
@@ -403,13 +409,13 @@ namespace RFID_Station_control
             //6: новый номер станции
             byte.TryParse(textBox_newStationNumber.Text, out var newStationNumber);
 
-            var resetStation = Parser.ResetStation(chipsNumber, lastCheck, newStationNumber);
+            var resetStation = _parser.ResetStation(chipsNumber, lastCheck, newStationNumber);
             SendCommand(resetStation);
         }
 
         private void Button_getStatus_Click(object sender, EventArgs e)
         {
-            var getStatus = Parser.GetStatus();
+            var getStatus = _parser.GetStatus();
             SendCommand(getStatus);
         }
 
@@ -430,13 +436,13 @@ namespace RFID_Station_control
                 j++;
             }
 
-            var initChip = Parser.InitChip(teamNumber, mask);
+            var initChip = _parser.InitChip(teamNumber, mask);
             SendCommand(initChip);
         }
 
         private void Button_getLastTeam_Click(object sender, EventArgs e)
         {
-            var getLastTeam = Parser.GetLastTeam();
+            var getLastTeam = _parser.GetLastTeam();
             SendCommand(getLastTeam);
         }
 
@@ -444,7 +450,7 @@ namespace RFID_Station_control
         {
             //0-1: какую запись
             ushort.TryParse(textBox_TeamNumber.Text, out var teamNumber);
-            var getTeamRecord = Parser.GetTeamRecord(teamNumber);
+            var getTeamRecord = _parser.GetTeamRecord(teamNumber);
             SendCommand(getTeamRecord);
         }
 
@@ -459,7 +465,7 @@ namespace RFID_Station_control
                 .Substring(textBox_readChipPage.Text.IndexOf("-", StringComparison.Ordinal) + 1)
                 .Trim(), out var toPage);
 
-            var readCardPage = Parser.ReadCardPage(fromPage, toPage);
+            var readCardPage = _parser.ReadCardPage(fromPage, toPage);
             SendCommand(readCardPage);
         }
 
@@ -486,7 +492,7 @@ namespace RFID_Station_control
                 j++;
             }
 
-            var updateTeamMask = Parser.UpdateTeamMask(teamNumber, issueTime, mask);
+            var updateTeamMask = _parser.UpdateTeamMask(teamNumber, issueTime, mask);
             SendCommand(updateTeamMask);
         }
 
@@ -505,7 +511,7 @@ namespace RFID_Station_control
             if (data.Length != 4)
                 return;
 
-            var writeCardPage = Parser.WriteCardPage(uid, pageNumber, data);
+            var writeCardPage = _parser.WriteCardPage(uid, pageNumber, data);
             SendCommand(writeCardPage);
         }
 
@@ -517,7 +523,7 @@ namespace RFID_Station_control
             //4-5: размер блока
             ushort.TryParse(textBox_readFlashLength.Text, out var readLength);
 
-            var readFlash = Parser.ReadFlash(fromAddr, readLength);
+            var readFlash = _parser.ReadFlash(fromAddr, readLength);
             SendCommand(readFlash);
         }
 
@@ -529,7 +535,7 @@ namespace RFID_Station_control
             //4...: данные для записи
             var data = Helpers.ConvertHexToByteArray(textBox_flashData.Text);
 
-            var writeFlash = Parser.WriteFlash(startAddress, data);
+            var writeFlash = _parser.WriteFlash(startAddress, data);
             SendCommand(writeFlash);
         }
 
@@ -538,13 +544,13 @@ namespace RFID_Station_control
             //0-1: какой сектор
             ushort.TryParse(textBox_TeamNumber.Text, out var teamNumber);
 
-            var eraseTeamFlash = Parser.EraseTeamFlash(teamNumber);
+            var eraseTeamFlash = _parser.EraseTeamFlash(teamNumber);
             SendCommand(eraseTeamFlash);
         }
 
         private void Button_getConfig_Click(object sender, EventArgs e)
         {
-            var getConfig = Parser.GetConfig();
+            var getConfig = _parser.GetConfig();
             SendCommand(getConfig);
         }
 
@@ -559,7 +565,7 @@ namespace RFID_Station_control
             if (float.TryParse(textBox_koeff.Text, out StationSettings.VoltageCoefficient))
             {
                 textBox_koeff.Text = StationSettings.VoltageCoefficient.ToString();
-                var setKoeff = Parser.SetVCoeff(StationSettings.VoltageCoefficient);
+                var setKoeff = _parser.SetVCoeff(StationSettings.VoltageCoefficient);
                 SendCommand(setKoeff);
             }
         }
@@ -569,7 +575,7 @@ namespace RFID_Station_control
             //0: новый коэфф.
             if (!StationSettings.Gain.TryGetValue(comboBox_setGain.SelectedItem.ToString(), out var gainValue))
                 return;
-            var setGain = Parser.SetGain(gainValue);
+            var setGain = _parser.SetGain(gainValue);
             SendCommand(setGain);
         }
 
@@ -577,7 +583,7 @@ namespace RFID_Station_control
         {
             //0: новый тип чипа
             var newChipType = RfidContainer.ChipTypes.SystemIds[_selectedChipType];
-            var setChipType = Parser.SetChipType(newChipType);
+            var setChipType = _parser.SetChipType(newChipType);
             SendCommand(setChipType);
         }
 
@@ -586,7 +592,7 @@ namespace RFID_Station_control
             //0-1: новый размер блока команды
             ushort.TryParse(textBox_teamFlashSize.Text, out StationSettings.TeamBlockSize);
 
-            var setTeamFlashSize = Parser.SetTeamFlashSize(StationSettings.TeamBlockSize);
+            var setTeamFlashSize = _parser.SetTeamFlashSize(StationSettings.TeamBlockSize);
             SendCommand(setTeamFlashSize);
         }
 
@@ -595,7 +601,7 @@ namespace RFID_Station_control
             //0-1: новый размер стираемого блока
             ushort.TryParse(textBox_eraseBlock.Text, out StationSettings.EraseBlockSize);
 
-            var setEraseBlockSize = Parser.SetEraseBlock(StationSettings.EraseBlockSize);
+            var setEraseBlockSize = _parser.SetEraseBlock(StationSettings.EraseBlockSize);
             SendCommand(setEraseBlockSize);
         }
 
@@ -604,7 +610,7 @@ namespace RFID_Station_control
             if (string.IsNullOrEmpty(textBox_BtName.Text))
                 return;
             //0...: данные для записи
-            var setBtName = Parser.SetBtName(textBox_BtName.Text);
+            var setBtName = _parser.SetBtName(textBox_BtName.Text);
             SendCommand(setBtName);
         }
 
@@ -613,7 +619,7 @@ namespace RFID_Station_control
             if (string.IsNullOrEmpty(textBox_BtPin.Text))
                 return;
             //0...: данные для записи
-            var setBtName = Parser.SetBtPin(textBox_BtPin.Text);
+            var setBtName = _parser.SetBtPin(textBox_BtPin.Text);
             SendCommand(setBtName);
         }
 
@@ -627,7 +633,7 @@ namespace RFID_Station_control
             if (float.TryParse(textBox_setBatteryLimit.Text, out StationSettings.BatteryLimit))
             {
                 textBox_setBatteryLimit.Text = StationSettings.BatteryLimit.ToString();
-                var setBatteryLimit = Parser.SetBatteryLimit(StationSettings.BatteryLimit);
+                var setBatteryLimit = _parser.SetBatteryLimit(StationSettings.BatteryLimit);
                 SendCommand(setBatteryLimit);
             }
         }
@@ -637,7 +643,7 @@ namespace RFID_Station_control
             //0-1: начальный номер команды
             ushort.TryParse(textBox_TeamNumber.Text, out var teamNumber);
 
-            var scanTeams = Parser.ScanTeams(teamNumber);
+            var scanTeams = _parser.ScanTeams(teamNumber);
             SendCommand(scanTeams);
         }
 
@@ -646,27 +652,27 @@ namespace RFID_Station_control
             if (string.IsNullOrEmpty(textBox_sendBtCommand.Text))
                 return;
             //0...: команда
-            var sendBtCommand = Parser.SendBtCommand(textBox_sendBtCommand.Text + Environment.NewLine);
+            var sendBtCommand = _parser.SendBtCommand(textBox_sendBtCommand.Text + Environment.NewLine);
             SendCommand(sendBtCommand);
         }
 
         private void Button_getLastErrors_Click(object sender, EventArgs e)
         {
-            var geLastErrors = Parser.GetLastErrors();
+            var geLastErrors = _parser.GetLastErrors();
             SendCommand(geLastErrors);
         }
 
         private void Button_setAutoReport_Click(object sender, EventArgs e)
         {
             //0: новый режим автоответа
-            var setMode = Parser.SetAutoReport(checkBox_AutoReport.Checked);
+            var setMode = _parser.SetAutoReport(checkBox_AutoReport.Checked);
             SendCommand(setMode);
         }
 
         private void Button_setAuth_Click(object sender, EventArgs e)
         {
             //0: новый режим авторизации
-            var setAuth = Parser.SetAuth(checkBox_setAuth.Checked);
+            var setAuth = _parser.SetAuth(checkBox_setAuth.Checked);
             SendCommand(setAuth);
         }
 
@@ -675,7 +681,7 @@ namespace RFID_Station_control
             //0..3: ключ авторизации
             var data = Helpers.ConvertHexToByteArray(textBox_setPwd.Text);
 
-            var setPwd = Parser.SetPwd(data);
+            var setPwd = _parser.SetPwd(data);
             SendCommand(setPwd);
         }
 
@@ -684,8 +690,20 @@ namespace RFID_Station_control
             //0..1: ответ авторизации
             var data = Helpers.ConvertHexToByteArray(textBox_setPack.Text);
 
-            var setPack = Parser.SetPack(data);
+            var setPack = _parser.SetPack(data);
             SendCommand(setPack);
+        }
+
+        private void button_getAuth_Click(object sender, EventArgs e)
+        {
+            var getConfig = _parser.GetAuth();
+            SendCommand(getConfig);
+        }
+
+        private void button_getBtName_Click(object sender, EventArgs e)
+        {
+            var getConfig = _parser.GetBtName();
+            SendCommand(getConfig);
         }
         #endregion
 
@@ -720,7 +738,7 @@ namespace RFID_Station_control
             Invoke((MethodInvoker)delegate
            {
                StationSettings.Number = reply.StationNumber;
-               Parser.StationNumber = StationSettings.Number;
+               _parser.StationNumber = StationSettings.Number;
                textBox_stationNumber.Text = StationSettings.Number.ToString();
            });
         }
@@ -822,7 +840,7 @@ namespace RFID_Station_control
                 TextLogger.TextLogger.TimeFormat.None);
 
             StationSettings.Number = reply.StationNumber;
-            Parser.StationNumber = StationSettings.Number;
+            _parser.StationNumber = StationSettings.Number;
 
             StationSettings.FwVersion = replyDetails.FwVersion;
             StationSettings.Mode = replyDetails.Mode;
@@ -845,7 +863,7 @@ namespace RFID_Station_control
             StationSettings.EraseBlockSize = replyDetails.EraseBlockSize;
             StationSettings.BatteryLimit = replyDetails.BatteryLimit;
             StationSettings.MaxPacketLength = replyDetails.MaxPacketLength;
-            Parser.MaxPacketLength = StationSettings.MaxPacketLength;
+            _parser.MaxPacketLength = StationSettings.MaxPacketLength;
             StationSettings.AutoReport = replyDetails.AutoreportMode;
 
             Invoke((MethodInvoker)delegate
@@ -911,6 +929,48 @@ namespace RFID_Station_control
                 new ProtocolParser.ReplyData.GetLastErrorsReply(reply);
             _logger.AddText(replyDetails.ToString(), (byte)DataDirection.Info, DateTime.Now,
                 TextLogger.TextLogger.TimeFormat.None);
+        }
+
+        private void Reply_getAuth(ProtocolParser.ReplyData reply)
+        {
+            //0: код ошибки
+            //1: авторизация вкл/выкл
+            //2-5: пароль авторизации
+            //6-7: ответ авторизации
+            var replyDetails =
+                new ProtocolParser.ReplyData.GetAuthReply(reply);
+            _logger.AddText(replyDetails.ToString(), (byte)DataDirection.Info, DateTime.Now,
+                TextLogger.TextLogger.TimeFormat.None);
+
+            StationSettings.AuthEnabled = replyDetails.Enabled;
+            StationSettings.AuthPwd = replyDetails.PWD;
+            StationSettings.AuthPack = replyDetails.PACK;
+
+            Invoke((MethodInvoker)delegate
+            {
+                checkBox_setAuth.Checked = StationSettings.AutoReport;
+                textBox_setPwd.Text = Helpers.ConvertByteArrayToHex(StationSettings.AuthPwd);
+                textBox_setPack.Text = Helpers.ConvertByteArrayToHex(StationSettings.AuthPack);
+            });
+        }
+
+        private void Reply_getBtName(ProtocolParser.ReplyData reply)
+        {
+            //0: код ошибки
+            //1: авторизация вкл/выкл
+            //2-5: пароль авторизации
+            //6-7: ответ авторизации
+            var replyDetails =
+                new ProtocolParser.ReplyData.GetBtNameReply(reply);
+            _logger.AddText(replyDetails.ToString(), (byte)DataDirection.Info, DateTime.Now,
+                TextLogger.TextLogger.TimeFormat.None);
+
+            StationSettings.BtName = replyDetails.BluetoothName;
+
+            Invoke((MethodInvoker)delegate
+            {
+                textBox_BtName.Text = StationSettings.BtName;
+            });
         }
         #endregion
 
@@ -1012,7 +1072,7 @@ namespace RFID_Station_control
             comboBox_mode.SelectedIndex = 0;
             comboBox_setGain.SelectedIndex = 0;
 
-            Parser = new ProtocolParser();
+            _parser = new ProtocolParser();
 
             _teams = new TeamsContainer();
             RefreshTeamsGrid();
@@ -1039,7 +1099,7 @@ namespace RFID_Station_control
         private void TextBox_stationNumber_Leave(object sender, EventArgs e)
         {
             byte.TryParse(textBox_stationNumber.Text, out StationSettings.Number);
-            Parser.StationNumber = StationSettings.Number;
+            _parser.StationNumber = StationSettings.Number;
             textBox_stationNumber.Text = StationSettings.Number.ToString();
         }
 
@@ -1314,7 +1374,7 @@ namespace RFID_Station_control
             do
             {
                 //0-1: какую запись
-                var scanTeams = Parser.ScanTeams(teamNum);
+                var scanTeams = _parser.ScanTeams(teamNum);
                 _asyncFlag++;
                 SendCommand(scanTeams);
 
@@ -1359,7 +1419,7 @@ namespace RFID_Station_control
                     break;
 
                 //0-1: какую запись
-                var getTeamRecord = Parser.GetTeamRecord(teamNum);
+                var getTeamRecord = _parser.GetTeamRecord(teamNum);
                 _asyncFlag++;
                 SendCommand(getTeamRecord);
                 rowNum++;
@@ -1409,7 +1469,7 @@ namespace RFID_Station_control
 
                 //0: с какой страницу карты
                 //1: по какую страницу карты включительно
-                var readCardPage = Parser.ReadCardPage((byte)pagesFrom, (byte)pagesTo);
+                var readCardPage = _parser.ReadCardPage((byte)pagesFrom, (byte)pagesTo);
                 _asyncFlag++;
                 SendCommand(readCardPage);
                 pagesFrom = (byte)(pagesTo + 1);
@@ -1455,7 +1515,7 @@ namespace RFID_Station_control
                 if (addrTo >= _stationFlash.Size)
                     addrTo = _stationFlash.Size;
 
-                var readFlash = Parser.ReadFlash(addrFrom, (ushort)(addrTo - addrFrom));
+                var readFlash = _parser.ReadFlash(addrFrom, (ushort)(addrTo - addrFrom));
                 _asyncFlag++;
                 SendCommand(readFlash);
                 addrFrom = addrTo;
@@ -1507,7 +1567,7 @@ namespace RFID_Station_control
             for (page = 4; page < chipSize - 4; page++)
             {
                 //8: номер страницы
-                var writeCardPage = Parser.WriteCardPage(uid, page, data);
+                var writeCardPage = _parser.WriteCardPage(uid, page, data);
                 _asyncFlag++;
                 SendCommand(writeCardPage);
 
@@ -1533,7 +1593,7 @@ namespace RFID_Station_control
         {
             button_unlockChip.Enabled = false;
 
-            var setPack = Parser.UnlockChip();
+            var setPack = _parser.UnlockChip();
             SendCommand(setPack);
 
             button_unlockChip.Enabled = true;
@@ -1585,7 +1645,7 @@ namespace RFID_Station_control
                 return;
 
             _asyncFlag = 0;
-            var getTeamRecord = Parser.GetTeamRecord(teamNum);
+            var getTeamRecord = _parser.GetTeamRecord(teamNum);
             _asyncFlag++;
             SendCommand(getTeamRecord);
 
@@ -1611,7 +1671,7 @@ namespace RFID_Station_control
 
             //0: с какой страницу карты
             //1: по какую страницу карты включительно
-            var readCardPage = Parser.ReadCardPage(page, page);
+            var readCardPage = _parser.ReadCardPage(page, page);
             _asyncFlag = 0;
             _asyncFlag++;
             SendCommand(readCardPage);
@@ -1647,7 +1707,7 @@ namespace RFID_Station_control
                 if (addrTo >= flashSize)
                     addrTo = flashSize;
 
-                var readFlash = Parser.ReadFlash(addrFrom, (ushort)(addrTo - addrFrom));
+                var readFlash = _parser.ReadFlash(addrFrom, (ushort)(addrTo - addrFrom));
                 _asyncFlag++;
                 SendCommand(readFlash);
                 addrFrom = addrTo;
@@ -1703,6 +1763,7 @@ namespace RFID_Station_control
         {
             try
             {
+                Button_closePort_Click(this, EventArgs.Empty);
                 serialPort1.Close();
             }
             catch (Exception)
