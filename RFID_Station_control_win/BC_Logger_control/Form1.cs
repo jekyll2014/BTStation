@@ -18,10 +18,10 @@ namespace RFID_Station_control
 {
     public partial class Form1 : Form
     {
-        private const int INPUT_CODE_PAGE = 866;
+        private const int InputCodePage = 866;
         private int _portSpeed = 38400;
-        private const ulong _receiveTimeOut = 1000;
-        private string _decimalSeparator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+        private const ulong ReceiveTimeOut = 1000;
+        private readonly string _decimalSeparator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator;
 
         private bool _receivingData;
 
@@ -251,7 +251,7 @@ namespace RFID_Station_control
             lock (_serialReceiveThreadLock)
             {
                 if (_receivingData && DateTime.Now.ToUniversalTime().Subtract(_receiveStartTime).TotalMilliseconds >
-                    _receiveTimeOut)
+                    ReceiveTimeOut)
                     _receivingData = false;
 
                 var input = new List<byte>();
@@ -1056,7 +1056,7 @@ namespace RFID_Station_control
             _portSpeed = Settings.Default.BaudRate;
             comboBox_portSpeed.SelectedItem = _portSpeed;
 
-            serialPort1.Encoding = Encoding.GetEncoding(INPUT_CODE_PAGE);
+            serialPort1.Encoding = Encoding.GetEncoding(InputCodePage);
             //Serial init
             Button_refresh_Click(null, EventArgs.Empty);
 
@@ -1763,6 +1763,8 @@ namespace RFID_Station_control
         {
             try
             {
+                Settings.Default.BaudRate = _portSpeed;
+                Settings.Default.Save();
                 Button_closePort_Click(this, EventArgs.Empty);
                 serialPort1.Close();
             }
