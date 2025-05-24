@@ -35,4 +35,4 @@
 
 // размер буфера последних команд
 #define LAST_ERRORS_LENGTH 10
-#define MAX_PAKET_LENGTH	512
+#define MAX_PAKET_LENGTH	256

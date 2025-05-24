@@ -3188,7 +3188,8 @@ uint16_t refreshChipCounter()
 		uint8_t data[2];
 		if (!SPIflash.readByteArray(addr, data, 2))
 		{
-			sendError(FLASH_READ_ERROR, REPLY_SCAN_TEAMS);
+			errorBeepMs(4, 200);
+			addLastError(PROCESS_FIND_FREE_PAGE);
 
 			return chips;
 		}
