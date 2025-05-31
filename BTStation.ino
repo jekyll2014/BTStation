@@ -343,7 +343,7 @@ bool RfidStart()
 
 	if (AuthEnabled)
 	{
-		result = ntagAuth(AuthPwd, AuthPack);
+		result = ntagAuth(AuthPwd, AuthPack, false);
 	}
 
 	return result;
@@ -524,7 +524,7 @@ void processRfidCard()
 	}
 
 	// Есть ли чип на флэше
-	if (!already_checked && SPIflash.readWord(uint32_t(uint32_t(teamNumber) * uint32_t(teamFlashSize))) == teamNumber)
+	if (!already_checked && checkTeamExists(teamNumber))
 	{
 		already_checked = true;
 #ifdef DEBUG
@@ -782,7 +782,7 @@ bool readUart()
 	return false;
 }
 
-// Commands processing
+#pragma region Commands processing
 
 // поиск функции
 void executeCommand()
@@ -915,7 +915,14 @@ void executeCommand()
 		if (data_length == DATA_LENGTH_UNLOCK_CHIP) unlockChip();
 		else errorLengthFlag = true;
 		break;
-
+	case COMMAND_GET_AUTH:
+		if (data_length == DATA_LENGTH_GET_AUTH) getAuth();
+		else errorLengthFlag = true;
+		break;
+	case COMMAND_GET_BTNAME:
+		if (data_length == DATA_LENGTH_GET_BTNAME) getBtName();
+		else errorLengthFlag = true;
+		break;
 	default:
 		sendError(WRONG_COMMAND, uartBuffer[COMMAND_BYTE] + 0x10);
 		break;
@@ -1170,8 +1177,18 @@ void initChip()
 		RfidEnd();
 		digitalWrite(GREEN_LED_PIN, LOW);
 		sendError(LOW_INIT_TIME, REPLY_INIT_CHIP);
-
 		return;
+	}
+
+	if (AuthEnabled)
+	{
+		if (!ntagSetPassword(AuthPwd, AuthPack, true, false, 0, 0))
+		{
+			RfidEnd();
+			digitalWrite(GREEN_LED_PIN, LOW);
+			sendError(CHIP_SETPASS_ERROR, REPLY_INIT_CHIP);
+			return;
+		}
 	}
 
 	// заполняем чип 0x00
@@ -1737,7 +1754,7 @@ void readFlash()
 void writeFlash()
 {
 	// 0-3: адрес начала записи
-	// 1: кол-во записанных байт (для проверки)
+	// 4-n: данные
 	uint32_t startAddress = uartBuffer[DATA_START_BYTE];
 	startAddress <<= 8;
 	startAddress += uartBuffer[DATA_START_BYTE + 1];
@@ -1806,7 +1823,7 @@ void getConfig()
 	// 3: тип чипов (емкость разная, а распознать их программно можно только по ошибкам чтения "дальних" страниц)
 	// 4-7: емкость флэш - памяти
 	// 8-11: размер сектора флэш - памяти
-	// 12-15: коэффициент пересчета напряжения(float, 4 bytes) - просто умножаешь коэффициент на полученное в статусе число и будет температура
+	// 12-15: коэффициент пересчета напряжения(float, 4 bytes) - умножить коэффициент на полученное в статусе число и будет температура
 	// 16: коэффициент усиления антенны RFID
 	// 17-18: размер блока хранения команды
 	init_package(REPLY_GET_CONFIG);
@@ -2221,16 +2238,15 @@ void scanTeams()
 		Serial.print(F("!!!Trying "));
 		Serial.println(String(startNumber));
 #endif
-
 		uint32_t addr = uint32_t(uint32_t(startNumber) * uint32_t(teamFlashSize));
-
 		if (!SPIflash.readByteArray(addr, data, 2))
 		{
 			sendError(FLASH_READ_ERROR, REPLY_SCAN_TEAMS);
 
 			return;
 		}
-		if (data[0] != 0xff && data[1] != 0xff)
+
+		if (data[0] != 0xff && data[1] != 0xff && uint16_t(uint16_t(data[0] * 256) + data[1]) == startNumber)
 		{
 #ifdef DEBUG
 			Serial.print(F("!!!Found "));
@@ -2330,7 +2346,7 @@ void setAutoReport()
 	sendData();
 }
 
-// установка режима авторизации
+// включение/выключение авторизации
 void setAuth()
 {
 	// 0: новый режим
@@ -2350,7 +2366,7 @@ void setAuth()
 	sendData();
 }
 
-// установка режима авторизации
+// установка ключа авторизации
 void setAuthPwd()
 {
 	// 0: новый режим
@@ -2400,6 +2416,7 @@ void setAuthPack()
 	sendData();
 }
 
+// разблокировка чипа
 void unlockChip()
 {
 	init_package(REPLY_UNLOCK_CHIP);
@@ -2409,9 +2426,9 @@ void unlockChip()
 
 	RfidStart();
 	// Пытаемся авторизоваться с текущим и стандартным ключами
-	bool result = ntagAuth(AuthPwd, AuthPack);
+	bool result = ntagAuth(AuthPwd, AuthPack, true);
 	if (!result)
-		result = ntagAuth(defaultPwd, defaultPack);
+		result = ntagAuth(defaultPwd, defaultPack, true);
 
 	if (!ntagRemovePassword(defaultPwd, defaultPack, true, false, 0, 0xff))
 	{
@@ -2425,26 +2442,53 @@ void unlockChip()
 	sendData();
 }
 
-// Internal functions
-
-//ToDo: remove String usage
-String sendCommandToBt(String btCommand, uint8_t length)
+// получить состояние авторизации
+void getAuth()
 {
-	digitalWrite(BT_COMMAND_ENABLE, HIGH);
-	delay(200);
-	Serial.print(btCommand);
-	delay(200);
-	String result = "";
-	result.reserve(250);
-	while (Serial.available())
-		result += (char)Serial.read();
+	init_package(REPLY_GET_AUTH);
 
-	digitalWrite(BT_COMMAND_ENABLE, LOW);
-	delay(200);
+	// 0: код ошибки
+	if (!addData(OK)) return;
 
-	return result;
+	// 1: режим авторизации
+	if (!addData(AuthEnabled)) return;
+
+	// 2-5: пароль авторизации
+	if (!addData(AuthPwd[0])) return;
+	if (!addData(AuthPwd[1])) return;
+	if (!addData(AuthPwd[2])) return;
+	if (!addData(AuthPwd[3])) return;
+
+	// 6-7: ответ авторизации
+	if (!addData(AuthPack[0])) return;
+	if (!addData(AuthPack[1])) return;
+
+	sendData();
 }
 
+// получить имя Bluetooth адаптера
+void getBtName()
+{
+	init_package(REPLY_GET_BTNAME);
+
+	String btCommand;
+	// AT+NAME?"<nameArray>" [1-16] for HC-05/06	
+	btCommand.reserve(10 + 2);
+	btCommand = "AT+NAME?\r\n";
+	String btName = sendCommandToBt(btCommand, (uint8_t)btCommand.length());
+
+	// 0: код ошибки
+	if (!addData(OK)) return;
+
+	// BluetoothName
+	for (int i = 0; i < btName.length(); i++)
+		if (!addData(btName[i])) return;
+
+	sendData();
+}
+#pragma endregion
+
+#pragma region Internal functions
 // заполнить буфер смены маски
 void saveNewMask()
 {
@@ -2620,7 +2664,7 @@ void sendData()
 	uartBufferPosition = 0;
 }
 
-bool ntagAuth(uint8_t* pass, uint8_t* pack)
+bool ntagAuth(uint8_t* pass, uint8_t* pack, bool ignorePack)
 {
 #ifdef DEBUG
 	Serial.println(F("chip authentication"));
@@ -2659,8 +2703,13 @@ bool ntagAuth(uint8_t* pass, uint8_t* pack)
 		Serial.print(F(" "));
 		Serial.println(String(p_Ack[1]));
 #endif
-		if (status && (pack[0] != p_Ack[0] || pack[1] != p_Ack[1]))
-			status = false;
+		if (status)
+		{
+			if (ignorePack)
+				status = true;
+			else if (pack[0] != p_Ack[0] || pack[1] != p_Ack[1])
+				status = false;
+		}
 
 		n++;
 		if (!status)
@@ -2820,14 +2869,17 @@ bool ntagSetPassword(uint8_t* pass, uint8_t* pack, bool noAuth, bool readAndWrit
 	if (!ntagWritePage(pwd, tagMaxPage + PAGE_PACK, false, noAuth))
 		return false;
 
-	//Set AUTHLIM (page 132, byte 0, bits 2-0) to the maximum number of failed password verification attempts (setting this value to 0 will permit an unlimited number of PWD_AUTH attempts).
-	//Set PROT (page 132, byte 0, bit 7) to your desired value (0 = PWD_AUTH in needed only for write access, 1 = PWD_AUTH is necessary for read and write access).
+	//Set AUTHLIM (page 132, byte 0, bits 2-0) to the maximum number of failed password verification attempts
+	//(setting this value to 0 will permit an unlimited number of PWD_AUTH attempts).
+	//Set PROT (page 132, byte 0, bit 7) to your desired value:
+	//(0 = PWD_AUTH in needed only for write access, 1 = PWD_AUTH is necessary for read and write access).
 	if (!ntagRead4pages(tagMaxPage + PAGE_CFG1))
 		return false;
 
 	//var readAndWrite = false;  // false = PWD_AUTH for write only, true = PWD_AUTH for read and write
 	//int authlim = 0; // value between 0 and 7
-	// keep old value for bytes 1-3, you could also simply set them to 0 as they are currently RFU and must always be written as 0 (response[1], response[2], response[3] will contain 0 too as they contain the read RFU value)
+	//keep old value for bytes 1-3, you could also simply set them to 0 as they are currently RFU and must always be written as 0
+	//(response[1], response[2], response[3] will contain 0 too as they contain the read RFU value)
 	uint8_t cfg1[4] = {
 		(byte)((ntag_page[0] & 0x78) | (readAndWrite ? 0x080 : 0x00) | (authlim & 0x07)),
 		ntag_page[1],
@@ -2878,14 +2930,17 @@ bool ntagRemovePassword(uint8_t* pass, uint8_t* pack, bool noAuth, bool readAndW
 	if (!ntagWritePage(pwd, tagMaxPage + PAGE_PACK, false, noAuth))
 		return false;
 
-	//Set AUTHLIM (page 132, byte 0, bits 2-0) to the maximum number of failed password verification attempts (setting this value to 0 will permit an unlimited number of PWD_AUTH attempts).
-	//Set PROT (page 132, byte 0, bit 7) to your desired value (0 = PWD_AUTH in needed only for write access, 1 = PWD_AUTH is necessary for read and write access).
+	//Set AUTHLIM (page 132, byte 0, bits 2-0) to the maximum number of failed password verification attempts
+	//(setting this value to 0 will permit an unlimited number of PWD_AUTH attempts).
+	//Set PROT (page 132, byte 0, bit 7) to your desired value
+	//(0 = PWD_AUTH in needed only for write access, 1 = PWD_AUTH is necessary for read and write access).
 	if (!ntagRead4pages(tagMaxPage + PAGE_CFG1))
 		return false;
 
 	//var readAndWrite = false;  // false = PWD_AUTH for write only, true = PWD_AUTH for read and write
 	//int authlim = 0; // value between 0 and 7
-	// keep old value for bytes 1-3, you could also simply set them to 0 as they are currently RFU and must always be written as 0 (response[1], response[2], response[3] will contain 0 too as they contain the read RFU value)
+	//keep old value for bytes 1-3, you could also simply set them to 0 as they are currently RFU and must always be written as 0
+	//(response[1], response[2], response[3] will contain 0 too as they contain the read RFU value)
 	uint8_t cfg1[4] = {
 		(byte)((ntag_page[0] & 0x78) | (readAndWrite ? 0x080 : 0x00) | (authlim & 0x07)),
 		ntag_page[1],
@@ -2937,6 +2992,11 @@ int findNewPage()
 
 	// чип заполнен
 	return tagMaxPage;
+}
+
+bool checkTeamExists(uint16_t teamNumber)
+{
+	return (SPIflash.readWord(uint32_t(uint32_t(teamNumber) * uint32_t(teamFlashSize))) == teamNumber);
 }
 
 // пишем дамп чипа в лог
@@ -3216,12 +3276,12 @@ uint16_t refreshChipCounter()
 #endif
 		}
 	}
+
 #ifdef DEBUG
 	Serial.println();
 	Serial.print(F("!!!checked chip counter="));
 	Serial.println(String(chips));
 #endif
-
 	return chips;
 }
 
@@ -3328,6 +3388,9 @@ bool selectChipType(uint8_t type)
 
 void checkBatteryLevel()
 {
+	if (batteryLimit == 0)
+		return;
+
 	batteryLevel = (batteryLevel + getBatteryLevel()) / 2;
 	if ((float)((float)batteryLevel * voltageCoeff) <= batteryLimit)
 	{
@@ -3338,6 +3401,7 @@ void checkBatteryLevel()
 			tone(BUZZER_PIN, 50, 50);
 			delay(50);
 			digitalWrite(RED_LED_PIN, LOW);
+			batteryAlarmCount = 0;
 		}
 		else
 			batteryAlarmCount++;
@@ -3371,3 +3435,22 @@ void checkClockIsRunning()
 		nextClockCheck = currentMillis + RTC_ALARM_DELAY;
 	}
 }
+
+//ToDo: remove String usage
+String sendCommandToBt(String btCommand, uint8_t length)
+{
+	digitalWrite(BT_COMMAND_ENABLE, HIGH);
+	delay(200);
+	Serial.print(btCommand);
+	delay(200);
+	String result = "";
+	result.reserve(250);
+	while (Serial.available())
+		result += (char)Serial.read();
+
+	digitalWrite(BT_COMMAND_ENABLE, LOW);
+	delay(200);
+
+	return result;
+}
+#pragma endregion
