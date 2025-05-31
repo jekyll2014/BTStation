@@ -1691,7 +1691,7 @@ void readFlash()
 
 	if (length > uint32_t(uint32_t(MAX_PAKET_LENGTH) - 7 - uint32_t(DATA_LENGTH_READ_FLASH) - 1))
 	{
-		sendError(FLASH_WRITE_ERROR, REPLY_WRITE_FLASH);
+		sendError(FLASH_READ_ERROR, REPLY_READ_FLASH);
 
 		return;
 	}
