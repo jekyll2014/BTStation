@@ -236,10 +236,9 @@ namespace RfidStationControl
                             else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[2])
                                 StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
 
-                            if (StationSettings.ChipType !=
-                                GlobalOperationsIdClass.Rfid.ChipType)
-                                GlobalOperationsIdClass.Rfid =
-                                    new RfidContainer(StationSettings.ChipType);
+                            if (StationSettings.ChipType != GlobalOperationsIdClass.Rfid.CurrentChipType)
+                                GlobalOperationsIdClass.Rfid = new RfidContainer(StationSettings.ChipType);
+
                             StationSettings.AntennaGain = replyDetails.AntennaGain;
                             StationSettings.Mode = replyDetails.Mode;
                             modeListSpinner.SetSelection(StationSettings.Mode);
