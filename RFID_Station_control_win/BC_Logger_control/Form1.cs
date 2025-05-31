@@ -948,7 +948,7 @@ namespace RFID_Station_control
 
             Invoke((MethodInvoker)delegate
             {
-                checkBox_setAuth.Checked = StationSettings.AutoReport;
+                checkBox_setAuth.Checked = StationSettings.AuthEnabled;
                 textBox_setPwd.Text = Helpers.ConvertByteArrayToHex(StationSettings.AuthPwd);
                 textBox_setPack.Text = Helpers.ConvertByteArrayToHex(StationSettings.AuthPack);
             });
@@ -1502,7 +1502,7 @@ namespace RFID_Station_control
             button_dumpFlash.Enabled = false;
             button_readFlash.Enabled = false;
 
-            var maxFrameBytes = (ushort)(StationSettings.MaxPacketLength - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1);
+            var maxFrameBytes = (ushort)(StationSettings.MaxPacketLength - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 5);
             var currentRow = 0;
             uint addrFrom = 0;
             uint addrTo;
@@ -1693,10 +1693,11 @@ namespace RFID_Station_control
         {
             if (!serialPort1.IsOpen || e.ColumnIndex < 0 || e.RowIndex < 0)
                 return;
+
             button_dumpFlash.Enabled = false;
 
             var rowFrom = (ushort)e.RowIndex;
-            var maxFrameBytes = (ushort)(StationSettings.MaxPacketLength - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 1);
+            var maxFrameBytes = (ushort)(StationSettings.MaxPacketLength - 7 - ProtocolParser.ReplyDataLength.READ_FLASH - 5);
             var addrFrom = rowFrom * _bytesPerRow;
             uint addrTo;
             var flashSize = addrFrom + _bytesPerRow;
@@ -1988,7 +1989,6 @@ namespace RFID_Station_control
             var n = Helpers.ConvertHexToByteArray(textBox_setPack.Text);
             textBox_setPack.Text = Helpers.ConvertByteArrayToHex(n, 2);
         }
-
         #endregion
     }
 }
