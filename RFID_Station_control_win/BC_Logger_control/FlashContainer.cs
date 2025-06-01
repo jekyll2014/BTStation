@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 
 namespace RFID_Station_control
 {
@@ -100,17 +101,12 @@ namespace RFID_Station_control
 
             teamBlock.DumpSize = tmpData[12];
 
-            byte chipType = 0;
-            for (byte i = 0; i < RfidContainer.ChipTypes.SystemIds.Count; i++)
-                if (RfidContainer.ChipTypes.SystemIds[i] == Dump[_dumpHeaderSize + 14])
-                {
-                    chipType = i;
-                    break;
-                }
-
+            var chipType = new ChipTypeDto(Dump[_dumpHeaderSize + 14]);
             teamBlock.ChipDump = new RfidContainer(chipType);
-            var chip = new byte[RfidContainer.ChipTypes.PageSizes[chipType] * RfidContainer.ChipTypes.PageSize];
-            for (var i = 0; i < chip.Length; i++) chip[i] = Dump[_dumpHeaderSize + i];
+            var chip = new byte[chipType.Pages * ChipTypes.PageSize];
+            for (var i = 0; i < chip.Length; i++)
+                chip[i] = Dump[_dumpHeaderSize + i];
+
             teamBlock.ChipDump.AddPages(0, chip);
 
             return teamBlock;
@@ -184,20 +180,15 @@ namespace RFID_Station_control
                         // page 3: chip type
                         else if (page == 7)
                         {
-                            var tagSize = "Ntag";
-                            if (tmpData[page * 4 + 2] == 0x12)
-                                tagSize += "213(144 bytes)";
-                            else if (tmpData[page * 4 + 2] == 0x3e)
-                                tagSize += "215(496 bytes)";
-                            else if (tmpData[page * 4 + 2] == 0x6d)
-                                tagSize += "216(872 bytes)";
+                            var chipType = new ChipTypeDto(tmpData[page * 4 + 2]);
+                            var tagSize = $"{chipType.Name} ({chipType.Bytes} bytes)";
                             checkPointsList += tagSize + Environment.NewLine;
                         }
                         // page 4: team#, chip type, fw ver.
                         else if (page == 8)
                         {
                             var m = (uint)(tmpData[page * 4 + 0] * 256 + tmpData[page * 4 + 1]);
-                            checkPointsList += "Team #" + m + ", " + "Ntag" + tmpData[page * 4 + 2] + ", fw v." + tmpData[page * 4 + 3] + Environment.NewLine;
+                            checkPointsList += "Team #" + m + ", fw v." + tmpData[page * 4 + 3] + Environment.NewLine;
                         }
                         // page 5: init time
                         else if (page == 9)

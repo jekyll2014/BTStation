@@ -1,47 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 
 namespace RFID_Station_control
 {
     public class RfidContainer
     {
-        public class ChipTypes
-        {
-            public const byte PageSize = 4;
-
-            public static Dictionary<string, byte> Types = new Dictionary<string, byte>
-            {
-                {"NTAG213", 0},
-                {"NTAG215", 1},
-                {"NTAG216", 2}
-            };
-            public static readonly Dictionary<byte, string> Names = new Dictionary<byte, string>
-            {
-                { 0, "NTAG213" },
-                { 1, "NTAG215" },
-                { 2, "NTAG216" }
-            };
-            public static readonly Dictionary<byte, byte> PageSizes = new Dictionary<byte, byte>
-            {
-                { 0, 45 },
-                { 1, 135 },
-                { 2, 231 }
-            };
-            public static readonly Dictionary<byte, ushort> ByteSizes = new Dictionary<byte, ushort>
-            {
-                { 0, 144 },
-                { 1, 496 },
-                { 2, 872 }
-            };
-            public static readonly Dictionary<byte, byte> SystemIds = new Dictionary<byte, byte>
-            {
-                { 0, 0x12 },
-                { 1, 0x3e },
-                { 2, 0x6d }
-            };
-        }
-
         public enum RfidPageType
         {
             PAGE_UID1 = 0, // UID 0..3
@@ -71,9 +34,6 @@ namespace RFID_Station_control
         private byte[] _uid = new byte[8];
         public byte[] Uid => _uid;
 
-        private byte _sysChipId = 0;
-        public byte SystemChipId => _sysChipId;
-
         private ushort _teamNum = 0;
         public ushort TeamNumber => _teamNum;
 
@@ -88,18 +48,16 @@ namespace RFID_Station_control
 
         public byte ReferenceDateByte = (byte)(Helpers.ConvertToUnixTimestamp(DateTime.Now.ToUniversalTime()) >> 24);
 
-        public readonly byte CurrentChipType;
+        public ChipTypeDto CurrentChipType => _currentChipType;
+        private ChipTypeDto _currentChipType;
 
         public DataTable Table;
 
-        public RfidContainer(byte chipTypeId)
+        public RfidContainer(ChipTypeDto chipTypeId)
         {
-            if (!ChipTypes.Names.TryGetValue(chipTypeId, out _))
-                throw new Exception("Chip type not exists: " + chipTypeId.ToString());
+            _currentChipType = chipTypeId;
 
-            CurrentChipType = chipTypeId;
-
-            _dump = new int[ChipTypes.PageSizes[chipTypeId] * 4];
+            _dump = new int[CurrentChipType.Pages * 4];
             for (var i = 0; i < _dump.Length; i++)
                 _dump[i] = -1;
 
@@ -112,7 +70,7 @@ namespace RFID_Station_control
         {
             Table.Rows.Clear();
 
-            var chipPagesNumber = ChipTypes.PageSizes[CurrentChipType];
+            var chipPagesNumber = CurrentChipType.Pages;
             for (var i = 0; i < chipPagesNumber; i++)
             {
                 var row = Table.NewRow();
@@ -152,7 +110,7 @@ namespace RFID_Station_control
 
         public bool AddPages(byte startPageNumber, byte[] data)
         {
-            if (startPageNumber + data.Length / 4 > ChipTypes.PageSizes[CurrentChipType] * 4)
+            if (startPageNumber + data.Length / 4 > CurrentChipType.Pages * 4)
                 return false;
 
             //if (data.Length != ChipTypes.PageSize) return false;
@@ -248,7 +206,8 @@ namespace RFID_Station_control
                     _uid[5] = tmp[1];
                     _uid[6] = tmp[2];
                     _uid[7] = tmp[3];
-                    for (var i = 0; i < _uid.Length; i++) result += _uid[i].ToString("X2") + ":";
+                    for (var i = 0; i < _uid.Length; i++)
+                        result += _uid[i].ToString("X2") + ":";
 
                     result = result.TrimEnd(new[] { ':' });
                 }
@@ -258,15 +217,8 @@ namespace RFID_Station_control
                 }
                 else if (pageFrom == (int)RfidPageType.PAGE_CHIP_SYS2)
                 {
-                    _sysChipId = tmp[2];
-                    var tagSize = "";
-                    if (_sysChipId == 0x12)
-                        tagSize += ChipTypes.Names[0] + " = " + ChipTypes.ByteSizes[0] + " bytes";
-                    else if (_sysChipId == 0x3e)
-                        tagSize += ChipTypes.Names[1] + " = " + ChipTypes.ByteSizes[1] + " bytes";
-                    else if (_sysChipId == 0x6d)
-                        tagSize += ChipTypes.Names[2] + " = " + ChipTypes.ByteSizes[2] + " bytes";
-                    result = tagSize;
+                    _currentChipType = new ChipTypeDto(tmp[2]);
+                    result = CurrentChipType.Name + " = " + CurrentChipType.Bytes + " bytes";
                 }
                 else if (pageFrom == (int)RfidPageType.PAGE_CHIP_NUM)
                 {
@@ -287,7 +239,7 @@ namespace RFID_Station_control
                     result = Helpers.ConvertMaskToString(_teamMask);
                 }
                 else if (pageFrom > (int)RfidPageType.PAGE_RESERVED
-                         && pageFrom < ChipTypes.PageSizes[CurrentChipType] - (int)RfidConfigPageType.PAGE_DYNAMIC_LOCK)
+                         && pageFrom < CurrentChipType.Pages - (int)RfidConfigPageType.PAGE_DYNAMIC_LOCK)
                 {
                     if (tmp[0] != 0)
                     {
@@ -301,7 +253,7 @@ namespace RFID_Station_control
                         result = "-";
                     }
                 }
-                else if (pageFrom == ChipTypes.PageSizes[CurrentChipType] - (int)RfidConfigPageType.PAGE_CFG0)
+                else if (pageFrom == CurrentChipType.Pages - (int)RfidConfigPageType.PAGE_CFG0)
                 {
                     result = "Chip " + (tmp[3] == 0xff ? "not " : "") + "locked";
                 }

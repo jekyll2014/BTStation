@@ -434,7 +434,8 @@ namespace RFID_Station_control
                 {
                     var result = "FW Version: " + FwVersion + Environment.NewLine;
                     result += "Mode: " + StationSettings.StationMode.FirstOrDefault(x => x.Value == Mode).Key + Environment.NewLine;
-                    result += "Chip type: " + RfidContainer.ChipTypes.SystemIds.FirstOrDefault(x => x.Value == ChipTypeId).Key + Environment.NewLine;
+                    var chipType = new ChipTypeDto(ChipTypeId);
+                    result += "Chip type: " + chipType.Name + Environment.NewLine;
                     result += "Flash size: " + FlashSize + " byte" + Environment.NewLine;
                     result += "Voltage calculate coefficient: " + VoltageKoeff.ToString("F5") + Environment.NewLine;
                     result += "Antenna gain: " + StationSettings.Gain.FirstOrDefault(x => x.Value == AntennaGain).Key + Environment.NewLine;
@@ -1270,7 +1271,7 @@ namespace RFID_Station_control
 
         #region Parse replies
 
-        private ReplyData ParseReply(byte[] data)
+        private static ReplyData ParseReply(byte[] data)
         {
             if (data.Length <= PacketBytes.DATA_START_BYTE) return null;
 
@@ -1398,7 +1399,7 @@ namespace RFID_Station_control
             return result;
         }
 
-        private ReplyData Reply_setMode(byte[] data)
+        private static ReplyData Reply_setMode(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1417,7 +1418,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setTime(byte[] data)
+        private static ReplyData Reply_setTime(byte[] data)
         {
             //0: код ошибки
             //1-4: текущее время
@@ -1441,7 +1442,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_resetStation(byte[] data)
+        private static ReplyData Reply_resetStation(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1460,7 +1461,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getStatus(byte[] data)
+        private static ReplyData Reply_getStatus(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1505,7 +1506,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_initChip(byte[] data)
+        private static ReplyData Reply_initChip(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1533,7 +1534,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getLastTeams(byte[] data)
+        private static ReplyData Reply_getLastTeams(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1566,7 +1567,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getTeamRecord(byte[] data)
+        private static ReplyData Reply_getTeamRecord(byte[] data)
         {
             // 0: код ошибки
 
@@ -1607,7 +1608,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_readCardPages(byte[] data)
+        private static ReplyData Reply_readCardPages(byte[] data)
         {
             //0: код ошибки
             //1-8: UID чипа
@@ -1636,7 +1637,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_updateTeamMask(byte[] data)
+        private static ReplyData Reply_updateTeamMask(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1655,7 +1656,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_writeCardPage(byte[] data)
+        private static ReplyData Reply_writeCardPage(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1674,7 +1675,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_readFlash(byte[] data)
+        private static ReplyData Reply_readFlash(byte[] data)
         {
             //0: код ошибки
             //1...: данные из флэша
@@ -1702,7 +1703,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_writeFlash(byte[] data)
+        private static ReplyData Reply_writeFlash(byte[] data)
         {
             //0: код ошибки
             //1...: данные из флэша
@@ -1724,7 +1725,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_eraseTeamFlash(byte[] data)
+        private static ReplyData Reply_eraseTeamFlash(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1742,7 +1743,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getConfig(byte[] data)
+        private static ReplyData Reply_getConfig(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1811,7 +1812,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setVCoeff(byte[] data)
+        private static ReplyData Reply_setVCoeff(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1830,7 +1831,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setGain(byte[] data)
+        private static ReplyData Reply_setGain(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1849,7 +1850,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setChipType(byte[] data)
+        private static ReplyData Reply_setChipType(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1868,7 +1869,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setTeamFlashSize(byte[] data)
+        private static ReplyData Reply_setTeamFlashSize(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1887,7 +1888,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setFlashBlockSize(byte[] data)
+        private static ReplyData Reply_setFlashBlockSize(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1906,7 +1907,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setBtName(byte[] data)
+        private static ReplyData Reply_setBtName(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1925,7 +1926,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setBtPin(byte[] data)
+        private static ReplyData Reply_setBtPin(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1944,7 +1945,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setBatteryLimit(byte[] data)
+        private static ReplyData Reply_setBatteryLimit(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -1963,7 +1964,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_scanTeams(byte[] data)
+        private static ReplyData Reply_scanTeams(byte[] data)
         {
             //0: код ошибки
             //1-2: номер 1й команды
@@ -1988,7 +1989,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_sendBtCommand(byte[] data)
+        private static ReplyData Reply_sendBtCommand(byte[] data)
         {
             //0: код ошибки
             //1-n: ответ BT модуля
@@ -2010,7 +2011,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getLastErrors(byte[] data)
+        private static ReplyData Reply_getLastErrors(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2040,7 +2041,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setAutoreport(byte[] data)
+        private static ReplyData Reply_setAutoreport(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2059,7 +2060,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setAuth(byte[] data)
+        private static ReplyData Reply_setAuth(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2078,7 +2079,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setPwd(byte[] data)
+        private static ReplyData Reply_setPwd(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2097,7 +2098,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_setPack(byte[] data)
+        private static ReplyData Reply_setPack(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2116,7 +2117,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_unlockChip(byte[] data)
+        private static ReplyData Reply_unlockChip(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2135,7 +2136,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getAuth(byte[] data)
+        private static ReplyData Reply_getAuth(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData
@@ -2174,7 +2175,7 @@ namespace RFID_Station_control
             return reply;
         }
 
-        private ReplyData Reply_getBtName(byte[] data)
+        private static ReplyData Reply_getBtName(byte[] data)
         {
             //0: код ошибки
             var reply = new ReplyData

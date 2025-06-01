@@ -11,7 +11,7 @@ namespace RFID_Station_control
         public static float VoltageCoefficient = 0.00578F;
         public static float BatteryLimit = 3.0F;
         public static byte AntennaGain = 80;
-        public static byte ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
+        public static ChipTypeDto ChipType = new ChipTypeDto("NTAG215");
         public static uint FlashSize = 1 * 1024 * 1024;
         public static ushort TeamBlockSize = 1024;
         public static ushort EraseBlockSize = 4096;

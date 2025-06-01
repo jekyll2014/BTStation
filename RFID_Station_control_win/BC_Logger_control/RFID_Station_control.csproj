@@ -82,6 +82,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChipType.cs" />
+    <Compile Include="ChipTypes.cs" />
     <Compile Include="DTO\StationSettings.cs" />
     <Compile Include="DTO\TeamData.cs" />
     <Compile Include="DTO\TeamDumpData.cs" />

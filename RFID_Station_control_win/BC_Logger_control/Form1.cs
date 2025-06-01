@@ -12,6 +12,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace RFID_Station_control
@@ -72,7 +73,7 @@ namespace RFID_Station_control
 
         private FlashContainer _stationFlash;
 
-        private byte _selectedChipType = RfidContainer.ChipTypes.Types["NTAG215"];
+        private ChipTypeDto _selectedChipType = new ChipTypeDto("NTAG215");
         private RfidContainer _rfidCard;
 
         private TeamsContainer _teams;
@@ -582,8 +583,7 @@ namespace RFID_Station_control
         private void Button_setChipType_Click(object sender, EventArgs e)
         {
             //0: новый тип чипа
-            var newChipType = RfidContainer.ChipTypes.SystemIds[_selectedChipType];
-            var setChipType = _parser.SetChipType(newChipType);
+            var setChipType = _parser.SetChipType(_selectedChipType.Id);
             SendCommand(setChipType);
         }
 
@@ -845,17 +845,11 @@ namespace RFID_Station_control
             StationSettings.FwVersion = replyDetails.FwVersion;
             StationSettings.Mode = replyDetails.Mode;
 
-            if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[0])
-                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
-            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[1])
-                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
-            else if (replyDetails.ChipTypeId == RfidContainer.ChipTypes.SystemIds[2])
-                StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
+            StationSettings.ChipType = new ChipTypeDto(replyDetails.ChipTypeId);
 
             StationSettings.FlashSize = replyDetails.FlashSize;
             if (StationSettings.FlashSize < _stationFlash.Size)
-                // check _selectedFlashSize
-                RefreshFlashGrid(_selectedFlashSize, StationSettings.TeamBlockSize, _bytesPerRow);
+                RefreshFlashGrid(_selectedFlashSize, StationSettings.TeamBlockSize, _bytesPerRow); // check _selectedFlashSize
 
             StationSettings.VoltageCoefficient = replyDetails.VoltageKoeff;
             StationSettings.AntennaGain = replyDetails.AntennaGain;
@@ -872,7 +866,7 @@ namespace RFID_Station_control
                textBox_fwVersion.Text = StationSettings.FwVersion.ToString();
                comboBox_mode.SelectedItem =
                    StationSettings.StationMode.FirstOrDefault(x => x.Value == StationSettings.Mode).Key;
-               comboBox_chipType.SelectedIndex = StationSettings.ChipType;
+               comboBox_chipType.SelectedIndex = (int)StationSettings.ChipType.Type;
                textBox_flashSize.Text = (int)(StationSettings.FlashSize / 1024 / 1024) + " Mb";
                // switch flash size combobox to new value if bigger than new FlashSize
                textBox_koeff.Text = StationSettings.VoltageCoefficient.ToString("F5");
@@ -995,9 +989,9 @@ namespace RFID_Station_control
                 dataGridView_flashRawData.Columns[i].SortMode = DataGridViewColumnSortMode.NotSortable;
         }
 
-        private void RefreshChipGrid(byte chipTypeId)
+        private void RefreshChipGrid(ChipTypeDto chipType)
         {
-            _rfidCard = new RfidContainer(chipTypeId);
+            _rfidCard = new RfidContainer(chipType);
             dataGridView_chipRawData.DataSource = _rfidCard.Table;
             dataGridView_chipRawData.AutoGenerateColumns = true;
             dataGridView_chipRawData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
@@ -1064,7 +1058,7 @@ namespace RFID_Station_control
 
             foreach (var item in StationSettings.Gain) comboBox_setGain.Items.Add(item.Key);
 
-            foreach (var item in RfidContainer.ChipTypes.Types) comboBox_chipType.Items.Add(item.Key);
+            foreach (var item in ChipTypes.Types) comboBox_chipType.Items.Add(item.Key);
 
             foreach (var item in FlashSizeLimit) comboBox_flashSize.Items.Add(item.Key);
 
@@ -1356,7 +1350,7 @@ namespace RFID_Station_control
             }
         }
 
-        private void Button_dumpTeams_Click(object sender, EventArgs e)
+        private async void Button_dumpTeams_Click(object sender, EventArgs e)
         {
             button_dumpTeams.Enabled = false;
             button_getTeamRecord.Enabled = false;
@@ -1378,10 +1372,10 @@ namespace RFID_Station_control
                 _asyncFlag++;
                 SendCommand(scanTeams);
 
-                long timeout = 1000;
+                long timeout = 100;
                 while (_asyncFlag > 0)
                 {
-                    Helpers.DelayMs(1);
+                    await Task.Delay(10);
                     if (timeout <= 0)
                         break;
                     timeout--;
@@ -1424,10 +1418,10 @@ namespace RFID_Station_control
                 SendCommand(getTeamRecord);
                 rowNum++;
 
-                long timeout = 1000;
+                long timeout = 100;
                 while (_asyncFlag > 0)
                 {
-                    Helpers.DelayMs(1);
+                    await Task.Delay(10);
                     if (timeout <= 0)
                         break;
                     timeout--;
@@ -1448,13 +1442,13 @@ namespace RFID_Station_control
             button_getTeamRecord.Enabled = true;
         }
 
-        private void Button_dumpChip_Click(object sender, EventArgs e)
+        private async void Button_dumpChip_Click(object sender, EventArgs e)
         {
             RefreshChipGrid(StationSettings.ChipType);
             button_dumpChip.Enabled = false;
             button_readChipPage.Enabled = false;
 
-            var chipSize = RfidContainer.ChipTypes.PageSizes[_rfidCard.CurrentChipType];
+            var chipSize = _rfidCard.CurrentChipType.Pages;
             byte maxFramePages = 45;
             ushort pagesFrom = 0;
             ushort pagesTo;
@@ -1473,10 +1467,10 @@ namespace RFID_Station_control
                 _asyncFlag++;
                 SendCommand(readCardPage);
                 pagesFrom = (byte)(pagesTo + 1);
-                long timeout = 1000;
+                long timeout = 100;
                 while (_asyncFlag > 0)
                 {
-                    Helpers.DelayMs(1);
+                    await Task.Delay(10);
                     if (timeout <= 0)
                         break;
                     timeout--;
@@ -1496,7 +1490,7 @@ namespace RFID_Station_control
             button_readChipPage.Enabled = true;
         }
 
-        private void Button_dumpFlash_Click(object sender, EventArgs e)
+        private async void Button_dumpFlash_Click(object sender, EventArgs e)
         {
             RefreshFlashGrid(_selectedFlashSize, StationSettings.TeamBlockSize, _bytesPerRow);
             button_dumpFlash.Enabled = false;
@@ -1520,10 +1514,10 @@ namespace RFID_Station_control
                 SendCommand(readFlash);
                 addrFrom = addrTo;
 
-                long timeout = 1000;
+                long timeout = 100;
                 while (_asyncFlag > 0)
                 {
-                    Helpers.DelayMs(1);
+                    await Task.Delay(10);
                     if (timeout <= 0)
                         break;
                     timeout--;
@@ -1546,7 +1540,7 @@ namespace RFID_Station_control
             button_readFlash.Enabled = true;
         }
 
-        private void Button_eraseChip_Click(object sender, EventArgs e)
+        private async void Button_eraseChip_Click(object sender, EventArgs e)
         {
             button_eraseChip.Enabled = false;
 
@@ -1560,7 +1554,7 @@ namespace RFID_Station_control
             //9-12: данные страницы карты (4 байта)
             byte[] data = { 0, 0, 0, 0 };
 
-            var chipSize = RfidContainer.ChipTypes.PageSizes[_rfidCard.CurrentChipType];
+            var chipSize = _rfidCard.CurrentChipType.Pages;
             byte page;
             _asyncFlag = 0;
             var startTime = DateTime.Now.ToUniversalTime();
@@ -1571,10 +1565,10 @@ namespace RFID_Station_control
                 _asyncFlag++;
                 SendCommand(writeCardPage);
 
-                long timeout = 1000;
+                long timeout = 100;
                 while (_asyncFlag > 0)
                 {
-                    Helpers.DelayMs(1);
+                    await Task.Delay(10);
                     if (timeout <= 0)
                         break;
                     timeout--;
@@ -1634,7 +1628,7 @@ namespace RFID_Station_control
             button_dumpFlash.Enabled = true;
         }
 
-        private void DataGridView_teams_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private async void DataGridView_teams_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (!serialPort1.IsOpen || e.ColumnIndex < 0 || e.RowIndex < 0)
                 return;
@@ -1649,10 +1643,10 @@ namespace RFID_Station_control
             _asyncFlag++;
             SendCommand(getTeamRecord);
 
-            long timeout = 1000;
+            long timeout = 100;
             while (_asyncFlag > 0)
             {
-                Helpers.DelayMs(1);
+                await Task.Delay(10);
                 if (timeout <= 0)
                     break;
                 timeout--;
@@ -1662,7 +1656,7 @@ namespace RFID_Station_control
             dataGridView_teams.PerformLayout();
         }
 
-        private void DataGridView_chipRawData_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private async void DataGridView_chipRawData_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (!serialPort1.IsOpen || e.ColumnIndex < 0 || e.RowIndex < 0)
                 return;
@@ -1676,10 +1670,10 @@ namespace RFID_Station_control
             _asyncFlag++;
             SendCommand(readCardPage);
 
-            long timeout = 1000;
+            long timeout = 100;
             while (_asyncFlag > 0)
             {
-                Helpers.DelayMs(1);
+                await Task.Delay(10);
                 if (timeout <= 0)
                     break;
                 timeout--;
@@ -1689,7 +1683,7 @@ namespace RFID_Station_control
             dataGridView_chipRawData.PerformLayout();
         }
 
-        private void DataGridView_flashRawData_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        private async void DataGridView_flashRawData_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (!serialPort1.IsOpen || e.ColumnIndex < 0 || e.RowIndex < 0)
                 return;
@@ -1713,10 +1707,10 @@ namespace RFID_Station_control
                 SendCommand(readFlash);
                 addrFrom = addrTo;
 
-                long timeout = 1000;
+                long timeout = 100;
                 while (_asyncFlag > 0)
                 {
-                    Helpers.DelayMs(1);
+                    await Task.Delay(10);
                     if (timeout <= 0)
                         break;
                     timeout--;
@@ -1840,14 +1834,14 @@ namespace RFID_Station_control
 
         private void ComboBox_chipType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!RfidContainer.ChipTypes.Types.TryGetValue(comboBox_chipType.SelectedItem.ToString(), out var n))
+            if (!ChipTypes.Types.TryGetValue(comboBox_chipType.SelectedItem.ToString(), out var n))
             {
-                comboBox_chipType.SelectedItem = RfidContainer.ChipTypes.Names[_rfidCard.CurrentChipType];
+                comboBox_chipType.SelectedIndex = (int)_rfidCard.CurrentChipType.Type;
                 _selectedChipType = _rfidCard.CurrentChipType;
             }
             else
             {
-                _selectedChipType = n;
+                _selectedChipType = new ChipTypeDto(comboBox_chipType.SelectedItem.ToString());
             }
         }
 
@@ -1887,22 +1881,13 @@ namespace RFID_Station_control
                 if (data.Length < 16)
                     return;
 
-                if (data[14] == 0x12)
-                    StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG213"];
-                else if (data[14] == 0x3e)
-                    StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG215"];
-                else if (data[14] == 0x6d)
-                    StationSettings.ChipType = RfidContainer.ChipTypes.Types["NTAG216"];
-                else
-                    return;
-
+                StationSettings.ChipType = new ChipTypeDto(data[14]);
                 RefreshChipGrid(StationSettings.ChipType);
-
-                var pages = (byte)(data.Length / RfidContainer.ChipTypes.PageSize);
+                var pages = (byte)(data.Length / ChipTypes.PageSize);
                 for (byte i = 0; i < pages; i++)
                 {
-                    var tmp = new byte[RfidContainer.ChipTypes.PageSize];
-                    for (var j = 0; j < tmp.Length; j++) tmp[j] = data[i * RfidContainer.ChipTypes.PageSize + j];
+                    var tmp = new byte[ChipTypes.PageSize];
+                    for (var j = 0; j < tmp.Length; j++) tmp[j] = data[i * ChipTypes.PageSize + j];
                     _rfidCard.AddPages(i, tmp);
                 }
 
